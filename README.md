@@ -12,6 +12,8 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 
 ## Developer Setup
 
+> Following is a one time developer setup required to install appropriate tools and configurations on local machine, and to get Google Cloud resources created...
+
 ### Google Cloud Setup
 
 **Step 1:** Create a new [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) and enable billing.
@@ -22,7 +24,7 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 
 > If you already have gcloud installed / configured from your work account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
 
-## Firebase Setup
+### Firebase Setup
 
 **Step 1:** Create a new [Firebase project](https://firebase.google.com/docs/web/setup#create-project) to link with Google Cloud project created above -- **use the option to "Add Firebase to an existing Google Cloud project" (at the bottom of page)**.
 
@@ -36,9 +38,9 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 npm install firebase
 ```
 
-## aider Setup
+### aider Setup
 
-### Option 1: aider with Vertex AI gemini model
+#### Option 1: aider with Vertex AI gemini model
 
 **Step 1:** Install [aider](https://aider.chat/):
 
@@ -73,7 +75,7 @@ gcloud auth application-default login
 alias copilot="aider --model $AIDER_MODEL"
 ```
 
-### Option 2: aider with OpenAI gpt model
+#### Option 2: aider with OpenAI gpt model
 
 **Step 1:** Install [aider](https://aider.chat/):
 
@@ -98,4 +100,26 @@ export AIDER_MODEL="o3-mini" # or "gpt-4.1" etc.
 
 ```bash
 alias copilot="OPENAI_API_KEY=$OPENAI_CODE_ASSIST_KEY aider --model $AIDER_MODEL"
+```
+
+## Getting Started
+
+**Step 1:** clone the repo and create a python virtual environment within the repo project directory:
+
+```bash
+git clone https://github.com/gnulib/demo-adk-app.git
+
+cd demo-adk-app
+
+python3 -m venv .venv
+```
+
+**Step 2:** initialize environment to work in project
+```bash
+source .venv/bin/activate
+```
+
+**Step 3:** install backend project dependencies
+```bash
+pip install -r backend/requirements.txt
 ```
