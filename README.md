@@ -12,18 +12,88 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 
 ## Developer Setup
 
-Step 1: Create a new [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) and enable billing.
+### Google Cloud Setup
+
+**Step 1:** Create a new [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) and enable billing.
 
 > If you are an individual developer, you should be able to signup for a new Google Cloud by [getting started for free](https://cloud.google.com/free) program.
 
-Step 2: Create a new [Firebase project](https://firebase.google.com/docs/web/setup#create-project) using the option to "Add Firebase" to an existing Google Cloud project, created above.
+**Step 2:** Install [gcloud](https://cloud.google.com/sdk/docs/install) on your local development machine and initialize gcloud to use the new project created above
 
-Step 3: [Register your app](https://firebase.google.com/docs/web/setup#register-app) with your new firebase project created above
+> If you already have gcloud installed / configured from your work account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
 
-Step 3: Install [gcloud](https://cloud.google.com/sdk/docs/install) on your local development machine and initialize gcloud to use the new project created above
+## Firebase Setup
 
-Step 4: Install firebase on your local development machine.
+**Step 1:** Create a new [Firebase project](https://firebase.google.com/docs/web/setup#create-project) to link with Google Cloud project created above -- **use the option to "Add Firebase to an existing Google Cloud project" (at the bottom of page)**.
+
+**Step 2:** [Register your app](https://firebase.google.com/docs/web/setup#register-app) with your new firebase project created above.
+
+> For simplicity, we'll use Web platform for creating new app.
+
+**Step 3:** Install firebase on your local development machine:
 
 ```bash
 npm install firebase
+```
+
+## aider Setup
+
+### aider with Vertex AI gemini model
+
+**Step 1:** Install [aider](https://aider.chat/):
+
+```bash
+python -m pip install aider-install
+aider-install
+```
+
+**Step 2:** Export environment variables (in this example we'll use VertexAI APIs with aider):
+
+```bash
+export GOOGLE_CLOUD_PROJECT=YOUR_GOOGLE_PROJECT_CREATED_ABOVE
+export GOOGLE_CLOUD_LOCATION=LOCATION_TO_USE #e.g. us-central1
+export GOOGLE_GENAI_USE_VERTEXAI="True"
+export VERTEXAI_PROJECT=$GOOGLE_CLOUD_PROJECT
+export VERTEXAI_LOCATION=$GOOGLE_CLOUD_LOCATION
+export AIDER_MODEL="vertex_ai/gemini-2.5-pro-exp-03-25" # (this one is free because it's experimental)
+```
+
+> You can add the above exports into your shell's environment file, e.g. `~/.zshenv`
+
+**Step 3:** Make sure you have authenticated against the project:
+
+```bash
+gcloud auth application-default login
+```
+
+**Step 4:** (Optional) create an alias to invoke aider:
+
+```bash
+alias copilot="aider --model $AIDER_MODEL"
+```
+
+### aider with OpenAI gpt model
+
+**Step 1:** Install [aider](https://aider.chat/):
+
+```bash
+python -m pip install aider-install
+aider-install
+```
+
+**Step 2:** Signup (if not done already) and [create an OpenAI API key](https://platform.openai.com/api-keys).
+
+**Step 3:** Export environment variables:
+
+```bash
+export OPENAI_CODE_ASSIST_KEY=YOUR_OPENAI_API_KEY_CREATED_ABOVE
+export AIDER_MODEL="o3-mini" # or "gpt-4.1" etc.
+```
+
+> You can add the above exports into your shell's environment file, e.g. `~/.zshenv`
+
+**Step 4:** (Optional) create an alias to invoke aider:
+
+```bash
+alias copilot="aider --model $AIDER_MODEL --api-key openai=$OPENAI_CODE_ASSIST_KEY"
 ```
