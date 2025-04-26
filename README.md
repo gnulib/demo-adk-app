@@ -38,12 +38,13 @@ npm install firebase
 
 ## aider Setup
 
-### aider with Vertex AI gemini model
+### Option 1: aider with Vertex AI gemini model
 
 **Step 1:** Install [aider](https://aider.chat/):
 
 ```bash
 python -m pip install aider-install
+
 aider-install
 ```
 
@@ -72,12 +73,13 @@ gcloud auth application-default login
 alias copilot="aider --model $AIDER_MODEL"
 ```
 
-### aider with OpenAI gpt model
+### Option 2: aider with OpenAI gpt model
 
 **Step 1:** Install [aider](https://aider.chat/):
 
 ```bash
 python -m pip install aider-install
+
 aider-install
 ```
 
@@ -95,5 +97,5 @@ export AIDER_MODEL="o3-mini" # or "gpt-4.1" etc.
 **Step 4:** (Optional) create an alias to invoke aider:
 
 ```bash
-alias copilot="aider --model $AIDER_MODEL --api-key openai=$OPENAI_CODE_ASSIST_KEY"
+alias copilot="OPENAI_API_KEY=$OPENAI_CODE_ASSIST_KEY aider --model $AIDER_MODEL"
 ```
