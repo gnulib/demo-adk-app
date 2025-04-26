@@ -14,7 +14,8 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 
 > Following is a one time developer setup required to install appropriate tools and configurations on local machine, and to get Google Cloud resources created...
 
-### Google Cloud Setup
+<details>
+<summary>### Google Cloud Setup</summary>
 
 **Step 1:** Create a new [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) and enable billing.
 
@@ -24,7 +25,10 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 
 > If you already have gcloud installed / configured from your work account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
 
-### Firebase Setup
+</details>
+
+<details>
+<summary>### Firebase Setup</summary>
 
 **Step 1:** Create a new [Firebase project](https://firebase.google.com/docs/web/setup#create-project) to link with Google Cloud project created above -- **use the option to "Add Firebase to an existing Google Cloud project" (at the bottom of page)**.
 
@@ -38,7 +42,10 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 npm install firebase
 ```
 
-### aider Setup
+</details>
+
+<details>
+<summary>### aider Setup</summary>
 
 #### Option 1: aider with Vertex AI gemini model
 
@@ -102,7 +109,10 @@ export AIDER_MODEL="o3-mini" # or "gpt-4.1" etc.
 alias copilot="OPENAI_API_KEY=$OPENAI_CODE_ASSIST_KEY aider --model $AIDER_MODEL"
 ```
 
-## Getting Started
+</details>
+
+<details>
+<summary>## Getting Started</summary>
 
 **Step 1:** clone the repo and create a python virtual environment within the repo project directory:
 
@@ -123,3 +133,5 @@ source .venv/bin/activate
 ```bash
 pip install -r backend/requirements.txt
 ```
+
+</details>
