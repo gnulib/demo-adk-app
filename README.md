@@ -15,7 +15,7 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 > Following is a one time developer setup required to install appropriate tools and configurations on local machine, and to get Google Cloud resources created...
 
 <details>
-<summary>### Google Cloud Setup</summary>
+<summary>Google Cloud Setup</summary>
 
 **Step 1:** Create a new [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) and enable billing.
 
@@ -28,9 +28,11 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 </details>
 
 <details>
-<summary>### Firebase Setup</summary>
+<summary>Firebase Setup</summary>
 
-**Step 1:** Create a new [Firebase project](https://firebase.google.com/docs/web/setup#create-project) to link with Google Cloud project created above -- **use the option to "Add Firebase to an existing Google Cloud project" (at the bottom of page)**.
+**Step 1:** Create a new [Firebase project](https://firebase.google.com/docs/web/setup#create-project) to link with Google Cloud project created above
+
+> Use the option to "Add Firebase to an existing Google Cloud project" (at the bottom of page).
 
 **Step 2:** [Register your app](https://firebase.google.com/docs/web/setup#register-app) with your new firebase project created above.
 
@@ -45,9 +47,10 @@ npm install firebase
 </details>
 
 <details>
-<summary>### aider Setup</summary>
+<summary>aider Setup</summary>
 
-#### Option 1: aider with Vertex AI gemini model
+<details>
+<summary> Option 1: aider with Vertex AI gemini model</summary>
 
 **Step 1:** Install [aider](https://aider.chat/):
 
@@ -81,8 +84,9 @@ gcloud auth application-default login
 ```bash
 alias copilot="aider --model $AIDER_MODEL"
 ```
-
-#### Option 2: aider with OpenAI gpt model
+</details>
+<details>
+<summary>Option 2: aider with OpenAI gpt model</summary>
 
 **Step 1:** Install [aider](https://aider.chat/):
 
@@ -110,9 +114,10 @@ alias copilot="OPENAI_API_KEY=$OPENAI_CODE_ASSIST_KEY aider --model $AIDER_MODEL
 ```
 
 </details>
+</details>
 
-<details>
-<summary>## Getting Started</summary>
+
+## Getting Started
 
 **Step 1:** clone the repo and create a python virtual environment within the repo project directory:
 
