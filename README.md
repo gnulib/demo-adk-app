@@ -17,18 +17,30 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 <details>
 <summary>Google Cloud Setup</summary>
 
+> You'll be required to have a Google Cloud project, either in your own personal account, or your enterprise / work related account, as following ...
+
 **Step 1:** Create a new [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) and enable billing.
 
 > If you are an individual developer, you should be able to signup for a new Google Cloud by [getting started for free](https://cloud.google.com/free) program.
 
 **Step 2:** Install [gcloud](https://cloud.google.com/sdk/docs/install) on your local development machine and initialize gcloud to use the new project created above
 
-> If you already have gcloud installed / configured from your work account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
+> If you already have gcloud installed / configured from your work account and you want to following this example project in your personal account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
+
+**Step 3:** Verify your configuration:
+
+```bash
+gcloud config list
+```
+
+> This command will display your current `gcloud` configuration, including the active account, the default project, and the default region/zone if you set them. These should match the project and google cloud account you are using for this demo.
 
 </details>
 
 <details>
 <summary>Firebase Setup</summary>
+
+> You'll be required to have a firebase project linked to the google cloud project created above, as following...
 
 **Step 1:** Create a new [Firebase project](https://firebase.google.com/docs/web/setup#create-project) to link with Google Cloud project created above
 
@@ -63,10 +75,14 @@ firebase login
 <details>
 <summary>aider Setup</summary>
 
+> This project uses [aider](https://aider.chat/) as a copilot for learning about project, or making changes to project as per your needs. You can configure aider to use any of the supported LLMs. In this example we are assuming you are using one of the following two options...
+
 <details>
 <summary> Option 1: aider with Vertex AI gemini model</summary>
 
-**Step 1:** Install [aider](https://aider.chat/):
+> This is the preferred option, since you'll be working off of the google cloud project for ADK app, it makes sense to use the same for aider...
+
+**Step 1:** Install [aider](https://aider.chat/) on your development machine:
 
 ```bash
 python -m pip install aider-install
@@ -101,6 +117,8 @@ alias copilot="aider --model $AIDER_MODEL"
 </details>
 <details>
 <summary>Option 2: aider with OpenAI gpt model</summary>
+
+> If you already have a paid developer account with OpenAI with existing credits purchased, then you can use OpenAI LLMs for aider...
 
 **Step 1:** Install [aider](https://aider.chat/):
 
