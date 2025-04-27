@@ -27,13 +27,49 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 
 > If you already have gcloud installed / configured from your work account and you want to following this example project in your personal account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
 
-**Step 3:** Verify your configuration:
+**Step3:** Generate a local Application Default Credentials (ADC) file to be used by ADK app for VertexAI API calls:
+
+```bash
+gcloud auth application-default login
+```
+
+**Step 4:** Verify your configuration:
 
 ```bash
 gcloud config list
 ```
 
-> This command will display your current `gcloud` configuration, including the active account, the default project, and the default region/zone if you set them. These should match the project and google cloud account you are using for this demo.
+> This command will display your current `gcloud` configuration, including the active account and the project, and the default region/zone if you set them. These should match the project and google cloud account you are using for this demo.
+
+**Step 5:** Export environment variables related to project:
+
+```bash
+export GOOGLE_CLOUD_PROJECT=YOUR_GOOGLE_PROJECT_CREATED_ABOVE # gcloud config get-value project
+export GOOGLE_CLOUD_LOCATION=LOCATION_TO_USE #e.g. us-central1
+export GOOGLE_GENAI_USE_VERTEXAI="True"
+```
+
+> You can add the above exports into your shell's environment file, e.g. `~/.zshenv`
+
+</details>
+
+<details>
+
+<summary>Enable VertexAI API</summary>
+
+> You need to enable the VertexAI API for your google cloud project created above as following...
+
+**Step 1:** Log into google cloud [API & Services console](https://console.cloud.google.com/apis/dashboard).
+
+**Step 2:** Make sure you have the correct google project selected from project selection drop down on top.
+
+> Shortcut URL to your project specific dashboard is `https://console.cloud.google.com/apis/dashboard?project=YOUR_GOOGLE_CLOUD_PROJECT`
+
+**Step 3:** Click on "+ Enable APIs and services".
+
+**Step 4:** Search for `Vertex AI API`, click on result
+
+**Step 5:** Enable the API.
 
 </details>
 
@@ -93,11 +129,8 @@ aider-install
 **Step 2:** Export environment variables (in this example we'll use VertexAI APIs with aider):
 
 ```bash
-export GOOGLE_CLOUD_PROJECT=YOUR_GOOGLE_PROJECT_CREATED_ABOVE
-export GOOGLE_CLOUD_LOCATION=LOCATION_TO_USE #e.g. us-central1
-export GOOGLE_GENAI_USE_VERTEXAI="True"
-export VERTEXAI_PROJECT=$GOOGLE_CLOUD_PROJECT
-export VERTEXAI_LOCATION=$GOOGLE_CLOUD_LOCATION
+export VERTEXAI_PROJECT=$GOOGLE_CLOUD_PROJECT # assuming already defined with gcloud setup
+export VERTEXAI_LOCATION=$GOOGLE_CLOUD_LOCATION # assuming already defined with gcloud setup
 export AIDER_MODEL="vertex_ai/gemini-2.5-pro-exp-03-25" # (this one is free because it's experimental)
 ```
 

@@ -1,8 +1,6 @@
 from google.adk.agents import Agent
 import os
-
 import sys
-import os
 
 # Allow running from backend/ or project root
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -15,7 +13,7 @@ def _load_instructions():
         return f.read()
 
 root_agent = Agent(
-    name="simple-agent",
+    name="simple_agent",
     model="gemini-2.0-flash",
     description=(
         "You are a helpful agent who can help users draw a deck of cards for a game."
