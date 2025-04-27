@@ -38,11 +38,25 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 
 > For simplicity, we'll use Web platform for creating new app.
 
-**Step 3:** Install firebase on your local development machine:
+**Step 3:** Enable [email link sign-in](https://firebase.google.com/docs/auth/web/email-link-auth#enable_email_link_sign-in_for_your_firebase_project) for your firebase project.
+
+> Authentication section is under project Dashboard -> Build -> Authentication.
+
+**Step 4:** Install firebase CLI on your local development machine:
 
 ```bash
-npm install firebase
+npm install -g firebase-tools
 ```
+
+**Step 5:** Log in to firebase with your CLI:
+
+```bash
+# use 'firebase logout' if you are already logged in from a
+# different / work account and need to switch to personal account
+firebase login
+```
+
+>This command will open a browser window asking you to log in with your Google account and grant Firebase CLI the necessary permissions. Once you've successfully logged in, the terminal will confirm that you are authenticated.
 
 </details>
 
@@ -210,5 +224,37 @@ const firebaseConfig = {
 **Step 8:** replace the placeholder values in `frontend/.env` file with your actual configuration from above.
 
 > **Important**: Keep your apiKey and other configuration details secure. While the apiKey for web apps is generally considered safe to include in your client-side code (as it only allows access to services you've enabled and configured security rules for), you should never expose sensitive server-side keys.
+
+</details>
+
+<details>
+
+<summary>Initialize Firebase Hosting for Your Project</summary>
+
+Run the Firebase initialization command:
+
+```bash
+(cd frontend; firebase init)
+```
+
+This command will start an interactive process. Here's how to respond to the prompts:
+
+1. **Which Firebase features do you want to set up for this directory?** Use the spacebar to select `Hosting: Configure files for Firebase Hosting and (optionally) set up GitHub Action deploys` and press Enter.
+
+1. **Select a default Firebase project for this directory:** Choose the Firebase project you created for this application from the list.
+
+1. **What do you want to use as your public directory?** This is the most important step for a React app. The build process for React applications (using `create-react-app`) typically outputs the production files into a `build` or `dist` folder. Enter `build` (or `dist` if you are using Vite or a custom setup) and press Enter.
+
+1. **Configure as a single-page application (rewrite all urls to /index.html)?** Type `Yes` (`y`) and press Enter. This is crucial for single-page applications like React apps, ensuring that routing works correctly.
+
+1. **Set up automatic builds and deploys with GitHub?** Type `No` (`n`) unless you specifically want to set up continuous deployment with GitHub Actions at this time. You can always set this up later.
+
+1. **File build/index.html already exists. Overwrite?** Type `No` (`n`). You don't want to overwrite the `index.html` file that is generated during the build process.
+
+After completing these steps, Firebase will create two new files in your project's root directory: `.firebaserc` and `firebase.json`.
+
+* `.firebaserc`: Stores your default Firebase project alias.
+
+* `firebase.json`: Contains the configuration for Firebase services, including Hosting. It will specify your public directory (`build`) and the rewrite rule for single-page applications.
 
 </details>
