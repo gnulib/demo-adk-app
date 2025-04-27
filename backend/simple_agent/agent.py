@@ -1,7 +1,7 @@
 from google.adk.agents import Agent
 import os
 
-from backend.utils import deckofcards_client
+from ..utils import deckofcards_client
 
 def _load_instructions():
     instructions_path = os.path.join(os.path.dirname(__file__), "instructions.txt")
