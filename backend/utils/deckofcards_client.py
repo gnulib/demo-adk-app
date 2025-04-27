@@ -198,14 +198,14 @@ class DeckOfCardsClient:
 deck_client = DeckOfCardsClient()
 
 
-def shuffle_new_deck(deck_count=None, jokers_enabled=None, cards=None):
+def shuffle_new_deck(deck_count, jokers_enabled, cards):
     """
     Shuffle a new deck (optionally partial, with jokers, or multiple decks).
 
     Args:
-        deck_count (int, optional): Number of decks to use.
-        jokers_enabled (bool, optional): Whether to include jokers.
-        cards (str, optional): Comma-separated card codes for a partial deck.
+        deck_count (int): Number of decks to use.
+        jokers_enabled (bool): Whether to include jokers.
+        cards (str): Comma-separated card codes for a partial deck.
 
     Returns:
         dict: JSON response from the API.
@@ -213,13 +213,13 @@ def shuffle_new_deck(deck_count=None, jokers_enabled=None, cards=None):
     return deck_client.shuffle_new_deck(deck_count, jokers_enabled, cards)
 
 
-def draw_cards(deck_id, count=None):
+def draw_cards(deck_id, count):
     """
     Draw cards from a deck.
 
     Args:
         deck_id (str): The deck ID or "new".
-        count (int, optional): Number of cards to draw.
+        count (int): Number of cards to draw.
 
     Returns:
         dict: JSON response from the API.
@@ -227,13 +227,13 @@ def draw_cards(deck_id, count=None):
     return deck_client.draw_cards(deck_id, count)
 
 
-def reshuffle_deck(deck_id, remaining=None):
+def reshuffle_deck(deck_id, remaining):
     """
     Reshuffle an existing deck.
 
     Args:
         deck_id (str): The deck ID.
-        remaining (bool, optional): Shuffle only remaining cards.
+        remaining (bool): Shuffle only remaining cards.
 
     Returns:
         dict: JSON response from the API.
@@ -241,14 +241,14 @@ def reshuffle_deck(deck_id, remaining=None):
     return deck_client.reshuffle_deck(deck_id, remaining)
 
 
-def new_unshuffled_deck(deck_count=None, jokers_enabled=None, cards=None):
+def new_unshuffled_deck(deck_count, jokers_enabled, cards):
     """
     Create a new, unshuffled deck.
 
     Args:
-        deck_count (int, optional): Number of decks to use.
-        jokers_enabled (bool, optional): Whether to include jokers.
-        cards (str, optional): Comma-separated card codes for a partial deck.
+        deck_count (int): Number of decks to use.
+        jokers_enabled (bool): Whether to include jokers.
+        cards (str): Comma-separated card codes for a partial deck.
 
     Returns:
         dict: JSON response from the API.
@@ -285,15 +285,15 @@ def list_pile(deck_id, pile_name):
     return deck_client.list_pile(deck_id, pile_name)
 
 
-def draw_from_pile(deck_id, pile_name, count=None, cards=None):
+def draw_from_pile(deck_id, pile_name, count, cards):
     """
     Draw cards from a named pile.
 
     Args:
         deck_id (str): The deck ID.
         pile_name (str): Name of the pile.
-        count (int, optional): Number of cards to draw.
-        cards (str, optional): Comma-separated card codes to draw.
+        count (int): Number of cards to draw.
+        cards (str): Comma-separated card codes to draw.
 
     Returns:
         dict: JSON response from the API.
@@ -301,13 +301,13 @@ def draw_from_pile(deck_id, pile_name, count=None, cards=None):
     return deck_client.draw_from_pile(deck_id, pile_name, count, cards)
 
 
-def return_cards(deck_id, cards=None):
+def return_cards(deck_id, cards):
     """
     Return cards from hand to the main deck.
 
     Args:
         deck_id (str): The deck ID.
-        cards (str, optional): Comma-separated card codes to return.
+        cards (str): Comma-separated card codes to return.
 
     Returns:
         dict: JSON response from the API.
@@ -315,14 +315,14 @@ def return_cards(deck_id, cards=None):
     return deck_client.return_cards(deck_id, cards)
 
 
-def return_cards_to_pile(deck_id, pile_name, cards=None):
+def return_cards_to_pile(deck_id, pile_name, cards):
     """
     Return cards from a pile to the main deck.
 
     Args:
         deck_id (str): The deck ID.
         pile_name (str): Name of the pile.
-        cards (str, optional): Comma-separated card codes to return.
+        cards (str): Comma-separated card codes to return.
 
     Returns:
         dict: JSON response from the API.
