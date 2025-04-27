@@ -5,8 +5,6 @@ import { auth, sendEmailSignInLink } from './firebase';
 import {
   onAuthStateChanged,
   signOut,
-  signInWithPopup,
-  GoogleAuthProvider,
   isSignInWithEmailLink,
   signInWithEmailLink
 } from 'firebase/auth';
@@ -43,14 +41,6 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error("Error signing in:", error);
-    }
-  };
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -86,8 +76,6 @@ function App() {
         ) : (
           <div>
             <p>Please sign in.</p>
-            <button onClick={handleGoogleSignIn}>Sign In with Google</button>
-            <hr style={{ margin: '2em 0' }} />
             <form onSubmit={handleEmailSignIn} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <input
                 type="email"
