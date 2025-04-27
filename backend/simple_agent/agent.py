@@ -1,7 +1,13 @@
 from google.adk.agents import Agent
 import os
 
-from backend.utils import deckofcards_client
+import sys
+import os
+
+# Allow running from backend/ or project root
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from utils import deckofcards_client
 
 def _load_instructions():
     instructions_path = os.path.join(os.path.dirname(__file__), "instructions.txt")
