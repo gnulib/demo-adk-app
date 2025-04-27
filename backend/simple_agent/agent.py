@@ -25,5 +25,15 @@ root_agent = Agent(
         "You are a helpful agent who can help users draw a deck of cards for a game."
     ),
     instruction=_load_instructions(),
-    tools=[],
+    tools=[
+        shuffle_new_deck,
+        draw_cards,
+        reshuffle_deck,
+        new_unshuffled_deck,
+        add_to_pile,
+        list_pile,
+        draw_from_pile,
+        return_cards,
+        return_cards_to_pile,
+    ],
 )
