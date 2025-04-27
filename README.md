@@ -175,19 +175,23 @@ cd ..
 
 <summary>Update Firebase configurations</summary>
 
-Edit the `frontend/.env` file with actual firebase project values as below:
+**Step 1:** Copy `frontend/.env.example` file as `frontend/.env`
 
-**Step 1:** Go to the [Firebase console](https://console.firebase.google.com/).
+```bash
+cp frontend/.env.example frontend/.env
+```
 
-**Step 2:** Select your project.
+**Step 2:** Go to the [Firebase console](https://console.firebase.google.com/).
 
-**Step 3:** Click on the "Project settings" gear icon (usually near the top left).
+**Step 3:** Select your project.
 
-**Step 4:** Scroll down to the "Your apps" section.
+**Step 4:** Click on the "Project settings" gear icon (usually near the top left).
 
-**Step 5:** Click on the web app you registered.
+**Step 5:** Scroll down to the "Your apps" section.
 
-**Step 6:** You will see a section titled "Firebase SDK snippet". Choose the "Config" option.
+**Step 6:** Click on the web app you registered.
+
+**Step 7:** You will see a section titled "Firebase SDK snippet". Choose the "Config" option.
 
 > It will look something like below:
 
@@ -203,7 +207,7 @@ const firebaseConfig = {
 };
 ```
 
-**Step 7:** replace the placeholder values in `frontend/.env` file with your actual configuration from above.
+**Step 8:** replace the placeholder values in `frontend/.env` file with your actual configuration from above.
 
 > **Important**: Keep your apiKey and other configuration details secure. While the apiKey for web apps is generally considered safe to include in your client-side code (as it only allows access to services you've enabled and configured security rules for), you should never expose sensitive server-side keys.
 
