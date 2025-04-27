@@ -1,6 +1,18 @@
 from google.adk.agents import Agent
 import os
 
+from backend.utils.deckofcards_client import (
+    shuffle_new_deck,
+    draw_cards,
+    reshuffle_deck,
+    new_unshuffled_deck,
+    add_to_pile,
+    list_pile,
+    draw_from_pile,
+    return_cards,
+    return_cards_to_pile,
+)
+
 def _load_instructions():
     instructions_path = os.path.join(os.path.dirname(__file__), "instructions.txt")
     with open(instructions_path, "r", encoding="utf-8") as f:
