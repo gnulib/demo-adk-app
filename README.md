@@ -130,20 +130,21 @@ python3 -m venv .venv
 ```
 
 **Step 2:** initialize environment to work in project
+
 ```bash
 source .venv/bin/activate
 ```
 
 **Step 3:** install backend project dependencies
+
 ```bash
 pip install -r backend/requirements.txt
 ```
 
 **Step 4:** install frontend project dependencies
+
 ```bash
 cd frontend
 npm install
 cd ..
 ```
-
-</details>
