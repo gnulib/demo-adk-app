@@ -1,7 +1,6 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import { getAuth, sendSignInLinkToEmail } from "firebase/auth";
 // import { getAnalytics } from "firebase/analytics"; // Optional: uncomment if you need Analytics
-import { getAuth } from "firebase/auth"; // Optional: uncomment if you need Authentication
 // import { getFirestore } from "firebase/firestore"; // Optional: uncomment if you need Firestore
 // import { getStorage } from "firebase/storage"; // Optional: uncomment if you need Storage
 // Add more imports for other Firebase services you plan to use
@@ -21,13 +20,34 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Optional: Initialize specific Firebase services you plan to use
-// const analytics = getAnalytics(app); // Uncomment if you need Analytics
-const auth = getAuth(app); // Uncomment if you need Authentication
-// const db = getFirestore(app); // Uncomment if you need Firestore
-// const storage = getStorage(app); // Uncomment if you need Storage
+const auth = getAuth(app);
 
-// Export the initialized app and any services you need
+// ActionCodeSettings for email link sign-in
+const actionCodeSettings = {
+  url: 'https://www.example.com/finishSignUp?cartId=1234',
+  handleCodeInApp: true,
+  iOS: {
+    bundleId: 'com.example.ios'
+  },
+  android: {
+    packageName: 'com.example.android',
+    installApp: true,
+    minimumVersion: '12'
+  },
+  linkDomain: 'custom-domain.com'
+};
+
+// Helper to send sign-in link to email
+const sendEmailSignInLink = async (email) => {
+  try {
+    await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+    window.localStorage.setItem('emailForSignIn', email);
+    // Optionally, notify the user that the link was sent
+  } catch (error) {
+    // Optionally, handle error
+    console.error("Error sending sign-in link:", error.code, error.message);
+  }
+};
+
 export default app;
-export { auth };
-// export { auth, db, storage }; // Export services you initialized
+export { auth, actionCodeSettings, sendEmailSignInLink };
