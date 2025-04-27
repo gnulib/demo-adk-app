@@ -1,5 +1,8 @@
 # demo-adk-app
 
+> **Acknowledgement:**  
+> This project makes use of the excellent [Deck of Cards API](https://deckofcardsapi.com/) by Chase Roberts. Many thanks to Chase for providing this fun and useful API!
+
 This is a demo project for a simple app using [Google's ADK](https://google.github.io/adk-docs/) framework. This project is intended to demonstrate the following:
 
 * how to setup a GCP project for deploying ADK app as a cloud run service
