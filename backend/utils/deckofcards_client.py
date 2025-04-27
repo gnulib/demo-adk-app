@@ -198,7 +198,7 @@ class DeckOfCardsClient:
 deck_client = DeckOfCardsClient()
 
 
-def shuffle_new_deck(deck_count, jokers_enabled, cards):
+def shuffle_new_deck(deck_count: int, jokers_enabled: bool, cards: str) -> dict:
     """
     Shuffle a new deck (optionally partial, with jokers, or multiple decks).
 
@@ -213,7 +213,7 @@ def shuffle_new_deck(deck_count, jokers_enabled, cards):
     return deck_client.shuffle_new_deck(deck_count, jokers_enabled, cards)
 
 
-def draw_cards(deck_id, count):
+def draw_cards(deck_id: str, count: int) -> dict:
     """
     Draw cards from a deck.
 
@@ -227,7 +227,7 @@ def draw_cards(deck_id, count):
     return deck_client.draw_cards(deck_id, count)
 
 
-def reshuffle_deck(deck_id, remaining):
+def reshuffle_deck(deck_id: str, remaining: bool) -> dict:
     """
     Reshuffle an existing deck.
 
@@ -241,7 +241,7 @@ def reshuffle_deck(deck_id, remaining):
     return deck_client.reshuffle_deck(deck_id, remaining)
 
 
-def new_unshuffled_deck(deck_count, jokers_enabled, cards):
+def new_unshuffled_deck(deck_count: int, jokers_enabled: bool, cards: str) -> dict:
     """
     Create a new, unshuffled deck.
 
@@ -256,7 +256,7 @@ def new_unshuffled_deck(deck_count, jokers_enabled, cards):
     return deck_client.new_unshuffled_deck(deck_count, jokers_enabled, cards)
 
 
-def add_to_pile(deck_id, pile_name, cards):
+def add_to_pile(deck_id: str, pile_name: str, cards: str) -> dict:
     """
     Add drawn cards to a named pile.
 
@@ -271,7 +271,7 @@ def add_to_pile(deck_id, pile_name, cards):
     return deck_client.add_to_pile(deck_id, pile_name, cards)
 
 
-def list_pile(deck_id, pile_name):
+def list_pile(deck_id: str, pile_name: str) -> dict:
     """
     List cards in a named pile.
 
@@ -285,7 +285,7 @@ def list_pile(deck_id, pile_name):
     return deck_client.list_pile(deck_id, pile_name)
 
 
-def draw_from_pile(deck_id, pile_name, count, cards):
+def draw_from_pile(deck_id: str, pile_name: str, count: int, cards: str) -> dict:
     """
     Draw cards from a named pile.
 
@@ -301,7 +301,7 @@ def draw_from_pile(deck_id, pile_name, count, cards):
     return deck_client.draw_from_pile(deck_id, pile_name, count, cards)
 
 
-def return_cards(deck_id, cards):
+def return_cards(deck_id: str, cards: str) -> dict:
     """
     Return cards from hand to the main deck.
 
@@ -315,7 +315,7 @@ def return_cards(deck_id, cards):
     return deck_client.return_cards(deck_id, cards)
 
 
-def return_cards_to_pile(deck_id, pile_name, cards):
+def return_cards_to_pile(deck_id: str, pile_name: str, cards: str) -> dict:
     """
     Return cards from a pile to the main deck.
 
