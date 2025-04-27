@@ -55,7 +55,7 @@ export GOOGLE_GENAI_USE_VERTEXAI="True"
 
 <details>
 
-<summary>Enable VertexAI API</summary>
+<summary>VertexAI API Setup</summary>
 
 > You need to enable the VertexAI API for your google cloud project created above as following...
 
@@ -205,14 +205,6 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-**Step 3:** start aider on terminal _(assuming you configured alias in aider setup above)_
-
-```bash
-copilot
-```
-
-> This documentation assumes you are using aider on a terminal window as a copilot for learning about project, or making changes to project as per your needs.
-
 </details>
 
 <details>
@@ -309,3 +301,26 @@ After completing these steps, Firebase will create two new files in your project
 * `firebase.json`: Contains the configuration for Firebase services, including Hosting. It will specify your public directory (`build`) and the rewrite rule for single-page applications.
 
 </details>
+
+> You'll be using two terminals, besides any IDE you might be using to view / navigate project files. One terminal will be used to run `aider` for any copilot help (e.g., asking to help describe code), and another terminal will be where you'll be running the frontend / backend apps for local testing.
+
+
+**Step 1:** start aider on terminal _(assuming you configured alias in aider setup above)_
+
+```bash
+copilot
+```
+
+> This documentation assumes you are using aider on a terminal window as a copilot for learning about project, or making changes to project as per your needs.
+
+**Step 2:** run the ADK app locally for testing
+
+```bash
+# option 1 to use CLI
+(cd backend; adk run simple_agent)
+
+# option 2 to use web interface
+(cd backend; adk web)
+```
+
+> When you interact with the agent, if you get error like `google.genai.errors.ClientError: 403 PERMISSION_DENIED` -- this usually means either VertexAI API has not be enabled in your project, or your current environment is using a different google cloud project. Please make sure that you have completed all the steps mentioned above in "Google Cloud Setup" and "VertextAI API Setup" and are using the correct google project in your environment variables (`GOOGLE_CLOUD_PROJECT`) and with `gcloud` CLI _(check config in `gcloud config list` and `gcloud auth list`)_.
