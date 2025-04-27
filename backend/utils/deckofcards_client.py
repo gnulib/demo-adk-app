@@ -210,6 +210,8 @@ def shuffle_new_deck(deck_count: int, jokers_enabled: bool, cards: str) -> dict:
     Returns:
         dict: JSON response from the API.
     """
+    if cards == "":
+        cards = None
     return deck_client.shuffle_new_deck(deck_count, jokers_enabled, cards)
 
 
