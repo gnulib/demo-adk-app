@@ -17,18 +17,66 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 <details>
 <summary>Google Cloud Setup</summary>
 
+> You'll be required to have a Google Cloud project, either in your own personal account, or your enterprise / work related account, as following ...
+
 **Step 1:** Create a new [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) and enable billing.
 
 > If you are an individual developer, you should be able to signup for a new Google Cloud by [getting started for free](https://cloud.google.com/free) program.
 
 **Step 2:** Install [gcloud](https://cloud.google.com/sdk/docs/install) on your local development machine and initialize gcloud to use the new project created above
 
-> If you already have gcloud installed / configured from your work account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
+> If you already have gcloud installed / configured from your work account and you want to following this example project in your personal account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
+
+**Step3:** Generate a local Application Default Credentials (ADC) file to be used by ADK app for VertexAI API calls:
+
+```bash
+gcloud auth application-default login
+```
+
+**Step 4:** Verify your configuration:
+
+```bash
+gcloud config list
+```
+
+> This command will display your current `gcloud` configuration, including the active account and the project, and the default region/zone if you set them. These should match the project and google cloud account you are using for this demo.
+
+**Step 5:** Export environment variables related to project:
+
+```bash
+export GOOGLE_CLOUD_PROJECT=YOUR_GOOGLE_PROJECT_CREATED_ABOVE # gcloud config get-value project
+export GOOGLE_CLOUD_LOCATION=LOCATION_TO_USE #e.g. us-central1
+export GOOGLE_GENAI_USE_VERTEXAI="True"
+```
+
+> You can add the above exports into your shell's environment file, e.g. `~/.zshenv`
+
+</details>
+
+<details>
+
+<summary>VertexAI API Setup</summary>
+
+> You need to enable the VertexAI API for your google cloud project created above as following...
+
+**Step 1:** Log into google cloud [API & Services console](https://console.cloud.google.com/apis/dashboard).
+
+**Step 2:** Make sure you have the correct google project selected from project selection drop down on top.
+
+> Shortcut URL to your project specific dashboard is `https://console.cloud.google.com/apis/dashboard?project=YOUR_GOOGLE_CLOUD_PROJECT`
+
+**Step 3:** Click on "+ Enable APIs and services".
+
+**Step 4:** Search for `Vertex AI API`, click on result
+
+**Step 5:** Enable the API.
 
 </details>
 
 <details>
 <summary>Firebase Setup</summary>
+
+> You'll be required to have a firebase project linked to the google cloud project created above, as following...
 
 **Step 1:** Create a new [Firebase project](https://firebase.google.com/docs/web/setup#create-project) to link with Google Cloud project created above
 
@@ -63,10 +111,14 @@ firebase login
 <details>
 <summary>aider Setup</summary>
 
+> This project uses [aider](https://aider.chat/) as a copilot for learning about project, or making changes to project as per your needs. You can configure aider to use any of the supported LLMs. In this example we are assuming you are using one of the following two options...
+
 <details>
 <summary> Option 1: aider with Vertex AI gemini model</summary>
 
-**Step 1:** Install [aider](https://aider.chat/):
+> This is the preferred option, since you'll be working off of the google cloud project for ADK app, it makes sense to use the same for aider...
+
+**Step 1:** Install [aider](https://aider.chat/) on your development machine:
 
 ```bash
 python -m pip install aider-install
@@ -77,11 +129,8 @@ aider-install
 **Step 2:** Export environment variables (in this example we'll use VertexAI APIs with aider):
 
 ```bash
-export GOOGLE_CLOUD_PROJECT=YOUR_GOOGLE_PROJECT_CREATED_ABOVE
-export GOOGLE_CLOUD_LOCATION=LOCATION_TO_USE #e.g. us-central1
-export GOOGLE_GENAI_USE_VERTEXAI="True"
-export VERTEXAI_PROJECT=$GOOGLE_CLOUD_PROJECT
-export VERTEXAI_LOCATION=$GOOGLE_CLOUD_LOCATION
+export VERTEXAI_PROJECT=$GOOGLE_CLOUD_PROJECT # assuming already defined with gcloud setup
+export VERTEXAI_LOCATION=$GOOGLE_CLOUD_LOCATION # assuming already defined with gcloud setup
 export AIDER_MODEL="vertex_ai/gemini-2.5-pro-exp-03-25" # (this one is free because it's experimental)
 ```
 
@@ -101,6 +150,8 @@ alias copilot="aider --model $AIDER_MODEL"
 </details>
 <details>
 <summary>Option 2: aider with OpenAI gpt model</summary>
+
+> If you already have a paid developer account with OpenAI with existing credits purchased, then you can use OpenAI LLMs for aider...
 
 **Step 1:** Install [aider](https://aider.chat/):
 
@@ -153,14 +204,6 @@ python3 -m venv .venv
 ```bash
 source .venv/bin/activate
 ```
-
-**Step 3:** start aider on terminal _(assuming you configured alias in aider setup above)_
-
-```bash
-copilot
-```
-
-> This documentation assumes you are using aider on a terminal window as a copilot for learning about project, or making changes to project as per your needs.
 
 </details>
 
@@ -258,3 +301,26 @@ After completing these steps, Firebase will create two new files in your project
 * `firebase.json`: Contains the configuration for Firebase services, including Hosting. It will specify your public directory (`build`) and the rewrite rule for single-page applications.
 
 </details>
+
+> You'll be using two terminals, besides any IDE you might be using to view / navigate project files. One terminal will be used to run `aider` for any copilot help (e.g., asking to help describe code), and another terminal will be where you'll be running the frontend / backend apps for local testing.
+
+
+**Step 1:** start aider on terminal _(assuming you configured alias in aider setup above)_
+
+```bash
+copilot
+```
+
+> This documentation assumes you are using aider on a terminal window as a copilot for learning about project, or making changes to project as per your needs.
+
+**Step 2:** run the ADK app locally for testing
+
+```bash
+# option 1 to use CLI
+(cd backend; adk run simple_agent)
+
+# option 2 to use web interface
+(cd backend; adk web)
+```
+
+> When you interact with the agent, if you get error like `google.genai.errors.ClientError: 403 PERMISSION_DENIED` -- this usually means either VertexAI API has not be enabled in your project, or your current environment is using a different google cloud project. Please make sure that you have completed all the steps mentioned above in "Google Cloud Setup" and "VertextAI API Setup" and are using the correct google project in your environment variables (`GOOGLE_CLOUD_PROJECT`) and with `gcloud` CLI _(check config in `gcloud config list` and `gcloud auth list`)_.
