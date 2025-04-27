@@ -1,17 +1,7 @@
 from google.adk.agents import Agent
 import os
 
-from backend.utils.deckofcards_client import (
-    shuffle_new_deck,
-    draw_cards,
-    reshuffle_deck,
-    new_unshuffled_deck,
-    add_to_pile,
-    list_pile,
-    draw_from_pile,
-    return_cards,
-    return_cards_to_pile,
-)
+from backend.utils import deckofcards_client
 
 def _load_instructions():
     instructions_path = os.path.join(os.path.dirname(__file__), "instructions.txt")
@@ -26,14 +16,14 @@ root_agent = Agent(
     ),
     instruction=_load_instructions(),
     tools=[
-        shuffle_new_deck,
-        draw_cards,
-        reshuffle_deck,
-        new_unshuffled_deck,
-        add_to_pile,
-        list_pile,
-        draw_from_pile,
-        return_cards,
-        return_cards_to_pile,
+        deckofcards_client.shuffle_new_deck,
+        deckofcards_client.draw_cards,
+        deckofcards_client.reshuffle_deck,
+        deckofcards_client.new_unshuffled_deck,
+        deckofcards_client.add_to_pile,
+        deckofcards_client.list_pile,
+        deckofcards_client.draw_from_pile,
+        deckofcards_client.return_cards,
+        deckofcards_client.return_cards_to_pile,
     ],
 )
