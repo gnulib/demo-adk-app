@@ -36,7 +36,7 @@ const actionCodeSettings = {
     packageName: 'com.example.android',
     installApp: true,
     minimumVersion: '12'
-
+  }
 };
 
 // Helper to send sign-in link to email
