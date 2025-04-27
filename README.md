@@ -119,6 +119,8 @@ alias copilot="OPENAI_API_KEY=$OPENAI_CODE_ASSIST_KEY aider --model $AIDER_MODEL
 
 ## Getting Started
 
+### Installing dependencies
+
 **Step 1:** clone the repo and create a python virtual environment within the repo project directory:
 
 ```bash
@@ -145,6 +147,50 @@ pip install -r backend/requirements.txt
 
 ```bash
 cd frontend
+
 npm install
+
 cd ..
 ```
+
+**Step 5:** start aider on terminal _(assuming you configured alias in aider setup above)_
+
+```bash
+copilot
+```
+
+> This documentation assumes you are using aider on a terminal window as a copilot for learning about project, or making changes to project as per your needs.
+
+### Updating Firebase configurations
+
+Edit the `frontend/.env` file with actual firebase project values as below:
+
+**Step 1:** Go to the Firebase console.
+
+**Step 2:** Select your project.
+
+**Step 3:** Click on the "Project settings" gear icon (usually near the top left).
+
+**Step 4:** Scroll down to the "Your apps" section.
+
+**Step 5:** Click on the web app you registered.
+
+**Step 6:** You will see a section titled "Firebase SDK snippet". Choose the "Config" option.
+
+> It will look something like below:
+
+```json
+const firebaseConfig = {
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
+  projectId: "YOUR_FIREBASE_PROJECT_ID",
+  storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
+  appId: "YOUR_FIREBASE_APP_ID",
+  measurementId: "YOUR_FIREBASE_MEASUREMENT_ID" // Optional
+};
+```
+
+**Step 7:** replace the placeholder values in `frontend/.env` file with your actual configuration from above.
+
+> **Important**: Keep your apiKey and other configuration details secure. While the apiKey for web apps is generally considered safe to include in your client-side code (as it only allows access to services you've enabled and configured security rules for), you should never expose sensitive server-side keys.
