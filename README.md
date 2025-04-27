@@ -119,7 +119,10 @@ alias copilot="OPENAI_API_KEY=$OPENAI_CODE_ASSIST_KEY aider --model $AIDER_MODEL
 
 ## Getting Started
 
-### Installing dependencies
+> Following is a one time setup required when you first clone the project and install dependencies and configurations...
+
+<details>
+<summary>Initialize project</summary>
 
 **Step 1:** clone the repo and create a python virtual environment within the repo project directory:
 
@@ -137,13 +140,27 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-**Step 3:** install backend project dependencies
+**Step 3:** start aider on terminal _(assuming you configured alias in aider setup above)_
+
+```bash
+copilot
+```
+
+> This documentation assumes you are using aider on a terminal window as a copilot for learning about project, or making changes to project as per your needs.
+
+</details>
+
+<details>
+
+<summary>Install dependencies</summary>
+
+**Step 1:** install backend project dependencies
 
 ```bash
 pip install -r backend/requirements.txt
 ```
 
-**Step 4:** install frontend project dependencies
+**Step 2:** install frontend project dependencies
 
 ```bash
 cd frontend
@@ -152,20 +169,15 @@ npm install
 
 cd ..
 ```
+</details>
 
-**Step 5:** start aider on terminal _(assuming you configured alias in aider setup above)_
+<details>
 
-```bash
-copilot
-```
-
-> This documentation assumes you are using aider on a terminal window as a copilot for learning about project, or making changes to project as per your needs.
-
-### Updating Firebase configurations
+<summary>Update Firebase configurations</summary>
 
 Edit the `frontend/.env` file with actual firebase project values as below:
 
-**Step 1:** Go to the Firebase console.
+**Step 1:** Go to the [Firebase console](https://console.firebase.google.com/).
 
 **Step 2:** Select your project.
 
@@ -179,7 +191,7 @@ Edit the `frontend/.env` file with actual firebase project values as below:
 
 > It will look something like below:
 
-```json
+```js
 const firebaseConfig = {
   apiKey: "YOUR_FIREBASE_API_KEY",
   authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
@@ -194,3 +206,5 @@ const firebaseConfig = {
 **Step 7:** replace the placeholder values in `frontend/.env` file with your actual configuration from above.
 
 > **Important**: Keep your apiKey and other configuration details secure. While the apiKey for web apps is generally considered safe to include in your client-side code (as it only allows access to services you've enabled and configured security rules for), you should never expose sensitive server-side keys.
+
+</details>
