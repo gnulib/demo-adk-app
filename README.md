@@ -139,4 +139,11 @@ source .venv/bin/activate
 pip install -r backend/requirements.txt
 ```
 
+**Step 4:** install frontend project dependencies
+```bash
+cd frontend
+npm install
+cd ..
+```
+
 </details>
