@@ -22,9 +22,12 @@ const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
-// ActionCodeSettings for email link sign-in
+/**
+ * ActionCodeSettings for email link sign-in.
+ * The url field is set dynamically to the current app's origin.
+ */
 const actionCodeSettings = {
-  url: 'https://www.example.com/finishSignUp?cartId=1234',
+  url: window.location.origin,
   handleCodeInApp: true,
   iOS: {
     bundleId: 'com.example.ios'
