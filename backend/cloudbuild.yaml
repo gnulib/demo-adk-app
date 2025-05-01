@@ -1,0 +1,65 @@
+# This is a Cloud Build configuration file for building and deploying a Go application to Cloud Run.
+
+steps:
+# Step 1: Build the Docker image
+# Uses the 'docker' builder provided by Cloud Build.
+# The '.' specifies the build context (the current directory).
+# '--tag' specifies the name and tag for the image. We use Artifact Registry format.
+# PROJECT_ID is a built-in substitution variable.
+# We now use the user-defined substitution variables _AR_REGION, _AR_REPO_NAME, and _APP_NAME.
+# We use the built-in variable $BUILD_ID for the image tag, which is always available.
+- name: 'gcr.io/cloud-builders/docker'
+  # args: ['build', '-t', '${_AR_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/${_APP_NAME}:${BUILD_ID}', '.']
+  args: [
+    'build',
+    '-t', '${_AR_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/${_APP_NAME}:${BUILD_ID}',
+    '.',
+    '--build-arg', 'GOOGLE_GENAI_USE_VERTEXAI=${_GOOGLE_GENAI_USE_VERTEXAI}', # Pass value from Cloud Build substitution
+    '--build-arg', 'GOOGLE_CLOUD_PROJECT=$PROJECT_ID',                     # Pass value from built-in substitution
+    '--build-arg', 'GOOGLE_CLOUD_LOCATION=${_AR_REGION}'                   # Pass value from Cloud Build substitution
+  ]
+
+# Step 2: Push the Docker image to Artifact Registry
+# Uses the 'docker' builder again to push the tagged image.
+# The image name must match the tag used in the build step.
+# We use the user-defined substitution variables _AR_REGION, _AR_REPO_NAME, and _APP_NAME,
+# and the built-in variable $BUILD_ID for the tag.
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', '${_AR_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/${_APP_NAME}:${BUILD_ID}']
+
+# Step 3: Deploy the container image to Cloud Run
+# Uses the 'gcloud' builder to run gcloud commands.
+# 'run deploy' deploys a new revision to a Cloud Run service.
+# We use the user-defined substitution variable _APP_NAME with a '-service' suffix
+# for the Cloud Run service name, following a common naming convention.
+# '--image' specifies the container image to deploy, using _AR_REGION, _AR_REPO_NAME, _APP_NAME,
+# and the built-in variable $BUILD_ID for the tag.
+# '--region' specifies the region to deploy to, using _AR_REGION.
+# '--allow-unauthenticated' makes the service publicly accessible. Remove this for private services.
+# '--platform managed' specifies the managed Cloud Run environment.
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['run', 'deploy', '${_APP_NAME}-service', '--image', '${_AR_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/${_APP_NAME}:${BUILD_ID}', '--region', '${_AR_REGION}', '--allow-unauthenticated', '--platform', 'managed']
+
+# Step 4: Add IAM policy binding to make the service publicly invokable
+# Uses the 'gcloud' builder to run the IAM policy binding command.
+# This step runs AFTER the service has been deployed in Step 3.
+# We use the user-defined substitution variables _AR_REGION for the region
+# and _APP_NAME for the service name.
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['beta', 'run', 'services', 'add-iam-policy-binding', '${_APP_NAME}-service', '--region', '${_AR_REGION}', '--member', 'allUsers', '--role', 'roles/run.invoker']
+
+images:
+# This section lists the images built and pushed by this build.
+# Cloud Build automatically tracks and stores metadata for these images.
+# We use the user-defined substitution variables _AR_REGION, _AR_REPO_NAME, and _APP_NAME,
+# and the built-in variable $BUILD_ID for the tag.
+- '${_AR_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/${_APP_NAME}:${BUILD_ID}'
+
+# substitutions:
+# $PROJECT_ID and $BUILD_ID are built-in Cloud Build substitutions.
+# $COMMIT_SHA is only available when triggered by a source repository commit.
+# We define user-defined substitution variables _AR_REGION, _AR_REPO_NAME, and _APP_NAME.
+# Their values will be provided when submitting the build.
+# User-defined substitutions start with an underscore (_).
+# substitutions:
+#   _AR_REGION: us-central1 # Example default value if not provided in command
