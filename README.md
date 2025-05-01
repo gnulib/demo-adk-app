@@ -244,10 +244,10 @@ _In another terminal run the ADK app locally for testing project setup_
 > * GOOGLE_ADK_APP_REPOSITORY
 > * GOOGLE_GENAI_USE_VERTEXAI
 
-_Submit the cloud build job from backend directory:_
+_Run the make target to build and deploy the backend:_
 
 ```bash
-( cd backend; gcloud builds submit --config=cloudbuild.yaml . --substitutions="_AR_REGION=$GOOGLE_CLOUD_LOCATION,_AR_REPO_NAME=$GOOGLE_ADK_APP_REPOSITORY,_APP_NAME=$GOOGLE_ADK_APP_NAME,_GOOGLE_GENAI_USE_VERTEXAI=$GOOGLE_GENAI_USE_VERTEXAI")
+make build-backend
 ```
 
 _Verify the status of cloud run service deployment:_
