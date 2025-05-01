@@ -3,11 +3,16 @@
 > **Acknowledgement:**  
 > This project makes use of the excellent [Deck of Cards API](https://deckofcardsapi.com/) by Chase Roberts. Many thanks to Chase for providing this fun and useful API!
 
-This is a demo project for a simple app using [Google's ADK](https://google.github.io/adk-docs/) framework. This project is intended to demonstrate how to setup a GCP project for deploying ADK app as a cloud run service.
+## Blog Series Companion
+This repository serves as a hands-on companion for a 3-part blog series.
+*   **Part 1:** [The Agent Stack : Deploying Your First ADK Agent on Google Cloud](https://www.linkedin.com/pulse/agent-stack-deploying-your-first-adk-google-cloud-amit-bhadoria-emvdc) - is now live!
+*   To follow the hands-on exercises for Part 1, please check out the specific code state using the following git command:
+     ```bash
+     git checkout tags/blog-part-1 -b blog-part-1-branch
+     ```
+> This command creates a new branch named `blog-part-1-branch` from the `blog-part-1` tag, allowing you to work through the exercises without affecting the main codebase.
 
-Secondary objective of this project is to demonstrate the power of LLMs, how they can be used to build conversation interface against pretty much any service that has reasonable APIs.
-
-> This project is intentionally designed as a monorepo, i.e., has both the frontend and backend code in the same git repository. For a larger, more complex, or production-grade applications, separating frontends and backends into different repositories is often recommended for better team collaboration, independent scaling, and clearer separation of concerns.
+_(This project is intentionally designed as a monorepo, i.e., has both the frontend and backend code in the same git repository. For a larger, more complex, or production-grade applications, separating frontends and backends into different repositories is often recommended for better team collaboration, independent scaling, and clearer separation of concerns.)_
 
 ## Developer Setup
 
