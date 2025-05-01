@@ -3,6 +3,15 @@
 > **Acknowledgement:**  
 > This project makes use of the excellent [Deck of Cards API](https://deckofcardsapi.com/) by Chase Roberts. Many thanks to Chase for providing this fun and useful API!
 
+> **Blog Series Companion:**  
+> This repository serves as a hands-on companion for a 3-part blog series.
+> *   **Part 1:** [Link to Blog Post Part 1 - *Replace with actual link when available*] is now live!
+> *   To follow the hands-on exercises for Part 1, please check out the specific code state using the following git command:
+>     ```bash
+>     git checkout tags/blog-part-1 -b blog-part-1-branch
+>     ```
+>     This command creates a new branch named `blog-part-1-branch` from the `blog-part-1` tag, allowing you to work through the exercises without affecting the main codebase.
+
 This is a demo project for a simple app using [Google's ADK](https://google.github.io/adk-docs/) framework. This project is intended to demonstrate how to setup a GCP project for deploying ADK app as a cloud run service.
 
 Secondary objective of this project is to demonstrate the power of LLMs, how they can be used to build conversation interface against pretty much any service that has reasonable APIs.
