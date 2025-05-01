@@ -1,9 +1,5 @@
 from google.adk.agents import Agent
 import os
-import sys
-
-# Allow running from backend/ or project root
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from utils import deckofcards_client
 

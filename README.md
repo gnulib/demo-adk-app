@@ -30,29 +30,56 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 
 > If you already have gcloud installed / configured from your work account and you want to following this example project in your personal account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
 
-**Step3:** Generate a local Application Default Credentials (ADC) file to be used by ADK app for VertexAI API calls:
+**Step 3:** Generate a local Application Default Credentials (ADC) file to be used for VertexAI API calls:
 
 ```bash
 gcloud auth application-default login
 ```
 
-**Step 4:** Verify your configuration:
+**Step 4:** Enable the Cloud Build, Cloud Run, and Artifact Registry APIs in your project:
 
 ```bash
-gcloud config list
+gcloud services enable cloudbuild.googleapis.com run.googleapis.com artifactregistry.googleapis.com
+```
+
+**Step 5:** Create a repository in Artifact Registry to store your container images:
+
+```bash
+gcloud artifacts repositories create adk-apps --repository-format=docker --location=us-central1 --description="ADK applocations container repository"
+```
+
+> If you get a message that the repository already exists, you can ignore this step.
+
+**Step 6:** Verify your configurations:
+
+```bash
+gcloud config list # verify gcloud is using correct google cloud account and project
+
+gcloud artifacts repositories list # verify artifact repository exists
 ```
 
 > This command will display your current `gcloud` configuration, including the active account and the project, and the default region/zone if you set them. These should match the project and google cloud account you are using for this demo.
 
-**Step 5:** Export environment variables related to project:
+**Step 7:** Export environment variables related to project:
 
 ```bash
-export GOOGLE_CLOUD_PROJECT=YOUR_GOOGLE_PROJECT_CREATED_ABOVE # gcloud config get-value project
+export GOOGLE_CLOUD_PROJECT=YOUR_GOOGLE_PROJECT_CREATED_ABOVE # gcloud config get project
 export GOOGLE_CLOUD_LOCATION=LOCATION_TO_USE #e.g. us-central1
-export GOOGLE_GENAI_USE_VERTEXAI="True"
+export GOOGLE_CLOUD_PROJECT_NUMBER="$(gcloud projects describe $GOOGLE_CLOUD_PROJECT --format='value(projectNumber)')"
+export GOOGLE_ADK_APP_REPOSITORY="adk-apps"
+export GOOGLE_ADK_APP_NAME="demo-adk-app"
 ```
 
 > You can add the above exports into your shell's environment file, e.g. `~/.zshenv`
+
+**Step 8:** Add IAM role to service account:
+
+```bash
+gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+  --member=serviceAccount:$GOOGLE_CLOUD_PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+  --role=roles/run.admin \
+  --condition=None
+```
 
 </details>
 
@@ -73,6 +100,15 @@ export GOOGLE_GENAI_USE_VERTEXAI="True"
 **Step 4:** Search for `Vertex AI API`, click on result
 
 **Step 5:** Enable the API.
+
+**Step 6:** Export environment variables related to VertexAI:
+
+```bash
+export GOOGLE_GENAI_USE_VERTEXAI="True"
+```
+
+> You can add the above exports into your shell's environment file, e.g. `~/.zshenv`
+
 
 </details>
 
@@ -185,7 +221,7 @@ alias copilot="OPENAI_API_KEY=$OPENAI_CODE_ASSIST_KEY aider --model $AIDER_MODEL
 </details>
 
 
-## Getting Started
+## Project Setup
 
 > Following is a one time setup required when you first clone the project and install dependencies and configurations...
 
@@ -305,10 +341,13 @@ After completing these steps, Firebase will create two new files in your project
 
 </details>
 
+## Getting Started
 > You'll be using two terminals, besides any IDE you might be using to view / navigate project files. One terminal will be used to run `aider` for any copilot help (e.g., asking to help describe code), and another terminal will be where you'll be running the frontend / backend apps for local testing.
 
+<details>
+<summary>Start aider on terminal</summary>
 
-**Step 1:** start aider on terminal _(assuming you configured alias in aider setup above)_
+_(assuming you configured alias in aider setup above)_
 
 ```bash
 copilot
@@ -316,7 +355,12 @@ copilot
 
 > This documentation assumes you are using aider on a terminal window as a copilot for learning about project, or making changes to project as per your needs.
 
-**Step 2:** run the ADK app locally for testing
+</details>
+
+<details>
+<summary>Test Project Setup Locally</summary>
+
+_Run the ADK app locally for testing project setup_
 
 ```bash
 # option 1 to use CLI
@@ -327,6 +371,31 @@ copilot
 ```
 
 > When you interact with the agent, if you get error like `google.genai.errors.ClientError: 403 PERMISSION_DENIED` -- this usually means either VertexAI API has not be enabled in your project, or your current environment is using a different google cloud project. Please make sure that you have completed all the steps mentioned above in "Google Cloud Setup" and "VertextAI API Setup" and are using the correct google project in your environment variables (`GOOGLE_CLOUD_PROJECT`) and with `gcloud` CLI _(check config in `gcloud config list` and `gcloud auth list`)_.
+
+</details>
+
+<details>
+
+<summary>Deploy ADK app as Cloud Run Service</summary>
+
+> Make sure that you have the following environment variables defined as described in the Google Cloud Setup step above:
+> * GOOGLE_ADK_APP_NAME
+> * GOOGLE_CLOUD_LOCATION
+> * GOOGLE_ADK_APP_REPOSITORY
+
+_Submit the cloud build job from backend directory:_
+
+```bash
+( cd backend; gcloud builds submit --config=cloudbuild.yaml . --substitutions="_AR_REGION=$GOOGLE_CLOUD_LOCATION,_AR_REPO_NAME=$GOOGLE_ADK_APP_REPOSITORY,_APP_NAME=$GOOGLE_ADK_APP_NAME")
+```
+
+_Verify the status of cloud run service deployment:_
+
+```bash
+gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed --region $GOOGLE_CLOUD_LOCATION
+```
+
+</details>
 
 ---
 
