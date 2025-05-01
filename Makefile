@@ -16,11 +16,11 @@ ifndef GOOGLE_GENAI_USE_VERTEXAI
     GOOGLE_GENAI_USE_VERTEXAI := false
 endif
 
-.PHONY: build-backend
+.PHONY: deploy-backend
 
-# Target to build the backend using Google Cloud Build
-build-backend:
-	@echo "Building backend using Cloud Build..."
+# Target to build and deploy the backend using Google Cloud Build
+deploy-backend:
+	@echo "Building and deploying backend using Cloud Build..."
 	@(cd backend; gcloud builds submit --config=cloudbuild.yaml . --substitutions="_AR_REGION=$(GOOGLE_CLOUD_LOCATION),_AR_REPO_NAME=$(GOOGLE_ADK_APP_REPOSITORY),_APP_NAME=$(GOOGLE_ADK_APP_NAME),_GOOGLE_GENAI_USE_VERTEXAI=$(GOOGLE_GENAI_USE_VERTEXAI)")
 
 # Example placeholder for a frontend build target

@@ -247,7 +247,7 @@ _In another terminal run the ADK app locally for testing project setup_
 _Run the make target to build and deploy the backend:_
 
 ```bash
-make build-backend
+make deploy-backend
 ```
 
 _Verify the status of cloud run service deployment:_
