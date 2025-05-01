@@ -253,7 +253,7 @@ make deploy-backend
 _Verify the status of cloud run service deployment:_
 
 ```bash
-gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed --region $GOOGLE_CLOUD_LOCATION
+make verify-backend
 ```
 
 </details>
@@ -262,7 +262,7 @@ gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed -
 
 <summary>Interact with ADK app</summary>
 
-> Use the service URL from above, or use `gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed --region $GOOGLE_CLOUD_LOCATION --format='value(status.url)'`
+> Use the service URL obtained from `make verify-backend` (look for the `url:` field), or extract it directly using: `gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed --region $GOOGLE_CLOUD_LOCATION --format='value(status.url)'`
 
 **Step 1:** Browse to the service URL.
 
