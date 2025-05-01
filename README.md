@@ -382,17 +382,52 @@ _Run the ADK app locally for testing project setup_
 > * GOOGLE_ADK_APP_NAME
 > * GOOGLE_CLOUD_LOCATION
 > * GOOGLE_ADK_APP_REPOSITORY
+> * GOOGLE_GENAI_USE_VERTEXAI
 
 _Submit the cloud build job from backend directory:_
 
 ```bash
-( cd backend; gcloud builds submit --config=cloudbuild.yaml . --substitutions="_AR_REGION=$GOOGLE_CLOUD_LOCATION,_AR_REPO_NAME=$GOOGLE_ADK_APP_REPOSITORY,_APP_NAME=$GOOGLE_ADK_APP_NAME")
+( cd backend; gcloud builds submit --config=cloudbuild.yaml . --substitutions="_AR_REGION=$GOOGLE_CLOUD_LOCATION,_AR_REPO_NAME=$GOOGLE_ADK_APP_REPOSITORY,_APP_NAME=$GOOGLE_ADK_APP_NAME,_GOOGLE_GENAI_USE_VERTEXAI=$GOOGLE_GENAI_USE_VERTEXAI")
 ```
 
 _Verify the status of cloud run service deployment:_
 
 ```bash
 gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed --region $GOOGLE_CLOUD_LOCATION
+```
+
+</details>
+
+<details>
+
+<summary>Interact with ADK app</summary>
+
+> Use the service URL from above, or use `gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed --region $GOOGLE_CLOUD_LOCATION --format='value(status.url)'`
+
+**Step 1:** Browse to the service URL.
+
+**Step 2:** From "Select an agent" drop down pick `simple_agent`.
+
+**Step 3:** Converse with the agent to draw some cards from a deck, e.g.:
+
+```
+draw me 2 cards from a new deck
+```
+
+```
+ok, add these drawn cards to a new pile "Amit"
+```
+
+```
+draw 2 more cards and add them to pile "Richa"
+```
+
+```
+ok, who has bigger hand, Amit or Richa?
+```
+
+```
+use simple card comparison, all colors are same, but cards have weight according to their number
 ```
 
 </details>

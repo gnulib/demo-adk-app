@@ -9,7 +9,15 @@ steps:
 # We now use the user-defined substitution variables _AR_REGION, _AR_REPO_NAME, and _APP_NAME.
 # We use the built-in variable $BUILD_ID for the image tag, which is always available.
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', '${_AR_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/${_APP_NAME}:${BUILD_ID}', '.']
+  # args: ['build', '-t', '${_AR_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/${_APP_NAME}:${BUILD_ID}', '.']
+  args: [
+    'build',
+    '-t', '${_AR_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/${_APP_NAME}:${BUILD_ID}',
+    '.',
+    '--build-arg', 'GOOGLE_GENAI_USE_VERTEXAI=${_GOOGLE_GENAI_USE_VERTEXAI}', # Pass value from Cloud Build substitution
+    '--build-arg', 'GOOGLE_CLOUD_PROJECT=$PROJECT_ID',                     # Pass value from built-in substitution
+    '--build-arg', 'GOOGLE_CLOUD_LOCATION=${_AR_REGION}'                   # Pass value from Cloud Build substitution
+  ]
 
 # Step 2: Push the Docker image to Artifact Registry
 # Uses the 'docker' builder again to push the tagged image.
