@@ -3,11 +3,7 @@
 > **Acknowledgement:**  
 > This project makes use of the excellent [Deck of Cards API](https://deckofcardsapi.com/) by Chase Roberts. Many thanks to Chase for providing this fun and useful API!
 
-This is a demo project for a simple app using [Google's ADK](https://google.github.io/adk-docs/) framework. This project is intended to demonstrate the following:
-
-* how to setup a GCP project for deploying ADK app as a cloud run service
-* how to use a react front end client hosted on firebase as static site to interact with ADK app via APIs
-* how to use firebase authentication with ADK app
+This is a demo project for a simple app using [Google's ADK](https://google.github.io/adk-docs/) framework. This project is intended to demonstrate how to setup a GCP project for deploying ADK app as a cloud run service.
 
 Secondary objective of this project is to demonstrate the power of LLMs, how they can be used to build conversation interface against pretty much any service that has reasonable APIs.
 
@@ -30,27 +26,46 @@ Secondary objective of this project is to demonstrate the power of LLMs, how the
 
 > If you already have gcloud installed / configured from your work account and you want to following this example project in your personal account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
 
-**Step 3:** Generate a local Application Default Credentials (ADC) file to be used for VertexAI API calls:
+**Step 3:** Export environment variables related to project:
+
+```bash
+export GOOGLE_CLOUD_PROJECT="<<<YOUR_GOOGLE_PROJECT_CREATED_ABOVE>>>"
+export GOOGLE_CLOUD_LOCATION="<<<<LOCATION_TO_USE>>>" #e.g. us-central1
+export GOOGLE_CLOUD_PROJECT_NUMBER="$(gcloud projects describe $GOOGLE_CLOUD_PROJECT --format='value(projectNumber)')"
+export GOOGLE_ADK_APP_REPOSITORY="adk-apps"
+export GOOGLE_ADK_APP_NAME="demo-adk-app"
+export GOOGLE_GENAI_USE_VERTEXAI="True"
+```
+
+> You can add the above exports into your shell's environment file, e.g. `~/.zshrc`
+
+**Step 4:** Set your default Google Cloud project for subsequent steps:
+
+```bash
+gcloud config set project $GOOGLE_CLOUD_PROJECT
+```
+
+**Step 5:** Generate a local Application Default Credentials (ADC) file to be used for VertexAI API calls:
 
 ```bash
 gcloud auth application-default login
 ```
 
-**Step 4:** Enable the Cloud Build, Cloud Run, and Artifact Registry APIs in your project:
+**Step 6:** Enable the Cloud Build, Cloud Run, Artifact Registry and VertexAI APIs in your project:
 
 ```bash
-gcloud services enable cloudbuild.googleapis.com run.googleapis.com artifactregistry.googleapis.com
+gcloud services enable cloudbuild.googleapis.com run.googleapis.com artifactregistry.googleapis.com aiplatform.googleapis.com
 ```
 
-**Step 5:** Create a repository in Artifact Registry to store your container images:
+**Step 7:** Create a repository in Artifact Registry to store your ADK app images:
 
 ```bash
-gcloud artifacts repositories create adk-apps --repository-format=docker --location=us-central1 --description="ADK applocations container repository"
+gcloud artifacts repositories create $GOOGLE_ADK_APP_REPOSITORY --repository-format=docker --location=$GOOGLE_CLOUD_LOCATION --description="ADK applications container repository"
 ```
 
-> If you get a message that the repository already exists, you can ignore this step.
+> If you get a message that the repository already exists, you can ignore above step.
 
-**Step 6:** Verify your configurations:
+**Step 8:** Verify your configurations:
 
 ```bash
 gcloud config list # verify gcloud is using correct google cloud account and project
@@ -58,21 +73,9 @@ gcloud config list # verify gcloud is using correct google cloud account and pro
 gcloud artifacts repositories list # verify artifact repository exists
 ```
 
-> This command will display your current `gcloud` configuration, including the active account and the project, and the default region/zone if you set them. These should match the project and google cloud account you are using for this demo.
+> Above command will display your current `gcloud` configuration, including the active account and the project, and the default region/zone if you set them. These should match the project and google cloud account you are using for this demo.
 
-**Step 7:** Export environment variables related to project:
-
-```bash
-export GOOGLE_CLOUD_PROJECT=YOUR_GOOGLE_PROJECT_CREATED_ABOVE # gcloud config get project
-export GOOGLE_CLOUD_LOCATION=LOCATION_TO_USE #e.g. us-central1
-export GOOGLE_CLOUD_PROJECT_NUMBER="$(gcloud projects describe $GOOGLE_CLOUD_PROJECT --format='value(projectNumber)')"
-export GOOGLE_ADK_APP_REPOSITORY="adk-apps"
-export GOOGLE_ADK_APP_NAME="demo-adk-app"
-```
-
-> You can add the above exports into your shell's environment file, e.g. `~/.zshenv`
-
-**Step 8:** Add IAM role to service account:
+**Step 9:** Add IAM role to service account:
 
 ```bash
 gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
@@ -85,69 +88,6 @@ gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
 
 <details>
 
-<summary>VertexAI API Setup</summary>
-
-> You need to enable the VertexAI API for your google cloud project created above as following...
-
-**Step 1:** Log into google cloud [API & Services console](https://console.cloud.google.com/apis/dashboard).
-
-**Step 2:** Make sure you have the correct google project selected from project selection drop down on top.
-
-> Shortcut URL to your project specific dashboard is `https://console.cloud.google.com/apis/dashboard?project=YOUR_GOOGLE_CLOUD_PROJECT`
-
-**Step 3:** Click on "+ Enable APIs and services".
-
-**Step 4:** Search for `Vertex AI API`, click on result
-
-**Step 5:** Enable the API.
-
-**Step 6:** Export environment variables related to VertexAI:
-
-```bash
-export GOOGLE_GENAI_USE_VERTEXAI="True"
-```
-
-> You can add the above exports into your shell's environment file, e.g. `~/.zshenv`
-
-
-</details>
-
-<details>
-<summary>Firebase Setup</summary>
-
-> You'll be required to have a firebase project linked to the google cloud project created above, as following...
-
-**Step 1:** Create a new [Firebase project](https://firebase.google.com/docs/web/setup#create-project) to link with Google Cloud project created above
-
-> Use the option to "Add Firebase to an existing Google Cloud project" (at the bottom of page).
-
-**Step 2:** [Register your app](https://firebase.google.com/docs/web/setup#register-app) with your new firebase project created above.
-
-> For simplicity, we'll use Web platform for creating new app.
-
-**Step 3:** Enable [email link sign-in](https://firebase.google.com/docs/auth/web/email-link-auth#enable_email_link_sign-in_for_your_firebase_project) for your firebase project.
-
-> Authentication section is under project Dashboard -> Build -> Authentication.
-
-**Step 4:** Install firebase CLI on your local development machine:
-
-```bash
-npm install -g firebase-tools
-```
-
-**Step 5:** Log in to firebase with your CLI:
-
-```bash
-# use 'firebase logout' if you are already logged in from a
-# different / work account and need to switch to personal account
-firebase login
-```
-
->This command will open a browser window asking you to log in with your Google account and grant Firebase CLI the necessary permissions. Once you've successfully logged in, the terminal will confirm that you are authenticated.
-
-</details>
-
-<details>
 <summary>aider Setup</summary>
 
 > This project uses [aider](https://aider.chat/) as a copilot for learning about project, or making changes to project as per your needs. You can configure aider to use any of the supported LLMs. In this example we are assuming you are using one of the following two options...
@@ -173,19 +113,14 @@ export VERTEXAI_LOCATION=$GOOGLE_CLOUD_LOCATION # assuming already defined with 
 export AIDER_MODEL="vertex_ai/gemini-2.5-pro-exp-03-25" # (this one is free because it's experimental)
 ```
 
-> You can add the above exports into your shell's environment file, e.g. `~/.zshenv`
-
-**Step 3:** Make sure you have authenticated against the project:
-
-```bash
-gcloud auth application-default login
-```
-
-**Step 4:** (Optional) create an alias to invoke aider:
+**Step 3:** Create an alias to invoke aider:
 
 ```bash
 alias copilot="aider --model $AIDER_MODEL"
 ```
+
+> You can add the above exports and alias in your shell's environment file, e.g. `~/.zshrc`
+
 </details>
 <details>
 <summary>Option 2: aider with OpenAI gpt model</summary>
@@ -209,13 +144,13 @@ export OPENAI_CODE_ASSIST_KEY=YOUR_OPENAI_API_KEY_CREATED_ABOVE
 export AIDER_MODEL="o3-mini" # or "gpt-4.1" etc.
 ```
 
-> You can add the above exports into your shell's environment file, e.g. `~/.zshenv`
-
-**Step 4:** (Optional) create an alias to invoke aider:
+**Step 4:** Create an alias to invoke aider:
 
 ```bash
 alias copilot="OPENAI_API_KEY=$OPENAI_CODE_ASSIST_KEY aider --model $AIDER_MODEL"
 ```
+
+> You can add the above exports and alias in your shell's environment file, e.g. `~/.zshrc`
 
 </details>
 </details>
@@ -250,94 +185,11 @@ source .venv/bin/activate
 
 <summary>Install dependencies</summary>
 
-**Step 1:** install backend project dependencies
+_Install backend project dependencies:_
 
 ```bash
 pip install -r backend/requirements.txt
 ```
-
-**Step 2:** install frontend project dependencies
-
-```bash
-cd frontend
-
-npm install
-
-cd ..
-```
-</details>
-
-<details>
-
-<summary>Update Firebase configurations</summary>
-
-**Step 1:** Copy `frontend/.env.example` file as `frontend/.env`
-
-```bash
-cp frontend/.env.example frontend/.env
-```
-
-**Step 2:** Go to the [Firebase console](https://console.firebase.google.com/).
-
-**Step 3:** Select your project.
-
-**Step 4:** Click on the "Project settings" gear icon (usually near the top left).
-
-**Step 5:** Scroll down to the "Your apps" section.
-
-**Step 6:** Click on the web app you registered.
-
-**Step 7:** You will see a section titled "Firebase SDK snippet". Choose the "Config" option.
-
-> It will look something like below:
-
-```js
-const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
-  projectId: "YOUR_FIREBASE_PROJECT_ID",
-  storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
-  appId: "YOUR_FIREBASE_APP_ID",
-  measurementId: "YOUR_FIREBASE_MEASUREMENT_ID" // Optional
-};
-```
-
-**Step 8:** replace the placeholder values in `frontend/.env` file with your actual configuration from above.
-
-> **Important**: Keep your apiKey and other configuration details secure. While the apiKey for web apps is generally considered safe to include in your client-side code (as it only allows access to services you've enabled and configured security rules for), you should never expose sensitive server-side keys.
-
-</details>
-
-<details>
-
-<summary>Initialize Firebase Hosting for Your Project</summary>
-
-Run the Firebase initialization command:
-
-```bash
-(cd frontend; firebase init)
-```
-
-This command will start an interactive process. Here's how to respond to the prompts:
-
-1. **Which Firebase features do you want to set up for this directory?** Use the spacebar to select `Hosting: Configure files for Firebase Hosting and (optionally) set up GitHub Action deploys` and press Enter.
-
-1. **Select a default Firebase project for this directory:** Choose the Firebase project you created for this application from the list.
-
-1. **What do you want to use as your public directory?** This is the most important step for a React app. The build process for React applications (using `create-react-app`) typically outputs the production files into a `build` or `dist` folder. Enter `build` (or `dist` if you are using Vite or a custom setup) and press Enter.
-
-1. **Configure as a single-page application (rewrite all urls to /index.html)?** Type `Yes` (`y`) and press Enter. This is crucial for single-page applications like React apps, ensuring that routing works correctly.
-
-1. **Set up automatic builds and deploys with GitHub?** Type `No` (`n`) unless you specifically want to set up continuous deployment with GitHub Actions at this time. You can always set this up later.
-
-1. **File build/index.html already exists. Overwrite?** Type `No` (`n`). You don't want to overwrite the `index.html` file that is generated during the build process.
-
-After completing these steps, Firebase will create two new files in your project's root directory: `.firebaserc` and `firebase.json`.
-
-* `.firebaserc`: Stores your default Firebase project alias.
-
-* `firebase.json`: Contains the configuration for Firebase services, including Hosting. It will specify your public directory (`build`) and the rewrite rule for single-page applications.
 
 </details>
 
@@ -353,6 +205,14 @@ _(assuming you configured alias in aider setup above)_
 copilot
 ```
 
+> First time invocation of `aider` may require installing additional packages, let that complete.
+
+_Ask `aider` to describe project..._
+
+```bash
+> describe the project to me 
+```
+
 > This documentation assumes you are using aider on a terminal window as a copilot for learning about project, or making changes to project as per your needs.
 
 </details>
@@ -360,7 +220,7 @@ copilot
 <details>
 <summary>Test Project Setup Locally</summary>
 
-_Run the ADK app locally for testing project setup_
+_In another terminal run the ADK app locally for testing project setup_
 
 ```bash
 # option 1 to use CLI
@@ -370,7 +230,7 @@ _Run the ADK app locally for testing project setup_
 (cd backend; adk web)
 ```
 
-> When you interact with the agent, if you get error like `google.genai.errors.ClientError: 403 PERMISSION_DENIED` -- this usually means either VertexAI API has not be enabled in your project, or your current environment is using a different google cloud project. Please make sure that you have completed all the steps mentioned above in "Google Cloud Setup" and "VertextAI API Setup" and are using the correct google project in your environment variables (`GOOGLE_CLOUD_PROJECT`) and with `gcloud` CLI _(check config in `gcloud config list` and `gcloud auth list`)_.
+> When you interact with the agent, if you get error like `google.genai.errors.ClientError: 403 PERMISSION_DENIED` -- this usually means either VertexAI API has not be enabled in your project, or your current environment is using a different google cloud project. Please make sure that you have completed all the steps mentioned above in "Google Cloud Setup" and are using the correct google project in your environment variables (`GOOGLE_CLOUD_PROJECT`) and with `gcloud` CLI _(check config in `gcloud config list` and `gcloud auth list`)_.
 
 </details>
 
@@ -384,16 +244,16 @@ _Run the ADK app locally for testing project setup_
 > * GOOGLE_ADK_APP_REPOSITORY
 > * GOOGLE_GENAI_USE_VERTEXAI
 
-_Submit the cloud build job from backend directory:_
+_Run the make target to build and deploy the backend:_
 
 ```bash
-( cd backend; gcloud builds submit --config=cloudbuild.yaml . --substitutions="_AR_REGION=$GOOGLE_CLOUD_LOCATION,_AR_REPO_NAME=$GOOGLE_ADK_APP_REPOSITORY,_APP_NAME=$GOOGLE_ADK_APP_NAME,_GOOGLE_GENAI_USE_VERTEXAI=$GOOGLE_GENAI_USE_VERTEXAI")
+make deploy-backend
 ```
 
 _Verify the status of cloud run service deployment:_
 
 ```bash
-gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed --region $GOOGLE_CLOUD_LOCATION
+make verify-backend
 ```
 
 </details>
@@ -402,7 +262,7 @@ gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed -
 
 <summary>Interact with ADK app</summary>
 
-> Use the service URL from above, or use `gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed --region $GOOGLE_CLOUD_LOCATION --format='value(status.url)'`
+> Use the service URL obtained from `make verify-backend` (look for the `url:` field), or extract it directly using: `gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed --region $GOOGLE_CLOUD_LOCATION --format='value(status.url)'`
 
 **Step 1:** Browse to the service URL.
 
@@ -415,19 +275,15 @@ draw me 2 cards from a new deck
 ```
 
 ```
-ok, add these drawn cards to a new pile "Amit"
+ok, add these drawn cards to a new pile John
 ```
 
 ```
-draw 2 more cards and add them to pile "Richa"
+draw 2 more cards and add them to pile Jane
 ```
 
 ```
-ok, who has bigger hand, Amit or Richa?
-```
-
-```
-use simple card comparison, all colors are same, but cards have weight according to their number
+ok, who has bigger hand, John or Jane? use simple card comparison, all colors are same, but cards have weight according to their number.
 ```
 
 </details>
