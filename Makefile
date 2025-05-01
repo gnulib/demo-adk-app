@@ -10,8 +10,10 @@ endif
 ifndef GOOGLE_ADK_APP_NAME
  $(error GOOGLE_ADK_APP_NAME is not set. Please set this environment variable.)
 endif
+# Check for GOOGLE_GENAI_USE_VERTEXAI, default to false if not set
 ifndef GOOGLE_GENAI_USE_VERTEXAI
- $(error GOOGLE_GENAI_USE_VERTEXAI is not set. Please set this environment variable (e.g., true or false).)
+    $(warning WARNING: GOOGLE_GENAI_USE_VERTEXAI is not set. Defaulting to 'false'.)
+    GOOGLE_GENAI_USE_VERTEXAI := false
 endif
 
 .PHONY: build-backend
