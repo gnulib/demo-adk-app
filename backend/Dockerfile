@@ -43,7 +43,7 @@ RUN pip install --user -r requirements.txt
 # Copy the main application, API, and utility modules
 COPY main.py .
 COPY api/ /app/api/
-COPY utils/ /app/utils/ # Adjusted path for main.py and api/ to find utils
+COPY utils/ /app/utils/
 
 # The following files are kept as per the original Dockerfile structure.
 # They might be related to ADK components or other parts of the application.
