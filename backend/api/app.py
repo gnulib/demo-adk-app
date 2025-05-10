@@ -17,7 +17,7 @@ class Message(BaseModel):
     text: str
 
 # Global variable to hold the singleton FastAPI app instance
-_fastapi_app_instance: Optional[FastAPI] = None
+_app: Optional[FastAPI] = None
 
 
 def get_fast_api_app(config: Config) -> FastAPI:
@@ -30,9 +30,9 @@ def get_fast_api_app(config: Config) -> FastAPI:
     Returns:
         A FastAPI application instance.
     """
-    global _fastapi_app_instance
-    if _fastapi_app_instance is None:
-        _fastapi_app_instance = FastAPI(
+    global _app
+    if _app is None:
+        _app = FastAPI(
             title=config.APP_NAME,
             # You can add other FastAPI parameters here if needed,
             # for example, version, description, etc.
@@ -43,7 +43,7 @@ def get_fast_api_app(config: Config) -> FastAPI:
         # For example, to enable CORS if your config.CORS_ORIGINS is set:
         # from fastapi.middleware.cors import CORSMiddleware
         # if config.CORS_ORIGINS:
-        # _fastapi_app_instance.add_middleware(
+        # _app.add_middleware(
         # CORSMiddleware,
         # allow_origins=config.CORS_ORIGINS,
         # allow_credentials=True,
@@ -51,7 +51,7 @@ def get_fast_api_app(config: Config) -> FastAPI:
         # allow_headers=["*"],
         # )
 
-        @_fastapi_app_instance.post("/conversations", response_model=Conversation, status_code=status.HTTP_201_CREATED)
+        @_app.post("/conversations", response_model=Conversation, status_code=status.HTTP_201_CREATED)
         async def create_conversation():
             """
             Creates a new conversation.
@@ -64,7 +64,7 @@ def get_fast_api_app(config: Config) -> FastAPI:
             print("Placeholder: Creating a new conversation.")
             return Conversation(conv_id="new_sample_conv_id", updated_at=datetime.utcnow())
 
-        @_fastapi_app_instance.get("/conversations", response_model=List[Conversation])
+        @_app.get("/conversations", response_model=List[Conversation])
         async def get_conversations():
             """
             Retrieves a list of all conversations.
@@ -77,7 +77,7 @@ def get_fast_api_app(config: Config) -> FastAPI:
                 Conversation(conv_id="sample_conv_2", updated_at=datetime.utcnow())
             ]
 
-        @_fastapi_app_instance.post("/conversations/{conversation_id}/messages", response_model=Message)
+        @_app.post("/conversations/{conversation_id}/messages", response_model=Message)
         async def send_message(conversation_id: str, message_request: Message):
             """
             Sends a message to a specific conversation.
@@ -92,7 +92,7 @@ def get_fast_api_app(config: Config) -> FastAPI:
             # For now, just echoing the received message text
             return Message(text=f"Received in {conversation_id}: {message_request.text}")
 
-        @_fastapi_app_instance.get("/conversations/{conversation_id}/history", response_model=List[Event])
+        @_app.get("/conversations/{conversation_id}/history", response_model=List[Event])
         async def get_conversation_history(conversation_id: str):
             """
             Retrieves the event history for a specific conversation.
@@ -105,7 +105,7 @@ def get_fast_api_app(config: Config) -> FastAPI:
             # The structure of Event objects will depend on google.adk.events.
             return [] # Return an empty list as a placeholder
 
-        @_fastapi_app_instance.delete("/conversations/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
+        @_app.delete("/conversations/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
         async def delete_conversation(conversation_id: str):
             """
             Deletes a specific conversation.
@@ -118,4 +118,4 @@ def get_fast_api_app(config: Config) -> FastAPI:
             # On successful deletion, return a 204 response.
             return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-    return _fastapi_app_instance
+    return _app
