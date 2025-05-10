@@ -43,11 +43,13 @@ def get_fast_api_app(config: Config) -> FastAPI:
         # For example, to enable CORS if your config.CORS_ORIGINS is set:
         from fastapi.middleware.cors import CORSMiddleware
         if config.CORS_ORIGINS:
-            _app.add_middleware(
-                CORSMiddleware,
-                allow_origins=config.CORS_ORIGINS,
-                allow_credentials=True,
-                allow_methods=["*"],
+            origins = [origin.strip() for origin in config.CORS_ORIGINS.split(',') if origin.strip()]
+            if origins:
+                _app.add_middleware(
+                    CORSMiddleware,
+                    allow_origins=origins,
+                    allow_credentials=True,
+                    allow_methods=["*"],
                 allow_headers=["*"],
             )
 
