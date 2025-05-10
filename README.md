@@ -18,9 +18,9 @@ This repository serves as a hands-on companion for a 3-part blog series.
 
 > Following is a one time developer setup required on top of setup done with following parts of the blog series...
 
-> * **Part 1:** [The Agent Stack : Deploying Your First ADK Agent on Google Cloud](https://www.linkedin.com/pulse/agent-stack-deploying-your-first-adk-google-cloud-amit-bhadoria-emvdc)
+> * Google Cloud Setup from Part - 1 : [link to README with tag blog-part-1](https://github.com/gnulib/demo-adk-app/blob/blog-part-1/README.md)
 
-> If you have not completed the previous parts, please complete them before continuing here.
+> ⚠️ **IMPORTANT:** If you have not completed the previous parts, please complete them before continuing here.
 
 <details>
 <summary>Google Cloud Setup</summary>
