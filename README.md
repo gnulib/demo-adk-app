@@ -172,11 +172,15 @@ make verify-backend
 
 <details>
 
-<summary>Interact with ADK app</summary>
+<summary>Interact with deployed app</summary>
 
 > Use the service URL obtained from `make verify-backend` (look for the `url:` field), or extract it directly using: `gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed --region $GOOGLE_CLOUD_LOCATION --format='value(status.url)'`
 
-**Step 1:** Browse to the service URL.
+**Step 1:** run the test CLI for interacting with the app (use url from above)
+
+```bash
+(cd backend; source .env; python test/cli.py --host <<url>>)
+```
 
 **Step 2:** From "Select an agent" drop down pick `simple_agent`.
 
