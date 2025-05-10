@@ -26,9 +26,6 @@ class Config(BaseSettings):
 
     class Config:
         # Pydantic-settings specific configurations
-        # For example, to load from a .env file:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
         extra = "ignore" # Ignore extra fields from environment
         pass
 
