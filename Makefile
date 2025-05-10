@@ -17,7 +17,7 @@ ifndef GOOGLE_GENAI_USE_VERTEXAI
 endif
 ifndef FIREBASE_APP_URL
     $(warning WARNING: FIREBASE_APP_URL is not set. Defaulting to 'https://default-firebase-app.web.app'.)
-    FIREBASE_APP_URL := "https://default-firebase-app.web.app"
+    FIREBASE_APP_URL := https://default-firebase-app.web.app
 endif
 
 .PHONY: deploy-backend verify-backend
