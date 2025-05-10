@@ -13,8 +13,8 @@ if __name__ == "__main__":
 
     # Determine host and port for Uvicorn
     # Uses APP_HOST and APP_PORT from config if available, otherwise defaults.
-    host = getattr(app_config, 'APP_HOST', "127.0.0.1")
-    port = getattr(app_config, 'APP_PORT', 8000)
+    host = getattr(app_config, 'HOST', "0.0.0.0")
+    port = getattr(app_config, 'PORT', 8000)
 
     # Run the application using Uvicorn
     print(f"Starting server on {host}:{port}")
