@@ -15,7 +15,7 @@ class Config(BaseSettings):
     """
     PROJECT_ID: str = Field(..., description="The Google Cloud project ID.")
     LOCATION: str = Field(..., description="The Google Cloud region/location for resources.")
-    USE_VERTEXAI: bool = Field(..., description="Boolean indicating if VertexAI is enabled.")
+    USE_VERTEXAI: str = Field(..., description="Boolean indicating if VertexAI is enabled.")
     APP_NAME: str = Field(..., description="A unique canonical name for the application.")
     DECKOFCARDS_URL: str = Field(..., description="URL for the Deckofcards API service to initialize client instance.")
     FIREBASE_KEY_JSON: str = Field(..., description="JSON content of the Firebase service account key.")
