@@ -6,11 +6,11 @@ import os
 
 # Adjust sys.path to allow absolute imports from the project root
 # Assuming this script is in backend/test/cli.py, project_root is two levels up.
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from backend.utils.config import get_config
+from utils.config import get_config
 
 # BASE_URL will be initialized in main() using configuration.
 BASE_URL: str = "" # Placeholder, will be set in main()
