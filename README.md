@@ -93,6 +93,7 @@ export PROJECT_ID=$GOOGLE_CLOUD_PROJECT
 export LOCATION=$GOOGLE_CLOUD_LOCATION
 export USE_VERTEXAI=$GOOGLE_GENAI_USE_VERTEXAI
 export APP_NAME=$GOOGLE_ADK_APP_NAME
+export PORT=8000
 export CORS_ORIGINS="[\"http://localhost:3000\", \"$FIREBASE_APP_URL\"]"
 export IS_TESTING=true
 export DECKOFCARDS_URL="https://deckofcardsapi.com/api/deck"
@@ -129,14 +130,16 @@ _Ask `aider` to describe project..._
 <details>
 <summary>Test Project Setup Locally</summary>
 
-_In another terminal run the ADK app locally for testing project setup_
+_In one terminal run the app locally for testing project setup_
 
 ```bash
-# option 1 to use CLI
-(cd backend; source .env; adk run simple_agent)
+(cd backend; source .env; python main.py)
+```
 
-# option 2 to use web interface
-(cd backend;  source .env; adk web)
+_In another terminal run the test CLI for interacting with the app_
+
+```bash
+(cd backend; source .env; python test/cli.py)
 ```
 
 > When you interact with the agent, if you get error like `google.genai.errors.ClientError: 403 PERMISSION_DENIED` -- this usually means either VertexAI API has not be enabled in your project, or your current environment is using a different google cloud project. Please make sure that you have completed all the steps mentioned above in "Google Cloud Setup" and are using the correct google project in your environment variables (`GOOGLE_CLOUD_PROJECT`) and with `gcloud` CLI _(check config in `gcloud config list` and `gcloud auth list`)_.
