@@ -16,61 +16,30 @@ This repository serves as a hands-on companion for a 3-part blog series.
 
 ## Developer Setup
 
-> Following is a one time developer setup required to install appropriate tools and configurations on local machine, and to get Google Cloud resources created...
+> Following is a one time developer setup required on top of setup done with following parts of the blog series...
+
+> * **Part 1:** [The Agent Stack : Deploying Your First ADK Agent on Google Cloud](https://www.linkedin.com/pulse/agent-stack-deploying-your-first-adk-google-cloud-amit-bhadoria-emvdc)
+
+> If you have not completed the previous parts, please complete them before continuing here.
 
 <details>
 <summary>Google Cloud Setup</summary>
 
-> You'll be required to have a Google Cloud project, either in your own personal account, or your enterprise / work related account, as following ...
-
-**Step 1:** Create a new [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) and enable billing.
-
-> If you are an individual developer, you should be able to signup for a new Google Cloud by [getting started for free](https://cloud.google.com/free) program.
-
-**Step 2:** Install [gcloud](https://cloud.google.com/sdk/docs/install) on your local development machine and initialize gcloud to use the new project created above
-
-> If you already have gcloud installed / configured from your work account and you want to following this example project in your personal account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
-
-**Step 3:** Export environment variables related to project:
+**Step 1:** Export environment variables related to project:
 
 ```bash
-export GOOGLE_CLOUD_PROJECT="<<<YOUR_GOOGLE_PROJECT_CREATED_ABOVE>>>"
-export GOOGLE_CLOUD_LOCATION="<<<<LOCATION_TO_USE>>>" #e.g. us-central1
-export GOOGLE_CLOUD_PROJECT_NUMBER="$(gcloud projects describe $GOOGLE_CLOUD_PROJECT --format='value(projectNumber)')"
-export GOOGLE_ADK_APP_REPOSITORY="adk-apps"
-export GOOGLE_ADK_APP_NAME="demo-adk-app"
-export GOOGLE_GENAI_USE_VERTEXAI="True"
+# No new variables yet.
 ```
 
 > You can add the above exports into your shell's environment file, e.g. `~/.zshrc`
 
-**Step 4:** Set your default Google Cloud project for subsequent steps:
+**Step 2:** Enable the following APIs in your project:
 
 ```bash
-gcloud config set project $GOOGLE_CLOUD_PROJECT
+# No new APIs to enable yet.
 ```
 
-**Step 5:** Generate a local Application Default Credentials (ADC) file to be used for VertexAI API calls:
-
-```bash
-gcloud auth application-default login
-```
-
-**Step 6:** Enable the Cloud Build, Cloud Run, Artifact Registry and VertexAI APIs in your project:
-
-```bash
-gcloud services enable cloudbuild.googleapis.com run.googleapis.com artifactregistry.googleapis.com aiplatform.googleapis.com
-```
-
-**Step 7:** Create a repository in Artifact Registry to store your ADK app images:
-
-```bash
-gcloud artifacts repositories create $GOOGLE_ADK_APP_REPOSITORY --repository-format=docker --location=$GOOGLE_CLOUD_LOCATION --description="ADK applications container repository"
-```
-
-> If you get a message that the repository already exists, you can ignore above step.
-
-**Step 8:** Verify your configurations:
+**Step 3:** Verify your configurations:
 
 ```bash
 gcloud config list # verify gcloud is using correct google cloud account and project
@@ -80,111 +49,23 @@ gcloud artifacts repositories list # verify artifact repository exists
 
 > Above command will display your current `gcloud` configuration, including the active account and the project, and the default region/zone if you set them. These should match the project and google cloud account you are using for this demo.
 
-**Step 9:** Add IAM role to service account:
+**Step 4:** Add necessary roles to service account:
 
 ```bash
-gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
-  --member=serviceAccount:$GOOGLE_CLOUD_PROJECT_NUMBER-compute@developer.gserviceaccount.com \
-  --role=roles/run.admin \
-  --condition=None
+# No new roles to be added yet.
+```
+
+**Step 5:** Add necessary secret key access to service account:
+
+```bash
+# No new secret key access to be added yet.
 ```
 
 </details>
-
-<details>
-
-<summary>aider Setup</summary>
-
-> This project uses [aider](https://aider.chat/) as a copilot for learning about project, or making changes to project as per your needs. You can configure aider to use any of the supported LLMs. In this example we are assuming you are using one of the following two options...
-
-<details>
-<summary> Option 1: aider with Vertex AI gemini model</summary>
-
-> This is the preferred option, since you'll be working off of the google cloud project for ADK app, it makes sense to use the same for aider...
-
-**Step 1:** Install [aider](https://aider.chat/) on your development machine:
-
-```bash
-python -m pip install aider-install
-
-aider-install
-```
-
-**Step 2:** Export environment variables (in this example we'll use VertexAI APIs with aider):
-
-```bash
-export VERTEXAI_PROJECT=$GOOGLE_CLOUD_PROJECT # assuming already defined with gcloud setup
-export VERTEXAI_LOCATION=$GOOGLE_CLOUD_LOCATION # assuming already defined with gcloud setup
-export AIDER_MODEL="vertex_ai/gemini-2.5-pro-exp-03-25" # (this one is free because it's experimental)
-```
-
-**Step 3:** Create an alias to invoke aider:
-
-```bash
-alias copilot="aider --model $AIDER_MODEL"
-```
-
-> You can add the above exports and alias in your shell's environment file, e.g. `~/.zshrc`
-
-</details>
-<details>
-<summary>Option 2: aider with OpenAI gpt model</summary>
-
-> If you already have a paid developer account with OpenAI with existing credits purchased, then you can use OpenAI LLMs for aider...
-
-**Step 1:** Install [aider](https://aider.chat/):
-
-```bash
-python -m pip install aider-install
-
-aider-install
-```
-
-**Step 2:** Signup (if not done already) and [create an OpenAI API key](https://platform.openai.com/api-keys).
-
-**Step 3:** Export environment variables:
-
-```bash
-export OPENAI_CODE_ASSIST_KEY=YOUR_OPENAI_API_KEY_CREATED_ABOVE
-export AIDER_MODEL="o3-mini" # or "gpt-4.1" etc.
-```
-
-**Step 4:** Create an alias to invoke aider:
-
-```bash
-alias copilot="OPENAI_API_KEY=$OPENAI_CODE_ASSIST_KEY aider --model $AIDER_MODEL"
-```
-
-> You can add the above exports and alias in your shell's environment file, e.g. `~/.zshrc`
-
-</details>
-</details>
-
 
 ## Project Setup
 
-> Following is a one time setup required when you first clone the project and install dependencies and configurations...
-
-<details>
-<summary>Initialize project</summary>
-
-**Step 1:** clone the repo and create a python virtual environment within the repo project directory:
-
-```bash
-git clone https://github.com/gnulib/demo-adk-app.git
-
-cd demo-adk-app
-
-python3 -m venv .venv
-```
-
-**Step 2:** initialize environment to work in project
-
-```bash
-source .venv/bin/activate
-```
-
-</details>
+> Following is project specific setup required on top of setup done with Part - 1 of the blog series. If you have not completed the previous parts, please complete them before continuing here.
 
 <details>
 
@@ -195,6 +76,8 @@ _Install backend project dependencies:_
 ```bash
 pip install -r backend/requirements.txt
 ```
+
+> New dependencies may have been added on top of earlier dependencies, hence need to install / update.
 
 </details>
 
