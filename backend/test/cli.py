@@ -1,10 +1,10 @@
 import requests
 import json
 import readline # For better input experience
+from ..utils.config import get_config
 
-# Default base URL for the API. Ensure this matches your running backend.
-# The backend/main.py uses app_config.PORT, which defaults to 8000 if not set by env.
-BASE_URL = "http://localhost:8000" 
+# BASE_URL will be initialized in main() using configuration.
+BASE_URL: str = "" # Placeholder, will be set in main()
 
 def print_response(response: requests.Response):
     """Helper to print API response."""
@@ -89,6 +89,18 @@ def print_help():
 
 def main():
     global BASE_URL
+
+    # Load configuration and set BASE_URL
+    try:
+        app_config = get_config()
+        BASE_URL = f"http://localhost:{app_config.PORT}"
+        print(f"Successfully loaded port {app_config.PORT} from configuration.")
+    except Exception as e:
+        default_port = 8000 # Default port if config fails
+        print(f"Warning: Could not load configuration to determine port: {e}")
+        print(f"Falling back to default port: {default_port}")
+        BASE_URL = f"http://localhost:{default_port}"
+
     print("Interactive API CLI. Type 'help' for commands, 'exit' to quit.")
     print(f"Using API base URL: {BASE_URL}")
 
