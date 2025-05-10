@@ -41,15 +41,15 @@ def get_fast_api_app(config: Config) -> FastAPI:
         )
         # You can add middleware, exception handlers, routers, etc. here
         # For example, to enable CORS if your config.CORS_ORIGINS is set:
-        # from fastapi.middleware.cors import CORSMiddleware
-        # if config.CORS_ORIGINS:
-        # _app.add_middleware(
-        # CORSMiddleware,
-        # allow_origins=config.CORS_ORIGINS,
-        # allow_credentials=True,
-        # allow_methods=["*"],
-        # allow_headers=["*"],
-        # )
+        from fastapi.middleware.cors import CORSMiddleware
+        if config.CORS_ORIGINS:
+            _app.add_middleware(
+                CORSMiddleware,
+                allow_origins=config.CORS_ORIGINS,
+                allow_credentials=True,
+                allow_methods=["*"],
+                allow_headers=["*"],
+            )
 
         @_app.post("/conversations", response_model=Conversation, status_code=status.HTTP_201_CREATED)
         async def create_conversation():
