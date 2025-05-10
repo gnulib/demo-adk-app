@@ -87,14 +87,14 @@ def delete_conversation(conv_id: str):
 def print_help():
     """Prints available commands."""
     print("\nAvailable commands:")
-    print("  create_conversation                  - Create a new conversation.")
-    print("  get_conversations                    - List all conversations.")
-    print("  send_message <conv_id> <message>     - Send a message to a conversation.")
-    print("  get_history <conv_id>                - Get history for a conversation.")
-    print("  delete_conversation <conv_id>        - Delete a conversation.")
+    print("  cc                                   - Create a new conversation (create_conversation).")
+    print("  lc                                   - List all conversations (get_conversations).")
+    print("  sm <conv_id> <message>               - Send a message to a conversation (send_message).")
+    print("  gh <conv_id>                         - Get history for a conversation (get_history).")
+    print("  dc <conv_id>                         - Delete a conversation (delete_conversation).")
     print("  url <new_base_url>                   - Change the API base URL (current: " + BASE_URL + ").")
-    print("  help                                 - Show this help message.")
-    print("  exit                                 - Exit the CLI.\n")
+    print("  h, help                              - Show this help message.")
+    print("  q, exit                              - Exit the CLI.\n")
 
 def main():
     global BASE_URL
@@ -123,28 +123,28 @@ def main():
             command = parts[0].lower()
             args = parts[1:]
 
-            if command == "exit":
+            if command in ["q", "exit"]:
                 print("Exiting.")
                 break
-            elif command == "help":
+            elif command in ["h", "help"]:
                 print_help()
-            elif command == "create_conversation":
+            elif command == "cc": # create_conversation
                 create_conversation()
-            elif command == "get_conversations":
+            elif command == "lc": # get_conversations
                 get_conversations()
-            elif command == "send_message":
+            elif command == "sm": # send_message
                 if len(args) < 2:
-                    print("Usage: send_message <conversation_id> <text>")
+                    print("Usage: sm <conversation_id> <text>")
                 else:
                     send_message(args[0], args[1])
-            elif command == "get_history":
+            elif command == "gh": # get_history
                 if len(args) < 1:
-                    print("Usage: get_history <conversation_id>")
+                    print("Usage: gh <conversation_id>")
                 else:
                     get_conversation_history(args[0])
-            elif command == "delete_conversation":
+            elif command == "dc": # delete_conversation
                 if len(args) < 1:
-                    print("Usage: delete_conversation <conversation_id>")
+                    print("Usage: dc <conversation_id>")
                 else:
                     delete_conversation(args[0])
             elif command == "url":
@@ -155,7 +155,7 @@ def main():
                     BASE_URL = args[0]
                     print(f"API base URL changed to: {BASE_URL}")
             else:
-                print(f"Unknown command: {command}. Type 'help' for available commands.")
+                print(f"Unknown command: {command}. Type 'h' or 'help' for available commands.")
 
         except KeyboardInterrupt:
             print("\nExiting.")
