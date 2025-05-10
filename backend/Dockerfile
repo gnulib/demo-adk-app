@@ -17,16 +17,12 @@ USER myuser
 
 # Define build-time arguments for variables that will be injected during the Docker build process.
 # These ARG instructions accept values passed via --build-arg during 'docker build'.
-ARG GOOGLE_GENAI_USE_VERTEXAI
-ARG GOOGLE_CLOUD_PROJECT
-ARG GOOGLE_CLOUD_LOCATION
 
 # Set runtime environment variables using the values from the build arguments (ARG).
 # These ENV variables will be available to the application when the container runs.
 ENV PATH="/home/myuser/.local/bin:$PATH"
-ENV GOOGLE_GENAI_USE_VERTEXAI=${GOOGLE_GENAI_USE_VERTEXAI}
-ENV GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
-ENV GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION}
+# Environment variables for Google Cloud services (PROJECT, LOCATION, etc.)
+# will be injected during the deployment process, not set in the Dockerfile.
 
 # Set up environment variables - End
 
