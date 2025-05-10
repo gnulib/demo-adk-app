@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi import FastAPI
-from backend.utils.config import Config
+from utils.config import Config
 
 # Global variable to hold the singleton FastAPI app instance
 _fastapi_app_instance: Optional[FastAPI] = None
