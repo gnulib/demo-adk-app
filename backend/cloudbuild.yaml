@@ -13,10 +13,8 @@ steps:
   args: [
     'build',
     '-t', '${_AR_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/${_APP_NAME}:${BUILD_ID}',
-    '.',
-    '--build-arg', 'GOOGLE_GENAI_USE_VERTEXAI=${_GOOGLE_GENAI_USE_VERTEXAI}', # Pass value from Cloud Build substitution
-    '--build-arg', 'GOOGLE_CLOUD_PROJECT=$PROJECT_ID',                     # Pass value from built-in substitution
-    '--build-arg', 'GOOGLE_CLOUD_LOCATION=${_AR_REGION}'                   # Pass value from Cloud Build substitution
+    '.'
+    # Environment variables are now set during 'gcloud run deploy'
   ]
 
 # Step 2: Push the Docker image to Artifact Registry
@@ -37,8 +35,24 @@ steps:
 # '--region' specifies the region to deploy to, using _AR_REGION.
 # '--allow-unauthenticated' makes the service publicly accessible. Remove this for private services.
 # '--platform managed' specifies the managed Cloud Run environment.
+# Environment variables are set using --set-env-vars.
+# Note: $PORT is automatically set by Cloud Run.
+# _FIREBASE_APP_URL is a new substitution variable you'll need to provide.
 - name: 'gcr.io/cloud-builders/gcloud'
-  args: ['run', 'deploy', '${_APP_NAME}-service', '--image', '${_AR_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/${_APP_NAME}:${BUILD_ID}', '--region', '${_AR_REGION}', '--allow-unauthenticated', '--platform', 'managed']
+  args:
+  - 'run'
+  - 'deploy'
+  - '${_APP_NAME}-service'
+  - '--image'
+  - '${_AR_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO_NAME}/${_APP_NAME}:${BUILD_ID}'
+  - '--region'
+  - '${_AR_REGION}'
+  - '--platform'
+  - 'managed'
+  - '--allow-unauthenticated'
+  - '--set-env-vars'
+  - >-
+    PROJECT_ID=$PROJECT_ID,LOCATION=${_AR_REGION},USE_VERTEXAI=${_GOOGLE_GENAI_USE_VERTEXAI},APP_NAME=${_APP_NAME},CORS_ORIGINS="[\\"http://localhost:3000\\", \\"${_FIREBASE_APP_URL}\\"]",IS_TESTING=false,DECKOFCARDS_URL="https://deckofcardsapi.com/api/deck",FIREBASE_KEY_JSON="{}"
 
 # Step 4: Add IAM policy binding to make the service publicly invokable
 # Uses the 'gcloud' builder to run the IAM policy binding command.
