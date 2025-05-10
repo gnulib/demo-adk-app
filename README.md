@@ -1,5 +1,7 @@
 # demo-adk-app
 
+_(This project is intentionally designed as a monorepo, i.e., has both the frontend and backend code in the same git repository. For a larger, more complex, or production-grade applications, separating frontends and backends into different repositories is often recommended for better team collaboration, independent scaling, and clearer separation of concerns.)_
+
 > **Acknowledgement:**  
 > This project makes use of the excellent [Deck of Cards API](https://deckofcardsapi.com/) by Chase Roberts. Many thanks to Chase for providing this fun and useful API!
 
@@ -8,11 +10,9 @@ This repository serves as a hands-on companion for a 3-part blog series.
 *   **Part 1:** [The Agent Stack : Deploying Your First ADK Agent on Google Cloud](https://www.linkedin.com/pulse/agent-stack-deploying-your-first-adk-google-cloud-amit-bhadoria-emvdc) - is now live!
 *   To follow the hands-on exercises for Part 1, please check out the specific code state using the following git command:
      ```bash
-     git checkout tags/blog-part-1 -b blog-part-1-branch
+     git checkout tags/blog-part-1
      ```
-> This command creates a new branch named `blog-part-1-branch` from the `blog-part-1` tag, allowing you to work through the exercises without affecting the main codebase.
-
-_(This project is intentionally designed as a monorepo, i.e., has both the frontend and backend code in the same git repository. For a larger, more complex, or production-grade applications, separating frontends and backends into different repositories is often recommended for better team collaboration, independent scaling, and clearer separation of concerns.)_
+> This command creates a new detached copy of project code from the `blog-part-1` tag, allowing you to work through the exercises.
 
 ## Developer Setup
 
@@ -198,6 +198,27 @@ pip install -r backend/requirements.txt
 
 </details>
 
+<details>
+
+<summary>Setup local environment</summary>
+
+_create `backend/.env` file for local testing:_
+
+```bash
+cat > backend/.env <<'EOF'
+export PROJECT_ID=$GOOGLE_CLOUD_PROJECT
+export LOCATION=$GOOGLE_CLOUD_LOCATION
+export USE_VERTEXAI=$GOOGLE_GENAI_USE_VERTEXAI
+export APP_NAME=$GOOGLE_ADK_APP_NAME
+export CORS_ORIGINS="[\"http://localhost:3000\", \"$FIREBASE_APP_URL\"]"
+export IS_TESTING=true
+export DECKOFCARDS_URL="https://deckofcardsapi.com/api/deck"
+export FIREBASE_KEY_JSON="{}"
+EOF
+```
+
+</details>
+
 ## Getting Started
 > You'll be using two terminals, besides any IDE you might be using to view / navigate project files. One terminal will be used to run `aider` for any copilot help (e.g., asking to help describe code), and another terminal will be where you'll be running the frontend / backend apps for local testing.
 
@@ -229,10 +250,10 @@ _In another terminal run the ADK app locally for testing project setup_
 
 ```bash
 # option 1 to use CLI
-(cd backend; adk run simple_agent)
+(cd backend; source .env; adk run simple_agent)
 
 # option 2 to use web interface
-(cd backend; adk web)
+(cd backend;  source .env; adk web)
 ```
 
 > When you interact with the agent, if you get error like `google.genai.errors.ClientError: 403 PERMISSION_DENIED` -- this usually means either VertexAI API has not be enabled in your project, or your current environment is using a different google cloud project. Please make sure that you have completed all the steps mentioned above in "Google Cloud Setup" and are using the correct google project in your environment variables (`GOOGLE_CLOUD_PROJECT`) and with `gcloud` CLI _(check config in `gcloud config list` and `gcloud auth list`)_.
