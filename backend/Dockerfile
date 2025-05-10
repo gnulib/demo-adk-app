@@ -42,15 +42,20 @@ RUN pip install --user -r requirements.txt
 
 # Install ADK - End
 
-# Copy agent code - Start
+# Copy application code - Start
 
-# Copy the necessary application code (agent and utils) into the container
+# Copy the main application, API, and utility modules
+COPY main.py .
+COPY api/ /app/api/
+COPY utils/ /app/utils/ # Adjusted path for main.py and api/ to find utils
+
+# The following files are kept as per the original Dockerfile structure.
+# They might be related to ADK components or other parts of the application.
 COPY __init__.py /app/agents/__init__.py
 COPY simple_agent/ /app/agents/simple_agent/
-COPY utils/ /app/agents/utils/
 
-# Copy agent - End
+# Copy application code - End
 
 # Define the command to run when the container starts
-# $PORT is an environment variable automatically set by Cloud Run
-CMD adk web --port=$PORT   "/app/agents"
+# $PORT is an environment variable typically provided by the hosting environment (e.g., Cloud Run)
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
