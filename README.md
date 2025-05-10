@@ -182,9 +182,7 @@ make verify-backend
 (cd backend; source .env; python test/cli.py --host <<url>>)
 ```
 
-**Step 2:** From "Select an agent" drop down pick `simple_agent`.
-
-**Step 3:** Converse with the agent to draw some cards from a deck, e.g.:
+**Step 2:** Converse with the agent to draw some cards from a deck, e.g.:
 
 ```
 draw me 2 cards from a new deck
