@@ -1,3 +1,4 @@
 .aider*
 .venv
 backend/**/__pycache__/
+**/.env
