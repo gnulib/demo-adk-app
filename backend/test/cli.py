@@ -104,26 +104,31 @@ def main():
     parser.add_argument("--host", type=str, default="localhost",
                         help="The host of the API server (default: localhost).")
     parser.add_argument("--port", type=int,
-                        help="The port of the API server. Overrides config/default if provided.")
+                        help="The port of the API server. Overrides config. If neither CLI nor config provides a port, it's omitted from the URL (standard HTTP/HTTPS ports assumed).")
     
     cli_args = parser.parse_args()
 
     host = cli_args.host
-    port_to_use = cli_args.port
+    port_to_use = cli_args.port # This will be None if --port is not provided
 
-    if port_to_use is None:
+    if port_to_use is None: # True if --port CLI argument was not provided
         try:
             app_config = get_config()
+            # If get_config() is successful, app_config.PORT is guaranteed by Pydantic model (it's required)
             port_to_use = app_config.PORT
             print(f"Using port {port_to_use} from configuration.")
         except Exception as e:
-            port_to_use = 8000 # Default port if CLI arg and config fail
-            print(f"Warning: Could not load configuration to determine port: {e}")
-            print(f"Falling back to default port: {port_to_use} (CLI --port not provided).")
+            # get_config() failed (e.g., PORT env var missing, or other config issues)
+            # port_to_use remains None in this case.
+            print(f"Warning: Could not load port from configuration: {e}.")
+            print("Proceeding without a specific port in the URL (standard HTTP/HTTPS ports will be assumed by the client).")
     else:
         print(f"Using port {port_to_use} from command-line argument.")
 
-    BASE_URL = f"http://{host}:{port_to_use}"
+    if port_to_use is not None:
+        BASE_URL = f"http://{host}:{port_to_use}"
+    else:
+        BASE_URL = f"http://{host}" # Port is omitted
 
     print("Interactive API CLI. Type 'help' for commands, 'exit' to quit.")
     print(f"Using API base URL: {BASE_URL}")
