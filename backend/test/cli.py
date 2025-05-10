@@ -103,12 +103,20 @@ def main():
     host = cli_args.host
     port_to_use = cli_args.port # This will be None if --port is not provided
 
+    scheme = ""
+    if not host.startswith("http://") and not host.startswith("https://"):
+        scheme = "http://"
+
     if port_to_use is not None:
-        BASE_URL = f"http://{host}:{port_to_use}"
+        BASE_URL = f"{scheme}{host}:{port_to_use}"
         print(f"Using port {port_to_use} from command-line argument.")
     else:
-        BASE_URL = f"http://{host}" # Port is omitted
-        print("Port not specified via --port argument. Omitting port from URL (standard HTTP/HTTPS ports will be assumed).")
+        BASE_URL = f"{scheme}{host}" # Port is omitted
+        if not scheme: # Host already had a scheme
+             print("Port not specified via --port argument. Omitting port from URL.")
+        else:
+             print("Port not specified via --port argument. Omitting port from URL (standard HTTP/HTTPS ports will be assumed).")
+
 
     print("Interactive API CLI. Type 'help' for commands, 'exit' to quit.")
     print(f"Using API base URL: {BASE_URL}")
