@@ -3,6 +3,7 @@ import json
 import readline # For better input experience
 import sys
 import os
+import argparse
 
 # Adjust sys.path to allow absolute imports from the project root
 # Assuming this script is in backend/test/cli.py, project_root is two levels up.
@@ -99,16 +100,30 @@ def print_help():
 def main():
     global BASE_URL
 
-    # Load configuration and set BASE_URL
-    try:
-        app_config = get_config()
-        BASE_URL = f"http://localhost:{app_config.PORT}"
-        print(f"Successfully loaded port {app_config.PORT} from configuration.")
-    except Exception as e:
-        default_port = 8000 # Default port if config fails
-        print(f"Warning: Could not load configuration to determine port: {e}")
-        print(f"Falling back to default port: {default_port}")
-        BASE_URL = f"http://localhost:{default_port}"
+    parser = argparse.ArgumentParser(description="Interactive API CLI client.")
+    parser.add_argument("--host", type=str, default="localhost",
+                        help="The host of the API server (default: localhost).")
+    parser.add_argument("--port", type=int,
+                        help="The port of the API server. Overrides config/default if provided.")
+    
+    cli_args = parser.parse_args()
+
+    host = cli_args.host
+    port_to_use = cli_args.port
+
+    if port_to_use is None:
+        try:
+            app_config = get_config()
+            port_to_use = app_config.PORT
+            print(f"Using port {port_to_use} from configuration.")
+        except Exception as e:
+            port_to_use = 8000 # Default port if CLI arg and config fail
+            print(f"Warning: Could not load configuration to determine port: {e}")
+            print(f"Falling back to default port: {port_to_use} (CLI --port not provided).")
+    else:
+        print(f"Using port {port_to_use} from command-line argument.")
+
+    BASE_URL = f"http://{host}:{port_to_use}"
 
     print("Interactive API CLI. Type 'help' for commands, 'exit' to quit.")
     print(f"Using API base URL: {BASE_URL}")
