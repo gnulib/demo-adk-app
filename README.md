@@ -28,7 +28,7 @@ This repository serves as a hands-on companion for a 3-part blog series.
 **Step 1:** Export environment variables related to project:
 
 ```bash
-# No new variables yet.
+# use same values as previous setup instructions
 ```
 
 > You can add the above exports into your shell's environment file, e.g. `~/.zshrc`
@@ -36,7 +36,7 @@ This repository serves as a hands-on companion for a 3-part blog series.
 **Step 2:** Enable the following APIs in your project:
 
 ```bash
-# No new APIs to enable yet.
+# use same command as previous setup instructions
 ```
 
 **Step 3:** Verify your configurations:
@@ -52,13 +52,13 @@ gcloud artifacts repositories list # verify artifact repository exists
 **Step 4:** Add necessary roles to service account:
 
 ```bash
-# No new roles to be added yet.
+# use same roles as previous setup instructions
 ```
 
 **Step 5:** Add necessary secret key access to service account:
 
 ```bash
-# No new secret key access to be added yet.
+# No secret key access to be added yet.
 ```
 
 </details>
@@ -136,10 +136,10 @@ _In one terminal run the app locally for testing project setup_
 (cd backend; source .env; python main.py)
 ```
 
-_In another terminal run the test CLI for interacting with the app_
+_In another terminal run the test CLI for interacting with the app (use port from above)_
 
 ```bash
-(cd backend; source .env; python test/cli.py)
+(cd backend; source .env; python test/cli.py --port 8000)
 ```
 
 > When you interact with the agent, if you get error like `google.genai.errors.ClientError: 403 PERMISSION_DENIED` -- this usually means either VertexAI API has not be enabled in your project, or your current environment is using a different google cloud project. Please make sure that you have completed all the steps mentioned above in "Google Cloud Setup" and are using the correct google project in your environment variables (`GOOGLE_CLOUD_PROJECT`) and with `gcloud` CLI _(check config in `gcloud config list` and `gcloud auth list`)_.
@@ -172,11 +172,15 @@ make verify-backend
 
 <details>
 
-<summary>Interact with ADK app</summary>
+<summary>Interact with deployed app</summary>
 
 > Use the service URL obtained from `make verify-backend` (look for the `url:` field), or extract it directly using: `gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed --region $GOOGLE_CLOUD_LOCATION --format='value(status.url)'`
 
-**Step 1:** Browse to the service URL.
+**Step 1:** run the test CLI for interacting with the app (use url from above)
+
+```bash
+(cd backend; source .env; python test/cli.py --host <<url>>)
+```
 
 **Step 2:** From "Select an agent" drop down pick `simple_agent`.
 

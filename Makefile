@@ -15,13 +15,17 @@ ifndef GOOGLE_GENAI_USE_VERTEXAI
     $(warning WARNING: GOOGLE_GENAI_USE_VERTEXAI is not set. Defaulting to 'false'.)
     GOOGLE_GENAI_USE_VERTEXAI := false
 endif
+ifndef FIREBASE_APP_URL
+    $(warning WARNING: FIREBASE_APP_URL is not set. Defaulting to 'https://default-firebase-app.web.app'.)
+    FIREBASE_APP_URL := https://default-firebase-app.web.app
+endif
 
 .PHONY: deploy-backend verify-backend
 
 # Target to build and deploy the backend using Google Cloud Build
 deploy-backend:
 	@echo "Building and deploying backend using Cloud Build..."
-	@(cd backend; gcloud builds submit --config=cloudbuild.yaml . --substitutions="_AR_REGION=$(GOOGLE_CLOUD_LOCATION),_AR_REPO_NAME=$(GOOGLE_ADK_APP_REPOSITORY),_APP_NAME=$(GOOGLE_ADK_APP_NAME),_GOOGLE_GENAI_USE_VERTEXAI=$(GOOGLE_GENAI_USE_VERTEXAI)")
+	@(cd backend; gcloud builds submit --config=cloudbuild.yaml . --substitutions="_AR_REGION=$(GOOGLE_CLOUD_LOCATION),_AR_REPO_NAME=$(GOOGLE_ADK_APP_REPOSITORY),_APP_NAME=$(GOOGLE_ADK_APP_NAME),_GOOGLE_GENAI_USE_VERTEXAI=$(GOOGLE_GENAI_USE_VERTEXAI),_FIREBASE_APP_URL=$(FIREBASE_APP_URL)")
 
 # Target to verify the status of the deployed backend service
 verify-backend:

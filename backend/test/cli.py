@@ -3,16 +3,9 @@ import json
 import readline # For better input experience
 import sys
 import os
+import argparse
 
-# Adjust sys.path to allow absolute imports from the project root
-# Assuming this script is in backend/test/cli.py, project_root is two levels up.
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from utils.config import get_config
-
-# BASE_URL will be initialized in main() using configuration.
+# BASE_URL will be initialized in main().
 BASE_URL: str = "" # Placeholder, will be set in main()
 
 def print_response(response: requests.Response):
@@ -99,16 +92,31 @@ def print_help():
 def main():
     global BASE_URL
 
-    # Load configuration and set BASE_URL
-    try:
-        app_config = get_config()
-        BASE_URL = f"http://localhost:{app_config.PORT}"
-        print(f"Successfully loaded port {app_config.PORT} from configuration.")
-    except Exception as e:
-        default_port = 8000 # Default port if config fails
-        print(f"Warning: Could not load configuration to determine port: {e}")
-        print(f"Falling back to default port: {default_port}")
-        BASE_URL = f"http://localhost:{default_port}"
+    parser = argparse.ArgumentParser(description="Interactive API CLI client.")
+    parser.add_argument("--host", type=str, default="localhost",
+                        help="The host of the API server (default: localhost).")
+    parser.add_argument("--port", type=int,
+                        help="The port of the API server. If not provided, port is omitted from the URL (standard HTTP/HTTPS ports assumed).")
+    
+    cli_args = parser.parse_args()
+
+    host = cli_args.host
+    port_to_use = cli_args.port # This will be None if --port is not provided
+
+    scheme = ""
+    if not host.startswith("http://") and not host.startswith("https://"):
+        scheme = "http://"
+
+    if port_to_use is not None:
+        BASE_URL = f"{scheme}{host}:{port_to_use}"
+        print(f"Using port {port_to_use} from command-line argument.")
+    else:
+        BASE_URL = f"{scheme}{host}" # Port is omitted
+        if not scheme: # Host already had a scheme
+             print("Port not specified via --port argument. Omitting port from URL.")
+        else:
+             print("Port not specified via --port argument. Omitting port from URL (standard HTTP/HTTPS ports will be assumed).")
+
 
     print("Interactive API CLI. Type 'help' for commands, 'exit' to quit.")
     print(f"Using API base URL: {BASE_URL}")

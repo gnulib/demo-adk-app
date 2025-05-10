@@ -17,16 +17,12 @@ USER myuser
 
 # Define build-time arguments for variables that will be injected during the Docker build process.
 # These ARG instructions accept values passed via --build-arg during 'docker build'.
-ARG GOOGLE_GENAI_USE_VERTEXAI
-ARG GOOGLE_CLOUD_PROJECT
-ARG GOOGLE_CLOUD_LOCATION
 
 # Set runtime environment variables using the values from the build arguments (ARG).
 # These ENV variables will be available to the application when the container runs.
 ENV PATH="/home/myuser/.local/bin:$PATH"
-ENV GOOGLE_GENAI_USE_VERTEXAI=${GOOGLE_GENAI_USE_VERTEXAI}
-ENV GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
-ENV GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION}
+# Environment variables for Google Cloud services (PROJECT, LOCATION, etc.)
+# will be injected during the deployment process, not set in the Dockerfile.
 
 # Set up environment variables - End
 
@@ -42,15 +38,20 @@ RUN pip install --user -r requirements.txt
 
 # Install ADK - End
 
-# Copy agent code - Start
+# Copy application code - Start
 
-# Copy the necessary application code (agent and utils) into the container
+# Copy the main application, API, and utility modules
+COPY main.py .
+COPY api/ /app/api/
+COPY utils/ /app/utils/
+
+# The following files are kept as per the original Dockerfile structure.
+# They might be related to ADK components or other parts of the application.
 COPY __init__.py /app/agents/__init__.py
 COPY simple_agent/ /app/agents/simple_agent/
-COPY utils/ /app/agents/utils/
 
-# Copy agent - End
+# Copy application code - End
 
 # Define the command to run when the container starts
-# $PORT is an environment variable automatically set by Cloud Run
-CMD adk web --port=$PORT   "/app/agents"
+# $PORT is an environment variable typically provided by the hosting environment (e.g., Cloud Run)
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
