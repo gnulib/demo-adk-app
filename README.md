@@ -17,9 +17,9 @@ This repository serves as a hands-on companion for a 3-part blog series.
 ## Developer Setup
 
 > Following is a one time developer setup required on top of setup done with following parts of the blog series...
-
+>
 > * Google Cloud Setup from Part - 1 : [link to README with tag blog-part-1](https://github.com/gnulib/demo-adk-app/blob/blog-part-1/README.md)
-
+>
 > ⚠️ **IMPORTANT:** If you have not completed the previous parts, please complete them before continuing here.
 
 <details>
