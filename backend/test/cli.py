@@ -5,15 +5,7 @@ import sys
 import os
 import argparse
 
-# Adjust sys.path to allow absolute imports from the project root
-# Assuming this script is in backend/test/cli.py, project_root is two levels up.
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from utils.config import get_config
-
-# BASE_URL will be initialized in main() using configuration.
+# BASE_URL will be initialized in main().
 BASE_URL: str = "" # Placeholder, will be set in main()
 
 def print_response(response: requests.Response):
@@ -104,31 +96,19 @@ def main():
     parser.add_argument("--host", type=str, default="localhost",
                         help="The host of the API server (default: localhost).")
     parser.add_argument("--port", type=int,
-                        help="The port of the API server. Overrides config. If neither CLI nor config provides a port, it's omitted from the URL (standard HTTP/HTTPS ports assumed).")
+                        help="The port of the API server. If not provided, port is omitted from the URL (standard HTTP/HTTPS ports assumed).")
     
     cli_args = parser.parse_args()
 
     host = cli_args.host
     port_to_use = cli_args.port # This will be None if --port is not provided
 
-    if port_to_use is None: # True if --port CLI argument was not provided
-        try:
-            app_config = get_config()
-            # If get_config() is successful, app_config.PORT is guaranteed by Pydantic model (it's required)
-            port_to_use = app_config.PORT
-            print(f"Using port {port_to_use} from configuration.")
-        except Exception as e:
-            # get_config() failed (e.g., PORT env var missing, or other config issues)
-            # port_to_use remains None in this case.
-            print(f"Warning: Could not load port from configuration: {e}.")
-            print("Proceeding without a specific port in the URL (standard HTTP/HTTPS ports will be assumed by the client).")
-    else:
-        print(f"Using port {port_to_use} from command-line argument.")
-
     if port_to_use is not None:
         BASE_URL = f"http://{host}:{port_to_use}"
+        print(f"Using port {port_to_use} from command-line argument.")
     else:
         BASE_URL = f"http://{host}" # Port is omitted
+        print("Port not specified via --port argument. Omitting port from URL (standard HTTP/HTTPS ports will be assumed).")
 
     print("Interactive API CLI. Type 'help' for commands, 'exit' to quit.")
     print(f"Using API base URL: {BASE_URL}")
