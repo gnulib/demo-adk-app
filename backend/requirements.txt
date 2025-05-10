@@ -2,3 +2,5 @@ google-adk
 requests
 pydantic
 pydantic-settings
+fastapi
+uvicorn
