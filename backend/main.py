@@ -12,9 +12,11 @@ if __name__ == "__main__":
     app = get_fast_api_app(app_config)
 
     # Determine host and port for Uvicorn
-    # Uses APP_HOST and APP_PORT from config if available, otherwise defaults.
-    host = getattr(app_config, 'HOST', "0.0.0.0")
-    port = getattr(app_config, 'PORT', 8000)
+    # HOST will default to "0.0.0.0" if not set in environment by Pydantic,
+    # but it's better to define it in Config if it's always needed.
+    # For now, assuming HOST might not always be in config, but PORT is.
+    host = getattr(app_config, 'HOST', "0.0.0.0") # Or add HOST to Config model
+    port = app_config.PORT
 
     # Run the application using Uvicorn
     print(f"Starting server on {host}:{port}")
