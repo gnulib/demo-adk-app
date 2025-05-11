@@ -4,19 +4,33 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException, status, Response
 # Pydantic models are now in api.models
 from google.adk.events import Event # Assuming this path is correct for your project structure
+from google.adk.sessions import BaseSessionService
+from google.adk.memory import BaseMemoryService
+from google.adk.artifacts import BaseArtifactService
 
 from utils.config import Config
 from api.models import Conversation, Message # Import models from the new module
+from services.runner import Runner # Import the Runner class
 
 # Global variable to hold the singleton FastAPI app instance
 _app: Optional[FastAPI] = None
 
 
-def get_fast_api_app(config: Config) -> FastAPI:
+def get_fast_api_app(
+    runner: Runner,
+    session_service: BaseSessionService,
+    memory_service: BaseMemoryService,
+    artifact_service: BaseArtifactService,
+    config: Config,
+) -> FastAPI:
     """
     Initializes and returns a singleton instance of the FastAPI application.
 
     Args:
+        runner: The application's agent runner instance.
+        session_service: The session service instance.
+        memory_service: The memory service instance.
+        artifact_service: The artifact service instance.
         config: The application configuration object.
 
     Returns:
@@ -31,6 +45,14 @@ def get_fast_api_app(config: Config) -> FastAPI:
             # version="0.1.0",
             # description="My Awesome API",
         )
+
+        # Store services and runner on app.state for access in endpoints
+        _app.state.runner = runner
+        _app.state.session_service = session_service
+        _app.state.memory_service = memory_service
+        _app.state.artifact_service = artifact_service
+        _app.state.config = config # Storing config as well if needed in endpoints
+
         # You can add middleware, exception handlers, routers, etc. here
         # For example, to enable CORS if your config.CORS_ORIGINS is set:
         from fastapi.middleware.cors import CORSMiddleware
