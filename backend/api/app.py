@@ -1,10 +1,10 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Any # Added Any for generic type hinting
 
 from fastapi import FastAPI, HTTPException, status, Response, Request
 # Pydantic models are now in api.models
 from google.adk.events import Event # Assuming this path is correct for your project structure
-from google.adk.sessions import BaseSessionService, Session as AdkSession, ListSessionsResponse
+from google.adk.sessions import BaseSessionService, Session as AdkSession # Removed ListSessionsResponse
 from google.adk.memory import BaseMemoryService
 from google.adk.artifacts import BaseArtifactService
 
@@ -94,11 +94,15 @@ def get_fast_api_app(
             session_service: BaseSessionService = request.app.state.session_service
             app_config: Config = request.app.state.config
             try:
-                list_sessions_response: ListSessionsResponse = session_service.list_sessions(
+                # Assuming list_sessions returns an object with a .sessions attribute
+                # Type hinting as Any since the specific BaseModel type is not known/importable
+                list_sessions_response: Any = session_service.list_sessions(
                     user_id=USER_ID, app_name=app_config.APP_NAME
                 )
+                # Accessing the .sessions attribute directly
+                adk_sessions: List[AdkSession] = list_sessions_response.sessions
                 return [
-                    Conversation(conv_id=s.id, updated_at=s.last_update_time) for s in list_sessions_response.sessions
+                    Conversation(conv_id=s.id, updated_at=s.last_update_time) for s in adk_sessions
                 ]
             except Exception as e:
                 # Log the exception e
