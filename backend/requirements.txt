@@ -1,4 +1,4 @@
-google-adk
+google-adk[database]
 requests
 pydantic
 pydantic-settings
