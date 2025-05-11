@@ -1,8 +1,18 @@
+#### prompt 13 - making test driver CLI easier ####
+'''
+modify test.cli logic to make it easier for user as following:
+- use logic to work "in a conversation" and "out of conversation" modes
+- default mode is "out of conversation" and commands require a conversation id parameter (Current behavior)
+- give user a way to select "in a conversation" mode with a specific conversation id, which will be saved to use with send message command
+- when in the "in a conversation" mode, only send message will be available and will use saved conversation id, user will not need to give command key word (e.g. "sm") or conv id, only provides text to send
+- there will be some special command to get out of "in a conversation" mode, which takes user back to "out of conversation" mode
+'''
+
 #### prompt 12 - concrete endpoint implementations ####
 '''
 make the placeholder implementations for api.app endpoints concrete as following:
 - create_conversation will create a new instance of session object with session service using the “hard_coded_user-01” as the user id and APP_NAME from config, and use id and last_update_time from Session object to return new Conversation object
-- get_conversations will fetch all session objects from session service for "hard_coded_user-01" as user id and APP_NAME from config and return back the list of sessions as an array of Conversation objects
+- get_conversations will use session service method list_sessions(*, app_name, user_id) using "hard_coded_user-01" as user id and APP_NAME from config and use the returned BaseModel's "sessions: List[Session]" to return back the list of sessions as an array of Conversation objects
 - send_message will use conversation_id, "hard_coded_user-01" and APP_NAME to get Session object from session service and then call the invoke method on runner for returning back Message
 - get_conversation_history will use conversation_id, "hard_coded_user-01" and APP_NAME to get Session object from session service and return back list of events from the “history” of the session object.
 - delete_conversation will use conversation_id, "hard_coded_user-01" and APP_NAME to call delete_session method on session service
@@ -60,7 +70,8 @@ add a submodule runner.py under backend/services and implement class Runner as f
 - constructor initializes with parameters root_agent: BaseAgent, session_service: BaseSessionService, memory_service: BaseMemoryService, artifact_service: BaseArtifactService, config: Config
 - implements an async method invoke as following:
   - takes input parameters session: google.adk.sessions.Session, msg: api.models.Message and return back Message
-  - The method will instantiate a new google.adk.runners.Runner using the parameters from class instance variables and execute the “run_async” method on the runner using the “user_id” and “id” of the Session object and "text" of the msg object from the method parameter
+  - The method will instantiate a new google.adk.runners.Runner(*, app_name, agent, artifact_service=None, session_service, memory_service=None) using the parameters from class instance variables
+  - the method will execute the “run_async” method on the runner using the “user_id” and “id” of the Session object and "text" of the msg object from the method parameter
   - The method will return the agent’s final response as a new Message object. If the agent returns a structured output, that output will be a JSON string conforming to the schema as part of the agent's contract with clients. Runner will be oblivious of any such contract, and will simply pass back the response as a string.
 '''
 
