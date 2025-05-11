@@ -4,3 +4,4 @@ pydantic
 pydantic-settings
 fastapi
 uvicorn
+google-cloud-storage
