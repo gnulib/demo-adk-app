@@ -89,9 +89,9 @@ _create `backend/.env` file for local testing:_
 
 ```bash
 cat > backend/.env <<'EOF'
-export PROJECT_ID=$GOOGLE_CLOUD_PROJECT
-export LOCATION=$GOOGLE_CLOUD_LOCATION
-export USE_VERTEXAI=$GOOGLE_GENAI_USE_VERTEXAI
+export GOOGLE_CLOUD_PROJECT=$GOOGLE_CLOUD_PROJECT
+export GOOGLE_CLOUD_LOCATION=$GOOGLE_CLOUD_LOCATION
+export GOOGLE_GENAI_USE_VERTEXAI=$GOOGLE_GENAI_USE_VERTEXAI
 export APP_NAME=$GOOGLE_ADK_APP_NAME
 export PORT=8000
 export CORS_ORIGINS="[\"http://localhost:3000\", \"$FIREBASE_APP_URL\"]"
@@ -140,6 +140,14 @@ _In another terminal run the test CLI for interacting with the app (use port fro
 
 ```bash
 (cd backend; source .env; python test/cli.py --port 8000)
+
+cli> help
+
+cli> lc # this command lists existing conversations
+
+cli> cc # this command creates a new conversation
+
+cli> join <<conversation id>> # this command joins a conversation
 ```
 
 > When you interact with the agent, if you get error like `google.genai.errors.ClientError: 403 PERMISSION_DENIED` -- this usually means either VertexAI API has not be enabled in your project, or your current environment is using a different google cloud project. Please make sure that you have completed all the steps mentioned above in "Google Cloud Setup" and are using the correct google project in your environment variables (`GOOGLE_CLOUD_PROJECT`) and with `gcloud` CLI _(check config in `gcloud config list` and `gcloud auth list`)_.
@@ -180,26 +188,32 @@ make verify-backend
 
 ```bash
 (cd backend; source .env; python test/cli.py --host <<url>>)
+
+cli> help
+
+cli> lc # this command lists existing conversations
+
+cli> cc # this command creates a new conversation
+
+cli> join <<conversation id>> # this command joins a conversation
 ```
 
-**Step 2:** From "Select an agent" drop down pick `simple_agent`.
+**Step 2:** Converse with the agent to draw some cards from a deck, e.g.:
 
-**Step 3:** Converse with the agent to draw some cards from a deck, e.g.:
-
-```
-draw me 2 cards from a new deck
+```bash
+cli@<<conversation id>> draw me 2 cards from a new deck
 ```
 
-```
-ok, add these drawn cards to a new pile John
-```
-
-```
-draw 2 more cards and add them to pile Jane
+```bash
+cli@<<conversation id>> ok, add these drawn cards to a new pile John
 ```
 
+```bash
+cli@<<conversation id>> draw 2 more cards and add them to pile Jane
 ```
-ok, who has bigger hand, John or Jane? use simple card comparison, all colors are same, but cards have weight according to their number.
+
+```bash
+cli@<<conversation id>> ok, who has bigger hand, John or Jane? use simple card comparison, all colors are same, but cards have weight according to their number.
 ```
 
 </details>

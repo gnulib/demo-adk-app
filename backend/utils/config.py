@@ -13,9 +13,9 @@ class Config(BaseSettings):
     Represents the application configuration settings.
     Values are loaded from environment variables.
     """
-    PROJECT_ID: str = Field(..., description="The Google Cloud project ID.")
-    LOCATION: str = Field(..., description="The Google Cloud region/location for resources.")
-    USE_VERTEXAI: str = Field(..., description="Boolean indicating if VertexAI is enabled.")
+    GOOGLE_CLOUD_PROJECT: str = Field(..., description="The Google Cloud project ID.")
+    GOOGLE_CLOUD_LOCATION: str = Field(..., description="The Google Cloud region/location for resources.")
+    GOOGLE_GENAI_USE_VERTEXAI: str = Field(..., description="Boolean indicating if VertexAI is enabled.")
     APP_NAME: str = Field(..., description="A unique canonical name for the application.")
     DECKOFCARDS_URL: str = Field(..., description="URL for the Deckofcards API service to initialize client instance.")
     FIREBASE_KEY_JSON: str = Field(..., description="JSON content of the Firebase service account key.")

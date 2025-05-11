@@ -44,11 +44,8 @@ RUN pip install --user -r requirements.txt
 COPY main.py .
 COPY api/ /app/api/
 COPY utils/ /app/utils/
-
-# The following files are kept as per the original Dockerfile structure.
-# They might be related to ADK components or other parts of the application.
-COPY __init__.py /app/agents/__init__.py
-COPY simple_agent/ /app/agents/simple_agent/
+COPY services/ /app/services/
+COPY simple_agent/ /app/simple_agent/
 
 # Copy application code - End
 
