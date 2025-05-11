@@ -1,14 +1,14 @@
 from typing import Optional
 
-from google.adk.agents import BaseAgent # Assuming BaseAgent is here
+from google.adk.agents import BaseAgent
 from google.adk.sessions import (
     BaseSessionService,
     InMemorySessionService,
     DatabaseSessionService,
     VertexAiSessionService,
 )
-from backend.utils.config import Config
-from backend.simple_agent.agent import root_agent as simple_agent_instance
+from utils.config import Config
+from simple_agent.agent import root_agent as simple_agent_instance
 
 # Module-level variable to hold the singleton instance of the root agent
 _singleton_root_agent: Optional[BaseAgent] = None
@@ -20,7 +20,7 @@ def get_root_agent(config: Config) -> BaseAgent:
     """
     Initializes and returns a singleton instance of the root agent.
 
-    The agent is sourced from the backend.simple_agent.agent module.
+    The agent is sourced from the simple_agent.agent module.
     The config parameter is accepted for consistency but not directly used
     for initializing this specific pre-configured agent.
 
