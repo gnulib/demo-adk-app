@@ -44,6 +44,7 @@ RUN pip install --user -r requirements.txt
 COPY main.py .
 COPY api/ /app/api/
 COPY utils/ /app/utils/
+COPY services/ /app/services/
 
 # The following files are kept as per the original Dockerfile structure.
 # They might be related to ADK components or other parts of the application.
