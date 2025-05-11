@@ -7,8 +7,8 @@ from google.adk.sessions import (
     DatabaseSessionService,
     VertexAiSessionService,
 )
-from utils.config import Config
-from simple_agent.agent import root_agent as simple_agent_instance
+from backend.utils.config import Config
+from backend.simple_agent.agent import root_agent as simple_agent_instance
 
 # Module-level variable to hold the singleton instance of the root agent
 _singleton_root_agent: Optional[BaseAgent] = None
