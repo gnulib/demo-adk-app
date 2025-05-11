@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, status, Response
+from fastapi import FastAPI, HTTPException, status, Response, Request
 # Pydantic models are now in api.models
 from google.adk.events import Event # Assuming this path is correct for your project structure
-from google.adk.sessions import BaseSessionService
+from google.adk.sessions import BaseSessionService, Session as AdkSession
 from google.adk.memory import BaseMemoryService
 from google.adk.artifacts import BaseArtifactService
 
@@ -67,71 +67,103 @@ def get_fast_api_app(
                 allow_headers=["*"],
             )
 
+        USER_ID = "hard_coded_user-01" # Hardcoded user ID as per requirement
+
         @_app.post("/conversations", response_model=Conversation, status_code=status.HTTP_201_CREATED)
-        async def create_conversation():
+        async def create_conversation(request: Request):
             """
-            Creates a new conversation.
-            Placeholder: Replace with actual logic to create and store a new conversation session.
+            Creates a new conversation session.
             """
-            # Example placeholder logic:
-            # new_conv_id = "conv_" + str(uuid.uuid4()) # Requires import uuid
-            # new_updated_at = datetime.utcnow()
-            # Store this new conversation details
-            print("Placeholder: Creating a new conversation.")
-            return Conversation(conv_id="new_sample_conv_id", updated_at=datetime.utcnow())
+            session_service: BaseSessionService = request.app.state.session_service
+            app_config: Config = request.app.state.config
+            
+            try:
+                adk_session: AdkSession = await session_service.create_session(
+                    user_id=USER_ID, app_id=app_config.APP_NAME
+                )
+                return Conversation(conv_id=adk_session.id, updated_at=adk_session.last_update_time)
+            except Exception as e:
+                # Log the exception e
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
         @_app.get("/conversations", response_model=List[Conversation])
-        async def get_conversations():
+        async def get_conversations(request: Request):
             """
-            Retrieves a list of all conversations.
-            Placeholder: Replace with actual logic to fetch conversations from a data store.
+            Retrieves a list of all conversations for the hardcoded user.
             """
-            print("Placeholder: Fetching all conversations.")
-            # Example placeholder logic:
-            return [
-                Conversation(conv_id="sample_conv_1", updated_at=datetime.utcnow()),
-                Conversation(conv_id="sample_conv_2", updated_at=datetime.utcnow())
-            ]
+            session_service: BaseSessionService = request.app.state.session_service
+            app_config: Config = request.app.state.config
+            try:
+                adk_sessions: List[AdkSession] = await session_service.get_sessions(
+                    user_id=USER_ID, app_id=app_config.APP_NAME
+                )
+                return [
+                    Conversation(conv_id=s.id, updated_at=s.last_update_time) for s in adk_sessions
+                ]
+            except Exception as e:
+                # Log the exception e
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
         @_app.post("/conversations/{conversation_id}/messages", response_model=Message)
-        async def send_message(conversation_id: str, message_request: Message):
+        async def send_message(request: Request, conversation_id: str, message_request: Message):
             """
-            Sends a message to a specific conversation.
-            Placeholder: Replace with actual logic to find the conversation,
-                         process the message (e.g., with an agent), and store it.
+            Sends a message to a specific conversation and gets a response from the agent.
             """
-            print(f"Placeholder: Sending message to conversation {conversation_id}: '{message_request.text}'")
-            # Example placeholder logic:
-            # 1. Validate conversation_id exists
-            # 2. Process message_request.text (e.g., call an agent)
-            # 3. Store the message and agent's response if any
-            # For now, just echoing the received message text
-            return Message(text=f"Received in {conversation_id}: {message_request.text}")
+            session_service: BaseSessionService = request.app.state.session_service
+            app_runner: Runner = request.app.state.runner
+            app_config: Config = request.app.state.config
+
+            try:
+                adk_session: Optional[AdkSession] = await session_service.get_session(
+                    session_id=conversation_id, user_id=USER_ID, app_id=app_config.APP_NAME
+                )
+                if not adk_session:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
+                
+                response_message = await app_runner.invoke(session=adk_session, msg=message_request)
+                return response_message
+            except HTTPException: # Re-raise HTTPException
+                raise
+            except Exception as e:
+                # Log the exception e
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
         @_app.get("/conversations/{conversation_id}/history", response_model=List[Event])
-        async def get_conversation_history(conversation_id: str):
+        async def get_conversation_history(request: Request, conversation_id: str):
             """
             Retrieves the event history for a specific conversation.
-            Placeholder: Replace with actual logic to fetch events (e.g., from google.adk.events format)
-                         associated with the conversation_id.
             """
-            print(f"Placeholder: Fetching history for conversation {conversation_id}.")
-            # Example placeholder logic:
-            # This would typically involve querying a database or event store.
-            # The structure of Event objects will depend on google.adk.events.
-            return [] # Return an empty list as a placeholder
+            session_service: BaseSessionService = request.app.state.session_service
+            app_config: Config = request.app.state.config
+            try:
+                adk_session: Optional[AdkSession] = await session_service.get_session(
+                    session_id=conversation_id, user_id=USER_ID, app_id=app_config.APP_NAME
+                )
+                if not adk_session:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
+                return adk_session.history
+            except HTTPException: # Re-raise HTTPException
+                raise
+            except Exception as e:
+                # Log the exception e
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
         @_app.delete("/conversations/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
-        async def delete_conversation(conversation_id: str):
+        async def delete_conversation(request: Request, conversation_id: str):
             """
             Deletes a specific conversation.
-            Placeholder: Replace with actual logic to delete the conversation and its associated data.
             """
-            print(f"Placeholder: Deleting conversation {conversation_id}.")
-            # Example placeholder logic:
-            # 1. Find and delete conversation data by conversation_id
-            # If not found, you might raise HTTPException(status_code=404, detail="Conversation not found")
-            # On successful deletion, return a 204 response.
-            return Response(status_code=status.HTTP_204_NO_CONTENT)
+            session_service: BaseSessionService = request.app.state.session_service
+            app_config: Config = request.app.state.config
+            try:
+                await session_service.delete_session(
+                    session_id=conversation_id, user_id=USER_ID, app_id=app_config.APP_NAME
+                )
+                return Response(status_code=status.HTTP_204_NO_CONTENT)
+            except Exception as e:
+                # Log the exception e
+                # Consider if a 404 should be returned if delete is attempted on non-existent session,
+                # depending on session_service.delete_session behavior.
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     return _app
