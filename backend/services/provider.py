@@ -96,9 +96,9 @@ def get_session_service(config: Config) -> BaseSessionService:
     # 3. Try VertexAiSessionService if DB_URL is not set or DatabaseSessionService failed
     # This assumes that if DB_URL was set but failed, we still try VertexAI as a cloud-native option.
     try:
-        print(f"Attempting to use VertexAiSessionService with Project: {config.PROJECT_ID}, Location: {config.LOCATION}.")
+        print(f"Attempting to use VertexAiSessionService with Project: {config.GOOGLE_CLOUD_PROJECT}, Location: {config.GOOGLE_CLOUD_LOCATION}.")
         _singleton_session_service = VertexAiSessionService(
-            project_id=config.PROJECT_ID, location=config.LOCATION
+            project_id=config.GOOGLE_CLOUD_PROJECT, location=config.GOOGLE_CLOUD_LOCATION
         )
         print("Successfully initialized VertexAiSessionService.")
         return _singleton_session_service
