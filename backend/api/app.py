@@ -78,7 +78,7 @@ def get_fast_api_app(
             app_config: Config = request.app.state.config
             
             try:
-                adk_session: AdkSession = await session_service.create_session(
+                adk_session: AdkSession = session_service.create_session(
                     user_id=USER_ID, app_name=app_config.APP_NAME
                 )
                 return Conversation(conv_id=adk_session.id, updated_at=adk_session.last_update_time)
@@ -118,7 +118,7 @@ def get_fast_api_app(
             app_config: Config = request.app.state.config
 
             try:
-                adk_session: Optional[AdkSession] = await session_service.get_session(
+                adk_session: Optional[AdkSession] = session_service.get_session(
                     session_id=conversation_id, user_id=USER_ID, app_name=app_config.APP_NAME
                 )
                 if not adk_session:
@@ -140,7 +140,7 @@ def get_fast_api_app(
             session_service: BaseSessionService = request.app.state.session_service
             app_config: Config = request.app.state.config
             try:
-                adk_session: Optional[AdkSession] = await session_service.get_session(
+                adk_session: Optional[AdkSession] = session_service.get_session(
                     session_id=conversation_id, user_id=USER_ID, app_name=app_config.APP_NAME
                 )
                 if not adk_session:
@@ -160,7 +160,7 @@ def get_fast_api_app(
             session_service: BaseSessionService = request.app.state.session_service
             app_config: Config = request.app.state.config
             try:
-                await session_service.delete_session(
+                session_service.delete_session(
                     session_id=conversation_id, user_id=USER_ID, app_name=app_config.APP_NAME
                 )
                 return Response(status_code=status.HTTP_204_NO_CONTENT)
