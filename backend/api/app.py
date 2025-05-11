@@ -2,19 +2,11 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException, status, Response
-from pydantic import BaseModel
+# Pydantic models are now in api.models
 from google.adk.events import Event # Assuming this path is correct for your project structure
 
 from utils.config import Config
-
-
-# Pydantic Models
-class Conversation(BaseModel):
-    conv_id: str
-    updated_at: datetime
-
-class Message(BaseModel):
-    text: str
+from api.models import Conversation, Message # Import models from the new module
 
 # Global variable to hold the singleton FastAPI app instance
 _app: Optional[FastAPI] = None
