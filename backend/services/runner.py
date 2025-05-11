@@ -51,6 +51,7 @@ class Runner:
         """
         # Instantiate the ADK Runner
         adk_runner = AdkRunner(
+            app_name=self._config.APP_NAME,
             agent=self._root_agent,
             session_service=self._session_service,
             memory_service=self._memory_service,
