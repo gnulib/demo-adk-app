@@ -1,3 +1,13 @@
+#### prompt 14 - changing environment variable names as per ADK expectation ####
+'''
+update README.md, backend/utils/config.py, Makefile and backend/cloudbuild.yaml files for following changes to environment variable names to be injected and used in deployed run time:
+- use full name "GOOGLE_GENAI_USE_VERTEXAI" instead of "USE_VERTEXAI"
+- use full name "GOOGLE_CLOUD_PROJECT" instead of "PROJECT_ID"
+- use full name "GOOGLE_CLOUD_LOCATION" instead of "LOCATION"
+
+Also update backend/servies/provider.py, backend/services/runner.py and backend/api/app.py to use correct GOOGLE_CLOUD_PROJECT name
+'''
+
 #### prompt 13 - making test driver CLI easier ####
 '''
 modify test.cli logic to make it easier for user as following:
