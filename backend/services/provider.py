@@ -7,6 +7,11 @@ from google.adk.sessions import (
     DatabaseSessionService,
     VertexAiSessionService,
 )
+from google.adk.memory import (
+    BaseMemoryService,
+    InMemoryMemoryService,
+    VertexAiRagMemoryService,
+)
 from utils.config import Config
 from simple_agent.agent import root_agent as simple_agent_instance
 
@@ -14,6 +19,8 @@ from simple_agent.agent import root_agent as simple_agent_instance
 _singleton_root_agent: Optional[BaseAgent] = None
 # Module-level variable to hold the singleton instance of the session service
 _singleton_session_service: Optional[BaseSessionService] = None
+# Module-level variable to hold the singleton instance of the memory service
+_singleton_memory_service: Optional[BaseMemoryService] = None
 
 
 def get_root_agent(config: Config) -> BaseAgent:
@@ -96,3 +103,48 @@ def get_session_service(config: Config) -> BaseSessionService:
     print("Falling back to InMemorySessionService.")
     _singleton_session_service = InMemorySessionService()
     return _singleton_session_service
+
+
+def get_memory_service(config: Config) -> BaseMemoryService:
+    """
+    Initializes and returns a singleton instance of a memory service.
+
+    The type of memory service is determined based on the application
+    configuration:
+    1. If IS_TESTING is true, InMemoryMemoryService is used.
+    2. Otherwise, VertexAiRagMemoryService is attempted with default parameters.
+    3. As a fallback (if VertexAiRagMemoryService fails), InMemoryMemoryService is used.
+
+    Args:
+        config: The application configuration object.
+
+    Returns:
+        A singleton instance of a BaseMemoryService.
+    """
+    global _singleton_memory_service
+    if _singleton_memory_service is not None:
+        return _singleton_memory_service
+
+    # 1. Check for IS_TESTING
+    if config.IS_TESTING:
+        print("Using InMemoryMemoryService (IS_TESTING is true).")
+        _singleton_memory_service = InMemoryMemoryService()
+        return _singleton_memory_service
+
+    # 2. Try VertexAiRagMemoryService
+    try:
+        print("Attempting to use VertexAiRagMemoryService with default parameters.")
+        # VertexAiRagMemoryService might require GOOGLE_CLOUD_PROJECT and GOOGLE_CLOUD_LOCATION
+        # to be set in the environment, or other specific credentials/setup.
+        # It will use default values for its parameters if not specified.
+        _singleton_memory_service = VertexAiRagMemoryService()
+        print("Successfully initialized VertexAiRagMemoryService.")
+        return _singleton_memory_service
+    except Exception as e:
+        print(f"Failed to initialize VertexAiRagMemoryService: {e}. Falling back to InMemoryMemoryService.")
+        # Fall through if VertexAiRagMemoryService initialization fails
+
+    # 3. Fallback to InMemoryMemoryService
+    print("Falling back to InMemoryMemoryService.")
+    _singleton_memory_service = InMemoryMemoryService()
+    return _singleton_memory_service
