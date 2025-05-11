@@ -10,14 +10,27 @@ BASE_URL: str = "" # Placeholder, will be set in main()
 
 def print_response(response: requests.Response):
     """Helper to print API response."""
+    print(f"Status Code: {response.status_code}")
+    if not response.text:
+        print("Response: No content")
+        print("-" * 20)
+        return
+
     try:
-        print(f"Status Code: {response.status_code}")
-        if response.text:
-            print("Response JSON:")
-            print(json.dumps(response.json(), indent=2))
+        data = response.json() # Attempt to parse as JSON
+        # Check if the response is specifically a Message object (e.g., from send_message)
+        # which is a dictionary with a single key "text".
+        if isinstance(data, dict) and len(data) == 1 and "text" in data:
+            print("Response Text:")
+            # Print the text content directly. This allows newlines (\n)
+            # and other standard Python string escapes within the text to be rendered.
+            print(data["text"])
         else:
-            print("Response: No content")
+            # For other JSON responses, pretty-print the whole JSON structure.
+            print("Response JSON:")
+            print(json.dumps(data, indent=2))
     except json.JSONDecodeError:
+        # If response.json() fails, it's not a valid JSON string.
         print("Response Text (not JSON):")
         print(response.text)
     print("-" * 20)
