@@ -94,7 +94,7 @@ def get_fast_api_app(
             session_service: BaseSessionService = request.app.state.session_service
             app_config: Config = request.app.state.config
             try:
-                adk_sessions: List[AdkSession] = await session_service.get_sessions(
+                adk_sessions: List[AdkSession] = await session_service.list_sessions(
                     user_id=USER_ID, app_id=app_config.APP_NAME
                 )
                 return [
