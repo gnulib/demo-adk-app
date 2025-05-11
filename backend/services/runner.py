@@ -3,7 +3,7 @@ from google.adk.sessions import BaseSessionService, Session as AdkSession
 from google.adk.memory import BaseMemoryService
 from google.adk.artifacts import BaseArtifactService
 from google.adk.runners import Runner as AdkRunner # Alias to avoid name collision
-from google.adk.generative_ai import types # For ADK Content and Part objects
+from google.generativeai import types # For ADK Content and Part objects
 
 from utils.config import Config
 from api.models import Message
