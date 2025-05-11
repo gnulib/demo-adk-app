@@ -12,6 +12,11 @@ from google.adk.memory import (
     InMemoryMemoryService,
     VertexAiRagMemoryService,
 )
+from google.adk.artifacts import (
+    BaseArtifactService,
+    InMemoryArtifactService,
+    GcsArtifactService,
+)
 from utils.config import Config
 from simple_agent.agent import root_agent as simple_agent_instance
 
@@ -21,6 +26,8 @@ _singleton_root_agent: Optional[BaseAgent] = None
 _singleton_session_service: Optional[BaseSessionService] = None
 # Module-level variable to hold the singleton instance of the memory service
 _singleton_memory_service: Optional[BaseMemoryService] = None
+# Module-level variable to hold the singleton instance of the artifact service
+_singleton_artifact_service: Optional[BaseArtifactService] = None
 
 
 def get_root_agent(config: Config) -> BaseAgent:
@@ -148,3 +155,48 @@ def get_memory_service(config: Config) -> BaseMemoryService:
     print("Falling back to InMemoryMemoryService.")
     _singleton_memory_service = InMemoryMemoryService()
     return _singleton_memory_service
+
+
+def get_artifact_service(config: Config) -> BaseArtifactService:
+    """
+    Initializes and returns a singleton instance of an artifact service.
+
+    The type of artifact service is determined based on the application
+    configuration:
+    1. If IS_TESTING is true, InMemoryArtifactService is used.
+    2. If GCS_BUCKET is set, GcsArtifactService is attempted.
+    3. As a fallback, InMemoryArtifactService is used.
+
+    Args:
+        config: The application configuration object.
+
+    Returns:
+        A singleton instance of a BaseArtifactService.
+    """
+    global _singleton_artifact_service
+    if _singleton_artifact_service is not None:
+        return _singleton_artifact_service
+
+    # 1. Check for IS_TESTING
+    if config.IS_TESTING:
+        print("Using InMemoryArtifactService (IS_TESTING is true).")
+        _singleton_artifact_service = InMemoryArtifactService()
+        return _singleton_artifact_service
+
+    # 2. Check for GCS_BUCKET
+    if config.GCS_BUCKET:
+        try:
+            print(f"Attempting to use GcsArtifactService with GCS_BUCKET: {config.GCS_BUCKET}")
+            # GcsArtifactService might require Google Cloud credentials to be configured.
+            # Consider adding 'google-cloud-storage' to requirements.txt if not already included by google-adk.
+            _singleton_artifact_service = GcsArtifactService(bucket_name=config.GCS_BUCKET)
+            print("Successfully initialized GcsArtifactService.")
+            return _singleton_artifact_service
+        except Exception as e:
+            print(f"Failed to initialize GcsArtifactService: {e}. Falling back to InMemoryArtifactService.")
+            # Fall through if GcsArtifactService initialization fails
+
+    # 3. Fallback to InMemoryArtifactService
+    print("Falling back to InMemoryArtifactService.")
+    _singleton_artifact_service = InMemoryArtifactService()
+    return _singleton_artifact_service
