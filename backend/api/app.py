@@ -79,7 +79,7 @@ def get_fast_api_app(
             
             try:
                 adk_session: AdkSession = await session_service.create_session(
-                    user_id=USER_ID, app_id=app_config.APP_NAME
+                    user_id=USER_ID, app_name=app_config.APP_NAME
                 )
                 return Conversation(conv_id=adk_session.id, updated_at=adk_session.last_update_time)
             except Exception as e:
@@ -119,7 +119,7 @@ def get_fast_api_app(
 
             try:
                 adk_session: Optional[AdkSession] = await session_service.get_session(
-                    session_id=conversation_id, user_id=USER_ID, app_id=app_config.APP_NAME
+                    session_id=conversation_id, user_id=USER_ID, app_name=app_config.APP_NAME
                 )
                 if not adk_session:
                     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
@@ -141,7 +141,7 @@ def get_fast_api_app(
             app_config: Config = request.app.state.config
             try:
                 adk_session: Optional[AdkSession] = await session_service.get_session(
-                    session_id=conversation_id, user_id=USER_ID, app_id=app_config.APP_NAME
+                    session_id=conversation_id, user_id=USER_ID, app_name=app_config.APP_NAME
                 )
                 if not adk_session:
                     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
@@ -161,7 +161,7 @@ def get_fast_api_app(
             app_config: Config = request.app.state.config
             try:
                 await session_service.delete_session(
-                    session_id=conversation_id, user_id=USER_ID, app_id=app_config.APP_NAME
+                    session_id=conversation_id, user_id=USER_ID, app_name=app_config.APP_NAME
                 )
                 return Response(status_code=status.HTTP_204_NO_CONTENT)
             except Exception as e:
