@@ -4,7 +4,7 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException, status, Response, Request
 # Pydantic models are now in api.models
 from google.adk.events import Event # Assuming this path is correct for your project structure
-from google.adk.sessions import BaseSessionService, Session as AdkSession
+from google.adk.sessions import BaseSessionService, Session as AdkSession, ListSessionsResponse
 from google.adk.memory import BaseMemoryService
 from google.adk.artifacts import BaseArtifactService
 
@@ -94,11 +94,11 @@ def get_fast_api_app(
             session_service: BaseSessionService = request.app.state.session_service
             app_config: Config = request.app.state.config
             try:
-                adk_sessions: List[AdkSession] = session_service.list_sessions(
+                list_sessions_response: ListSessionsResponse = session_service.list_sessions(
                     user_id=USER_ID, app_name=app_config.APP_NAME
                 )
                 return [
-                    Conversation(conv_id=s.id, updated_at=s.last_update_time) for s in adk_sessions
+                    Conversation(conv_id=s.id, updated_at=s.last_update_time) for s in list_sessions_response.sessions
                 ]
             except Exception as e:
                 # Log the exception e
