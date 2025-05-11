@@ -95,7 +95,7 @@ def get_fast_api_app(
             app_config: Config = request.app.state.config
             try:
                 adk_sessions: List[AdkSession] = await session_service.list_sessions(
-                    user_id=USER_ID, app_id=app_config.APP_NAME
+                    user_id=USER_ID, app_name=app_config.APP_NAME
                 )
                 return [
                     Conversation(conv_id=s.id, updated_at=s.last_update_time) for s in adk_sessions
