@@ -23,7 +23,7 @@ import vertexai # For Vertex AI specific initializations
 # e.g., from google.cloud import aiplatform_v1beta1 as aiplatform (and use its client)
 # or from vertexai.preview.language_models import Agent (if it's that kind of agent)
 # For this change, proceeding with the user's implied 'from vertexai import agent_engines' style.
-from vertexai.preview import agent_engines 
+from vertexai import agent_engines 
 
 from utils.config import Config
 from simple_agent.agent import root_agent as simple_agent_instance
