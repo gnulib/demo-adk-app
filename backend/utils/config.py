@@ -24,6 +24,7 @@ class Config(BaseSettings):
     IS_TESTING: Optional[bool] = Field(None, description="Boolean indicating if the application is running in a testing environment.")
     GCS_BUCKET: Optional[str] = Field(None, description="Google Cloud Storage bucket name (optional, used for GcsArtifactService).")
     DB_URL: Optional[str] = Field(None, description="Database connection URL (optional, used for DatabaseSessionService).")
+    AGENT_ID: Optional[str] = Field(None, description="Vertex AI Agent Engine resource ID (optional, discovered or created at runtime).")
 
     class Config:
         # Pydantic-settings specific configurations

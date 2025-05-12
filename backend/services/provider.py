@@ -17,6 +17,14 @@ from google.adk.artifacts import (
     InMemoryArtifactService,
     GcsArtifactService,
 )
+import vertexai # For Vertex AI specific initializations
+# Assuming agent_engines is available under vertexai.preview. This might vary based on SDK version.
+# If this import fails, you may need to find the correct path for 'agent_engines'
+# e.g., from google.cloud import aiplatform_v1beta1 as aiplatform (and use its client)
+# or from vertexai.preview.language_models import Agent (if it's that kind of agent)
+# For this change, proceeding with the user's implied 'from vertexai import agent_engines' style.
+from vertexai.preview import agent_engines 
+
 from utils.config import Config
 from simple_agent.agent import root_agent as simple_agent_instance
 
@@ -73,6 +81,44 @@ def get_session_service(config: Config) -> BaseSessionService:
     global _singleton_session_service
     if _singleton_session_service is not None:
         return _singleton_session_service
+
+    # Initialize Vertex AI and determine AGENT_ID if not in testing mode
+    # This logic is placed here to ensure AGENT_ID is set on the config object
+    # before other session services might be initialized or used with it.
+    if not config.IS_TESTING and not config.AGENT_ID: # Only run if not testing and AGENT_ID not already set
+        try:
+            print(f"Initializing Vertex AI for project: {config.GOOGLE_CLOUD_PROJECT}, location: {config.GOOGLE_CLOUD_LOCATION}")
+            vertexai.init(
+                project=config.GOOGLE_CLOUD_PROJECT,
+                location=config.GOOGLE_CLOUD_LOCATION,
+                staging_bucket=f"gs://{config.APP_NAME}" # Corrected f-string
+            )
+            print("Vertex AI initialized.")
+
+            print("Checking for existing Vertex AI agent engines...")
+            resource_id: str | None = None
+            # The following list() and create() calls are based on the user's example.
+            # Actual SDK usage for listing/creating specific types of Vertex AI "agents" or "engines"
+            # (e.g., RAG engines, Dialogflow CX agents) might differ.
+            for item in agent_engines.list(): # This call might need specific parameters or client setup
+                resource_id = item.name
+                print(f"Found existing agent engine: {resource_id}")
+                break
+            
+            if not resource_id:
+                print("No existing agent engine found. Creating a new one...")
+                # The create() method might require parameters like display_name.
+                # Using parameter-less create() as per user's example.
+                agent = agent_engines.create() 
+                resource_id = agent.name
+                print(f"Created new agent engine: {resource_id}")
+            
+            config.AGENT_ID = resource_id # Store the found/created ID in the config
+            print(f"AGENT_ID set in config: {config.AGENT_ID}")
+
+        except Exception as e:
+            print(f"Error during Vertex AI agent engine setup: {e}. AGENT_ID will not be set by this process.")
+            # Depending on requirements, might want to re-raise or handle differently.
 
     # 1. Check for IS_TESTING
     if config.IS_TESTING:
