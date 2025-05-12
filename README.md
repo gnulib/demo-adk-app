@@ -39,23 +39,37 @@ This repository serves as a hands-on companion for a 3-part blog series.
 # use same command as previous setup instructions
 ```
 
-**Step 3:** Verify your configurations:
+**Step 3:** Create a Cloud Storage bucket for your project:
+
+```bash
+gcloud storage buckets create gs://$GOOGLE_ADK_APP_NAME \
+    --default-storage-class STANDARD \
+    --location $GOOGLE_CLOUD_LOCATION
+```
+
+_(If you already have the bucket created earlier, you may get below error and you can ignore it:)_
+
+> ERROR: (gcloud.storage.buckets.create) HTTPError 409: Your previous request to create the named bucket succeeded and you already own it.
+
+**Step 4:** Verify your configurations:
 
 ```bash
 gcloud config list # verify gcloud is using correct google cloud account and project
 
 gcloud artifacts repositories list # verify artifact repository exists
+
+gcloud storage buckets list --format="json(name)" # verify that storage bucket for app name exists
 ```
 
 > Above command will display your current `gcloud` configuration, including the active account and the project, and the default region/zone if you set them. These should match the project and google cloud account you are using for this demo.
 
-**Step 4:** Add necessary roles to service account:
+**Step 5:** Add necessary roles to service account:
 
 ```bash
 # use same roles as previous setup instructions
 ```
 
-**Step 5:** Add necessary secret key access to service account:
+**Step 6:** Add necessary secret key access to service account:
 
 ```bash
 # No secret key access to be added yet.
