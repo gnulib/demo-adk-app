@@ -149,7 +149,7 @@ def get_fast_api_app(
                 )
                 if not adk_session:
                     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
-                return adk_session.history
+                return adk_session.events
             except HTTPException: # Re-raise HTTPException
                 raise
             except Exception as e:
