@@ -50,8 +50,9 @@ class Runner:
             A Message object containing the agent's response.
         """
         # Instantiate the ADK Runner
+        app_name_to_use = self._config.AGENT_ID if self._config.AGENT_ID else self._config.APP_NAME
         adk_runner = AdkRunner(
-            app_name=self._config.APP_NAME,
+            app_name=app_name_to_use,
             agent=self._root_agent,
             session_service=self._session_service,
             memory_service=self._memory_service,
