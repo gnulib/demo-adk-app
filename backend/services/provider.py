@@ -23,8 +23,7 @@ import vertexai # For Vertex AI specific initializations
 # e.g., from google.cloud import aiplatform_v1beta1 as aiplatform (and use its client)
 # or from vertexai.preview.language_models import Agent (if it's that kind of agent)
 # For this change, proceeding with the user's implied 'from vertexai import agent_engines' style.
-from vertexai import agent_engines
-from vertexai.preview import rag # For RAG service interaction
+from vertexai import agent_engines, rag
 
 from utils.config import Config
 from simple_agent.agent import root_agent as simple_agent_instance
@@ -200,9 +199,11 @@ def get_memory_service(config: Config) -> BaseMemoryService:
             if not rag_corpus_resource_id:
                 print(f"No RAG corpus found starting with display name '{config.APP_NAME}'. Creating a new one...")
                 # Define a default embedding model configuration
-                embedding_model_config = rag.RagEmbeddingModelConfig(
-                    embedding_model_name="textembedding-gecko@003" # A common default
-                )
+                # embedding_model_config = rag.RagEmbeddingModelConfig(
+                #     vertex_prediction_endpoint=rag.VertexPredictionEndpoint(
+                #         publisher_model="publishers/google/models/text-embedding-005"
+                #     )
+                # )
                 new_rag_corpus = rag.create_corpus(
                     display_name=f"{config.APP_NAME}-corpus",
                     # backend_config is deprecated, use rag_resources instead if applicable for your SDK version
@@ -231,9 +232,6 @@ def get_memory_service(config: Config) -> BaseMemoryService:
         if config.RAG_CORPUS:
             print(f"Using RAG corpus: {config.RAG_CORPUS}")
             _singleton_memory_service = VertexAiRagMemoryService(rag_corpus=config.RAG_CORPUS)
-        else:
-            print("RAG_CORPUS not set in config. Initializing VertexAiRagMemoryService without a specific corpus.")
-            _singleton_memory_service = VertexAiRagMemoryService() # Default initialization
 
         print("Successfully initialized VertexAiRagMemoryService.")
         return _singleton_memory_service

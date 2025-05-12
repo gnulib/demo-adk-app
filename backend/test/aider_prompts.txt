@@ -1,3 +1,38 @@
+#### prompt 16 - logic to initialize VertexAiRagMemoryService for ADK agents on cloud run ####
+'''
+modify pydantic object Config in utils.config as following:
+- add new field named "RAG_CORPUS" of type str, it will be optional and set to None
+
+modify get_memory_service method in services.provider as following:
+- from vertexai import rag and check if an corpus already exists for project as folliwing:
+```
+resource_id: str | None = None
+for item in rag.list_corpora():
+  if item.display_name.startswith(config.APP_NAME):
+    resource_id=item.name
+    break
+```
+- if no corpus exists, then create new:
+```
+if not resource_id:
+  embedding_model_config = rag.RagEmbeddingModelConfig(
+    vertex_prediction_endpoint=rag.VertexPredictionEndpoint(
+       publisher_model="publishers/google/models/text-embedding-005"
+    )
+  )
+  rag_corpus = rag.create_corpus(
+      display_name=f"{config.APP_NAME}-corpus",
+      backend_config=rag.RagVectorDbConfig(
+         rag_embedding_model_config=embedding_model_config
+      )
+  )
+  resource_id = rag_corpus.name
+```
+- Add resource ID to config object: `config.RAG_CORPUS=resource_id`
+- when instantiating VertexAiRagMemoryService use named parameter rag_corpus=config.RAG_CORPUS in argument
+'''
+
+
 #### prompt 15 - logic to use VertexAiSessionService for ADK Agents on Cloud Run ####
 '''
 modify pydantic object Config in utils.config as following:
