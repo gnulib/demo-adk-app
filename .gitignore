@@ -2,3 +2,6 @@
 .venv
 backend/**/__pycache__/
 **/.env
+
+# firebase CLI
+**/firebase-debug.log

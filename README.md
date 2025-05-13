@@ -33,11 +33,12 @@ This repository serves as a hands-on companion for a 3-part blog series.
 
 > You can add the above exports into your shell's environment file, e.g. `~/.zshrc`
 
-**Step 2:** Enable the following APIs in your project:
+**Step 2:** Enable the Identity Toolkit APIs in your project:
 
 ```bash
-# use same command as previous setup instructions
+gcloud services enable identitytoolkit.googleapis.com
 ```
+> Above is new API for firebase authentication introduced in this part of the blog series, in addition to other APIs that were enabled in the earlier parts of the blog series.
 
 **Step 3:** Create a Cloud Storage bucket for your project:
 
@@ -51,7 +52,19 @@ _(If you already have the bucket created earlier, you may get below error and yo
 
 > ERROR: (gcloud.storage.buckets.create) HTTPError 409: Your previous request to create the named bucket succeeded and you already own it.
 
-**Step 4:** Verify your configurations:
+**Step 4:** Add necessary roles to service account:
+
+```bash
+# use same roles as previous setup instructions
+```
+
+**Step 5:** Add necessary secret key access to service account:
+
+```bash
+# No secret key access to be added yet.
+```
+
+**Step 6:** Verify your configurations:
 
 ```bash
 gcloud config list # verify gcloud is using correct google cloud account and project
@@ -63,23 +76,81 @@ gcloud storage buckets list --format="json(name)" # verify that storage bucket f
 
 > Above command will display your current `gcloud` configuration, including the active account and the project, and the default region/zone if you set them. These should match the project and google cloud account you are using for this demo.
 
-**Step 5:** Add necessary roles to service account:
+</details>
 
+<details>
+<summary>Firebase Setup</summary>
+
+> You'll be required to have a firebase project linked to the google cloud project created above, as following...
+
+**Step 1:** Install [Node.js](https://www.nodejs.org/) using [nvm](https://github.com/nvm-sh/nvm/blob/master/README.md) on your development machine:
+
+_(first install nvm)_
 ```bash
-# use same roles as previous setup instructions
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 ```
 
-**Step 6:** Add necessary secret key access to service account:
+_(second, close and reopen new terminal window)_
+
+_(third, install node using nvm)_
 
 ```bash
-# No secret key access to be added yet.
+nvm install node
+````
+
+_(Installing Node.js automatically installs the `npm` command tools)_
+
+**Step 2:** Install firebase CLI on your development machine:
+
+```bash
+npm install -g firebase-tools
 ```
+
+**Step 3:** Log in to firebase with your CLI:
+
+```bash
+# use 'firebase logout' if you are already logged in from a
+# different / work account and need to switch to personal account
+firebase login
+```
+
+>This command will open a browser window asking you to log in with your Google account and grant Firebase CLI the necessary permissions. Once you've successfully logged in, the terminal will confirm that you are authenticated.
+
+**Step 4:** Add firebase to your google cloud project:
+
+```bash
+firebase projects:addfirebase $GOOGLE_CLOUD_PROJECT
+```
+
+> If you already had firebase added to google cloud project, then might get error, you can ignore that.
+
+
+**Step 5:** Enable email/password authentication for your firebase project:
+
+1. Go to the [Firebase console](https://console.firebase.google.com/)
+
+1. Select your project created above.
+
+1. On project dashboard, under Build -> Authentication click on “Get started”
+
+1. Select sign-in method, click on Add new provider
+
+1. Select the Native provider “Email/Password”, toggle “Enable” to on, save
+
+**Step 6:** Disable user self creation:
+1. Goto “Settings” tab under Authentication
+
+1. Click on “User actions”
+
+1. Deselect “Enable create” checkbox
+
+1. Save
 
 </details>
 
 ## Project Setup
 
-> Following is project specific setup required on top of setup done with Part - 1 of the blog series. If you have not completed the previous parts, please complete them before continuing here.
+> Following is a one time setup required on top of setup done with Part - 1 of the blog series. If you have not completed the previous parts, please complete them before continuing here.
 
 <details>
 
@@ -91,13 +162,136 @@ _Install backend project dependencies:_
 pip install -r backend/requirements.txt
 ```
 
+_Install frontend project dependencies:_
+
+```bash
+(cd frontend;  npm install)
+```
+
 > New dependencies may have been added on top of earlier dependencies, hence need to install / update.
 
 </details>
 
 <details>
 
-<summary>Setup local environment</summary>
+<summary>Initialize Firebase for Your Project</summary>
+
+**Step 1:** Configure `firebase` to use your google project for frontend:
+
+```bash
+(cd frontend; firebase use $GOOGLE_CLOUD_PROJECT)
+```
+
+**Step 2:** Initialize hosting for your frontend:
+
+```bash
+(cd frontend; firebase init hosting)
+```
+
+This command will start an interactive process. Here's how to respond to the prompts:
+
+1. **What do you want to use as your public directory?** This is the most important step for a React app. The build process for React applications (using `create-react-app`) typically outputs the production files into a `build` or `dist` folder. Enter `build` (or `dist` if you are using Vite or a custom setup) and press Enter.
+
+1. **Configure as a single-page application (rewrite all urls to /index.html)?** Type `Yes` (`y`) and press Enter. This is crucial for single-page applications like React apps, ensuring that routing works correctly.
+
+1. **Set up automatic builds and deploys with GitHub?** Type `No` (`n`) unless you specifically want to set up continuous deployment with GitHub Actions at this time. You can always set this up later.
+
+1. **File build/index.html already exists. Overwrite?** Type `No` (`n`). You don't want to overwrite the `index.html` file that is generated during the build process.
+
+After completing these steps, Firebase will create two new files in your project's root directory: `.firebaserc` and `firebase.json`.
+
+* `.firebaserc`: Stores your default Firebase project alias.
+
+* `firebase.json`: Contains the configuration for Firebase services, including Hosting. It will specify your public directory (`build`) and the rewrite rule for single-page applications.
+
+**Step 3:** Initialize emulators for local testing of your frontend:
+
+```bash
+(cd frontend; firebase init emulators)
+```
+
+This command will start an interactive process. Here's how to respond to the prompts:
+
+1. **Which Firebase emulators do you want to set up?** Use the spacebar to select `Hosting Emulator` and `Authentication Emulator`, and then press Enter.
+
+1. **Which port do you want to use for the auth emulator?** press enter for using default value.
+
+1. **Which port do you want to use for the hosting emulator?** press enter for using default value.
+
+1. **Would you like to enable the Emulator UI?** press enter for using default value.
+
+1. **Which port do you want to use for the Emulator UI?** enter some available port (e.g. 6001).
+
+1. **Would you like to download the emulators now?** press Y and enter to download.
+
+**Step 4:** Create a new web app for your firebase project:
+
+_(first confirm that you don't already have web app)_
+
+```bash
+(cd frontend; firebase apps:list)
+```
+
+_(if don't have web app already, then create new)_
+
+```bash
+(cd frontend; firebase apps:create web)
+```
+
+This command will start an interactive process. Here's how to respond to the prompts:
+
+1. **What would you like to call your app?** Use "demo-adk-app-frontend".
+
+> save the app ID from output for use below.
+
+**Step 5:** Store the firebase web app ID as environment variable:
+
+```bash
+export FIREBASE_APP_ID=<<app ID from above>>
+```
+
+>TIP: you can add above line to your shell's rc file, e.g. `~/.zshrc` and reload
+
+</details>
+
+<details>
+
+<summary>Setup firebase frontend environment</summary>
+
+**Step 1:** Copy `frontend/.env.example` file as `frontend/.env`
+
+```bash
+cp frontend/.env.example frontend/.env
+```
+
+**Step 2:** Get firebase web app configuration:
+
+```bash
+(cd frontend; firebase apps:sdkconfig WEB $FIREBASE_APP_ID)
+```
+
+> output will look something like below:
+
+```js
+{
+  projectId: "YOUR_FIREBASE_PROJECT_ID",
+  appId: "YOUR_FIREBASE_APP_ID",
+  storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
+  messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID"
+}
+```
+
+**Step 3:** replace the placeholder values in `frontend/.env` file with your actual configuration from above.
+
+> **Important**: Keep your apiKey and other configuration details secure. While the apiKey for web apps is generally considered safe to include in your client-side code (as it only allows access to services you've enabled and configured security rules for), you should never expose sensitive server-side keys.
+
+</details>
+
+<details>
+
+<summary>Setup backend environment</summary>
 
 _create `backend/.env` file for local testing:_
 
@@ -112,6 +306,7 @@ export CORS_ORIGINS="[\"http://localhost:3000\", \"$FIREBASE_APP_URL\"]"
 export IS_TESTING=true
 export DECKOFCARDS_URL="https://deckofcardsapi.com/api/deck"
 export FIREBASE_KEY_JSON="{}"
+export FIREBASE_AUTH_EMULATOR_HOST="127.0.0.1:9099" # port here should be same as configured for auth emulator
 EOF
 ```
 
