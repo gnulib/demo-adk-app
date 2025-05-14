@@ -27,7 +27,7 @@ function App() {
       // onAuthStateChanged will set user to null
     } catch (err) {
       console.error("Logout error:", err);
-      setError('Failed to logout.');
+      // setError('Failed to logout.'); // setError is not defined here, error state is in LandingPage
     }
   };
 
