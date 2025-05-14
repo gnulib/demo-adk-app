@@ -1,6 +1,7 @@
 import { auth } from './firebase'; // To get the ID token
 
-const BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+const rawBaseUrl = process.env.REACT_APP_BACKEND_URL || '';
+const BASE_URL = rawBaseUrl.trim(); // Trim whitespace
 
 // Helper function to get the ID token
 const getIdToken = async () => {
