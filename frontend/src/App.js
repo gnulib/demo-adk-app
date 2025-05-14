@@ -21,6 +21,7 @@ function App() {
   const [appError, setAppError] = useState(''); // To distinguish from LandingPage error
 
   const messagesEndRef = useRef(null); // For auto-scrolling
+  const messageInputRef = useRef(null); // For focusing message input
 
   // Login form state (email, password, error) is now managed by LandingPage
   // const [email, setEmail] = useState('');
@@ -56,6 +57,13 @@ function App() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Effect to focus message input after agent response
+  useEffect(() => {
+    if (!isLoading && currentConversationId && messageInputRef.current) {
+      messageInputRef.current.focus();
+    }
+  }, [isLoading, currentConversationId]);
 
 
   // Fetch conversations when user logs in or currentConversationId is cleared
@@ -287,6 +295,7 @@ function App() {
             {/* Message Input Form */}
             <form onSubmit={handleSendMessage} className="flex space-x-2">
               <input
+                ref={messageInputRef} // Assign the ref here
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
