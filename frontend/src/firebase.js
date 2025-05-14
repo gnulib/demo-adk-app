@@ -18,28 +18,28 @@ const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
-const loginUser = (email, password) => {
-  return signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      // Signed in
-      // const user = userCredential.user; // user object can be accessed here if needed
-      return userCredential; // Return the full userCredential
-    })
-    .catch((error) => {
-      // const errorCode = error.code; // errorCode can be accessed here
-      // const errorMessage = error.message; // errorMessage can be accessed here
-      return error; // Return the error object
-    });
+const loginUser = async (email, password) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    // Signed in
+    // const user = userCredential.user; // user object can be accessed here if needed
+    return userCredential; // Return the full userCredential
+  } catch (error) {
+    // const errorCode = error.code; // errorCode can be accessed here
+    // const errorMessage = error.message; // errorMessage can be accessed here
+    return error; // Return the error object
+  }
 };
 
-const logoutUser = () => {
-  return signOut(auth).then(() => {
+const logoutUser = async () => {
+  try {
+    await signOut(auth);
     // Sign-out successful.
     return { success: true };
-  }).catch((error) => {
+  } catch (error) {
     // An error happened.
     return error; // Return the error object
-  });
+  }
 };
 
 export default app;
