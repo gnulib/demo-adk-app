@@ -6,14 +6,26 @@ import { onAuthStateChanged } from 'firebase/auth';
 
 function App() {
   const [user, setUser] = useState(null);
+  const [idToken, setIdToken] = useState('');
   // Login form state (email, password, error) is now managed by LandingPage
   // const [email, setEmail] = useState('');
   // const [password, setPassword] = useState('');
   // const [error, setError] = useState('');
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        try {
+          const token = await currentUser.getIdToken();
+          setIdToken(token);
+        } catch (error) {
+          console.error("Error getting ID token:", error);
+          setIdToken(''); // Clear token on error
+        }
+      } else {
+        setIdToken(''); // Clear token on logout
+      }
     });
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
@@ -47,6 +59,12 @@ function App() {
         <h1 className="text-3xl font-bold text-gray-800">App Canvas</h1>
         <p className="text-xl text-gray-600">Welcome, <span className="font-semibold">{user.email}</span>!</p>
         <p className="text-md text-gray-500">User ID: {user.uid}</p>
+        {idToken && (
+          <div className="mt-4 p-4 bg-gray-100 rounded-md shadow">
+            <p className="text-sm text-gray-700 font-semibold mb-1">Your ID Token:</p>
+            <p className="text-xs text-gray-600 break-all">{idToken}</p>
+          </div>
+        )}
         {/* Placeholder for actual app functionality */}
         <div className="mt-6 p-10 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg">
           <p className="text-gray-400">Your application content will go here.</p>
