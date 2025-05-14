@@ -204,25 +204,19 @@ After completing these steps, Firebase will create two new files in your project
 
 * `firebase.json`: Contains the configuration for Firebase services, including Hosting. It will specify your public directory (`build`) and the rewrite rule for single-page applications.
 
-**Step 3:** Initialize emulators for local testing of your frontend:
+**Step 3:** Create test user for project:
 
-```bash
-(cd frontend; firebase init emulators)
-```
+1. Go to the [Firebase console](https://console.firebase.google.com/)
 
-This command will start an interactive process. Here's how to respond to the prompts:
+1. Select your project created above.
 
-1. **Which Firebase emulators do you want to set up?** Use the spacebar to select `Hosting Emulator` and `Authentication Emulator`, and then press Enter.
+1. On project dashboard, under Build -> Authentication click on “Users” tab
 
-1. **Which port do you want to use for the auth emulator?** press enter for using default value.
+1. Click on "Add user"
 
-1. **Which port do you want to use for the hosting emulator?** press enter for using default value.
+1. Enter email and password for a test user (e.g. `test@example.com` / `secret123`)
 
-1. **Would you like to enable the Emulator UI?** press enter for using default value.
-
-1. **Which port do you want to use for the Emulator UI?** enter some available port (e.g. 6001).
-
-1. **Would you like to download the emulators now?** press Y and enter to download.
+> The above test user can have any email/password, save it for using with testing later.
 
 **Step 4:** Create a new web app for your firebase project:
 
@@ -244,10 +238,11 @@ This command will start an interactive process. Here's how to respond to the pro
 
 > save the app ID from output for use below.
 
-**Step 5:** Store the firebase web app ID as environment variable:
+**Step 5:** Store the firebase web app ID and URLs as environment variable:
 
 ```bash
 export FIREBASE_APP_ID=<<app ID from above>>
+export FIREBASE_APP_URLS="$GOOGLE_CLOUD_PROJECT.web.app, $GOOGLE_CLOUD_PROJECT.firebaseapp.com"
 ```
 
 >TIP: you can add above line to your shell's rc file, e.g. `~/.zshrc` and reload
@@ -302,7 +297,7 @@ export GOOGLE_CLOUD_LOCATION=$GOOGLE_CLOUD_LOCATION
 export GOOGLE_GENAI_USE_VERTEXAI=$GOOGLE_GENAI_USE_VERTEXAI
 export APP_NAME=$GOOGLE_ADK_APP_NAME
 export PORT=8000
-export CORS_ORIGINS="http://localhost:3000, $FIREBASE_APP_URL"
+export CORS_ORIGINS="http://localhost:3000, $FIREBASE_APP_URLS"
 export IS_TESTING=true
 export DECKOFCARDS_URL="https://deckofcardsapi.com/api/deck"
 export FIREBASE_KEY_JSON="{}"
@@ -313,31 +308,10 @@ EOF
 </details>
 
 ## Getting Started
-> You'll be using two terminals, besides any IDE you might be using to view / navigate project files. One terminal will be used to run `aider` for any copilot help (e.g., asking to help describe code), and another terminal will be where you'll be running the frontend / backend apps for local testing.
+> You'll be using two terminals, one terminal will be used to run backend service, and another terminal will be where you'll be running the frontend app for local testing.
 
 <details>
-<summary>Start aider on terminal</summary>
-
-_(assuming you configured alias in aider setup above)_
-
-```bash
-copilot
-```
-
-> First time invocation of `aider` may require installing additional packages, let that complete.
-
-_Ask `aider` to describe project..._
-
-```bash
-> describe the project to me 
-```
-
-> This documentation assumes you are using aider on a terminal window as a copilot for learning about project, or making changes to project as per your needs.
-
-</details>
-
-<details>
-<summary>Test Project Setup Locally</summary>
+<summary>Test backend setup locally</summary>
 
 _In one terminal run the app locally for testing project setup_
 
@@ -360,6 +334,22 @@ cli> join <<conversation id>> # this command joins a conversation
 ```
 
 > When you interact with the agent, if you get error like `google.genai.errors.ClientError: 403 PERMISSION_DENIED` -- this usually means either VertexAI API has not be enabled in your project, or your current environment is using a different google cloud project. Please make sure that you have completed all the steps mentioned above in "Google Cloud Setup" and are using the correct google project in your environment variables (`GOOGLE_CLOUD_PROJECT`) and with `gcloud` CLI _(check config in `gcloud config list` and `gcloud auth list`)_.
+
+</details>
+
+<details>
+
+<summary>Test frontend setup locally</summary>
+
+1. _Once backend looks good, start frontend to interact with local agent service:_
+```bash
+(cd frontend; npm run start)
+```
+
+1. _(make sure that you have test user created as mentioned in project setup above)_
+
+1. _Interact with the app frontend and confirm connectivity and functionality works as expected._
+
 
 </details>
 
