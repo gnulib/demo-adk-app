@@ -21,55 +21,25 @@ const AcknowledgementSection = () => (
 const IntroductionSection = () => (
   <section className="mb-8">
     <p className="text-lg md:text-xl text-gray-700 mb-4 leading-relaxed">
-      This is a demo project for a simple app using{' '}
+      This demo project showcases a simple application built with Google's ADK framework, 
+      illustrating how to deploy an ADK app on Google Cloud as a Cloud Run service. 
+      It also highlights the capabilities of LLMs in creating conversational interfaces for services with APIs.
+    </p>
+    <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
+      For more details, please refer to the{' '}
       <a
-        href="https://google.github.io/adk-docs/"
+        href="https://github.com/gnulib/demo-adk-app/blob/main/README.md"
         target="_blank"
         rel="noopener noreferrer"
         className="text-blue-600 hover:text-blue-800 font-medium underline"
       >
-        Google's ADK
-      </a>{' '}
-      framework. This project is intended to demonstrate how to setup a GCP project for deploying ADK app as a cloud run service.
-    </p>
-    <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
-      Secondary objective of this project is to demonstrate the power of LLMs, how they can be used to build conversation interface against pretty much any service that has reasonable APIs.
+        project README on GitHub
+      </a>.
     </p>
   </section>
 );
 
-const PowerOfLLMsSection = () => (
-  <section className="mb-8 p-6 bg-white rounded-lg shadow-lg">
-    <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">The Power of LLM-based Agents as Middleware</h2>
-    <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-      This project, while simple in functionality, demonstrates the remarkable power of Large Language Models (LLMs) as middleware for backend services. The agent in this demo is able to:
-    </p>
-    <ul className="space-y-4 mb-6">
-      {[
-        {
-          title: "Understand API Capabilities from Docstrings",
-          text: "The agent uses the docstrings of simple Python wrapper functions to understand what each API call does. No additional schema, OpenAPI spec, or manual translation is required—just clear function docstrings."
-        },
-        {
-          title: "Interpret API Responses Directly",
-          text: "The agent can read and reason about the raw API responses (typically JSON), extracting the information it needs without any custom parsing or mapping logic."
-        },
-        {
-          title: "Autonomously Orchestrate Workflows",
-          text: "Given a user request, the agent can decide which API(s) to call, in what order, and how to use the results—without any hardcoded rules or business logic. The LLM's reasoning ability enables it to create autonomous workflows on the fly."
-        }
-      ].map((item, index) => (
-        <li key={index} className="p-4 bg-gray-50 rounded-md shadow-sm">
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">{item.title}</h3>
-          <p className="text-gray-600 leading-relaxed">{item.text}</p>
-        </li>
-      ))}
-    </ul>
-    <p className="text-lg text-gray-700 leading-relaxed">
-      Even though the functionality here is limited to drawing and shuffling cards, this is a powerful demonstration of how LLM-based agents can act as a universal interface layer for any backend service with reasonable API endpoints. With minimal glue code, LLMs can bridge the gap between natural language and programmatic APIs, opening up new possibilities for rapid prototyping, automation, and conversational interfaces.
-    </p>
-  </section>
-);
+// PowerOfLLMsSection removed
 
 const SpecialThanksSection = () => (
   <blockquote className="mt-8 mb-6 p-6 border-l-4 border-green-500 bg-green-50 rounded-md shadow">
@@ -128,8 +98,19 @@ function LandingPage({ loginUser }) {
     // Main container for the page, centered with max-width.
     // This div used to be nested inside "Landing Page Content Section".
     <div className="p-4 md:p-8 max-w-4xl mx-auto bg-white rounded-xl shadow-2xl space-y-8">
-      {/* Login Form Section - integrated at the top */}
-      {/* Styling adjusted for a centered card look, removed stickiness and specific column widths */}
+      {/* Login Form Section has been moved below the header */}
+
+      {/* Landing Page Content Sections - now follow the login form in the same container */}
+      <header className="text-center py-6">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800">
+          Demo ADK App
+        </h1>
+        <p className="text-lg text-gray-600 mt-2">
+          Exploring Google's ADK and the Power of LLMs
+        </p>
+      </header>
+
+      {/* Login Form Section - moved here, below the header */}
       <div className="w-full max-w-md mx-auto p-6 md:p-8 space-y-6 bg-gray-50 rounded-lg shadow-lg mb-12">
         <h2 className="text-2xl font-bold text-center text-gray-900">Login</h2>
         <form onSubmit={handleLogin} className="space-y-6">
@@ -173,18 +154,9 @@ function LandingPage({ loginUser }) {
         </form>
       </div>
 
-      {/* Landing Page Content Sections - now follow the login form in the same container */}
-      <header className="text-center py-6">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800">
-          Demo ADK App
-        </h1>
-        <p className="text-lg text-gray-600 mt-2">
-          Exploring Google's ADK and the Power of LLMs
-        </p>
-      </header>
       <AcknowledgementSection />
       <IntroductionSection />
-      <PowerOfLLMsSection />
+      {/* PowerOfLLMsSection invocation removed */}
       <SpecialThanksSection />
     </div>
   );
