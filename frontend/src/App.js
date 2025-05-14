@@ -7,6 +7,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 function App() {
   const [user, setUser] = useState(null);
   const [idToken, setIdToken] = useState('');
+  const [isTokenVisible, setIsTokenVisible] = useState(false);
   // Login form state (email, password, error) is now managed by LandingPage
   // const [email, setEmail] = useState('');
   // const [password, setPassword] = useState('');
@@ -59,22 +60,35 @@ function App() {
         <h1 className="text-3xl font-bold text-gray-800">App Canvas</h1>
         <p className="text-xl text-gray-600">Welcome, <span className="font-semibold">{user.email}</span>!</p>
         <p className="text-md text-gray-500">User ID: {user.uid}</p>
-        {idToken && (
-          <div className="mt-4 p-4 bg-gray-100 rounded-md shadow">
-            <p className="text-sm text-gray-700 font-semibold mb-1">Your ID Token:</p>
-            <p className="text-xs text-gray-600 break-all">{idToken}</p>
-          </div>
-        )}
+        
         {/* Placeholder for actual app functionality */}
         <div className="mt-6 p-10 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg">
           <p className="text-gray-400">Your application content will go here.</p>
         </div>
+
         <button
           onClick={handleLogout}
-          className="mt-8 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          className="mt-8 mb-4 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
         >
           Sign Out
         </button>
+
+        {/* Collapsible ID Token Footer */}
+        {idToken && (
+          <div className="w-full mt-4 p-4 bg-gray-200 rounded-md shadow">
+            <button
+              onClick={() => setIsTokenVisible(!isTokenVisible)}
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium focus:outline-none"
+            >
+              {isTokenVisible ? 'Hide' : 'Show'} ID Token
+            </button>
+            {isTokenVisible && (
+              <div className="mt-2 p-3 bg-gray-100 rounded">
+                <p className="text-xs text-gray-600 break-all">{idToken}</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
