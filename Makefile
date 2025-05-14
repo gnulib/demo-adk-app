@@ -20,7 +20,7 @@ ifndef FIREBASE_APP_URL
     FIREBASE_APP_URL := https://default-firebase-app.web.app
 endif
 
-.PHONY: deploy-backend verify-backend deploy-frontend
+.PHONY: deploy-backend verify-backend deploy-frontend verify-frontend
 
 # Target to build and deploy the backend using Google Cloud Build
 deploy-backend:
@@ -47,6 +47,11 @@ deploy-frontend:
 	(cd frontend; REACT_APP_BACKEND_URL="$$APP_BACKEND_URL" npm run build); \
 	echo "Deploying frontend to Firebase Hosting..."; \
 	(cd frontend; firebase deploy --only hosting)
+
+# Target to verify the frontend deployment (list hosting sites)
+verify-frontend:
+	@echo "Listing Firebase Hosting sites..."
+	@(cd frontend; firebase hosting:sites:list)
 
 # Example placeholder for a frontend build target
 # .PHONY: build-frontend
