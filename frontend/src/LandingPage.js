@@ -1,7 +1,5 @@
 import React from 'react';
 
-import React from 'react';
-
 const AcknowledgementSection = () => (
   <blockquote className="mb-6 p-6 border-l-4 border-blue-500 bg-blue-50 rounded-md shadow">
     <p className="text-lg font-semibold text-blue-800 mb-2">Acknowledgement</p>
