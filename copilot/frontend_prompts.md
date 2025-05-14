@@ -1,3 +1,33 @@
+#### prompt - add conversational UI in main app for backend service ####
+
+implement the main app functionality for logged in experience (replace current place holder) as following:
+- remove the placeholder use info, keep the app title on top and signout / show id buttons at bottom
+- it will be a conversation UI for the backend agent service with two experiences:
+  - "outside" experience
+  - "inside" experience
+  - default / starting experience after login will be "outside" experience
+- the "outside" experinece will be as following:
+  - showing current list of conversations from backend, if no existing conversations then show appropriate message
+  - if there are existing conversations, then user will following options to operate of them:
+    - delete conversation
+    - show history of the conversation
+    - enter the conversation
+  - give user option to either select an existing conversation, or create a new conversation, to enter the conversation
+  - when user enters a conversation, they will enter the "inside" experience, with the conversation ID
+- the "inside" experience will be as following:
+  - there will be a text input box to interact with backend agent in conversation on top, and then conversation details in bottom with all past messsages from user and backend agent
+  - when user types something in the input box, it will be sent to backend api for send message, and added to the conversation detail with right justified text
+  - when agent api returns a response, it will added to the conversation detail with left justified text
+  - message will always auto scroll, with latest message showing at the bottom
+
+
+#### prompt - add client for backend agent service ####
+
+create a client for backend/api/app.py endpoints in the frontend react project as following:
+- client will use environment variable REACT_APP_BACKEND_URL to get the base url for backend
+- client will implement methods for each of the endpoints implemented by backend FastAPI service
+- use the modern async/await pattern for client's methods
+
 
 #### prompt - add login and logout buttons to the app ####
 
