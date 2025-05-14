@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import './App.css';
 import LandingPage from './LandingPage';
 import { auth, loginUser, logoutUser } from './firebase';
@@ -117,27 +119,16 @@ function App() {
   };
 
   const handleEnterConversation = async (convId) => {
-    setIsLoading(true);
+    setIsLoading(true); // Keep loading indicator for a brief moment for UI feedback
     setAppError('');
-    setMessages([]); // Clear previous messages
+    setMessages([]); // Clear previous messages, start fresh
     try {
-      const history = await apiClient.getConversationHistory(convId);
-      // Assuming history is an array of ADK Event objects
-      // We need to transform them into a simpler message structure for the UI
-      // For now, let's assume events have `type` ('user' or 'agent') and `data.content` for text
-      // This mapping might need adjustment based on the actual Event structure from ADK
-      const formattedMessages = history.map(event => ({
-        id: event.id, // Assuming event has an id
-        text: event.data?.content || JSON.stringify(event.data), // Adjust based on actual event structure
-        author: event.type === 'USER_MESSAGE' ? 'user' : 'agent', // Adjust based on event type
-        timestamp: event.timestamp,
-      })).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); // Sort by timestamp
-
-      setMessages(formattedMessages);
+      // History fetching is removed. Conversation will start empty.
       setCurrentConversationId(convId);
     } catch (error) {
-      console.error(`Failed to fetch history for ${convId}:`, error);
-      setAppError(error.message || `Failed to fetch conversation history.`);
+      // This catch block might be less relevant now but kept for safety
+      console.error(`Error entering conversation ${convId}:`, error);
+      setAppError(error.message || `Failed to enter conversation.`);
     } finally {
       setIsLoading(false);
     }
@@ -274,8 +265,17 @@ function App() {
                     msg.author === 'user' ? 'bg-blue-500 text-white' : 
                     msg.author === 'agent' ? 'bg-green-500 text-white' : 'bg-gray-300 text-black' // System messages
                   }`}>
-                    <p className="text-sm">{msg.text}</p>
-                    <p className={`text-xs mt-1 ${msg.author === 'user' ? 'text-blue-200' : 'text-green-200'}`}>
+                    {msg.author === 'agent' ? (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-sm prose-invert max-w-none">
+                        {msg.text}
+                      </ReactMarkdown>
+                    ) : (
+                      <p className="text-sm">{msg.text}</p>
+                    )}
+                    <p className={`text-xs mt-1 ${
+                      msg.author === 'user' ? 'text-blue-200' : 
+                      msg.author === 'agent' ? 'text-green-200' : 'text-gray-500'
+                    }`}>
                       {new Date(msg.timestamp).toLocaleTimeString()}
                     </p>
                   </div>
