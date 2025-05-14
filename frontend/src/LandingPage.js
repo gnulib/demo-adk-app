@@ -1,15 +1,17 @@
 import React from 'react';
 
+import React from 'react';
+
 const AcknowledgementSection = () => (
-  <blockquote className="mb-4 p-4 border-l-4 border-gray-300 bg-gray-100">
-    <p className="text-lg font-semibold mb-2">Acknowledgement:</p>
-    <p className="text-base">
+  <blockquote className="mb-6 p-6 border-l-4 border-blue-500 bg-blue-50 rounded-md shadow">
+    <p className="text-lg font-semibold text-blue-800 mb-2">Acknowledgement</p>
+    <p className="text-gray-700 leading-relaxed">
       This project makes use of the excellent{' '}
       <a
         href="https://deckofcardsapi.com/"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-500 hover:text-blue-700 underline"
+        className="text-blue-600 hover:text-blue-800 font-medium underline"
       >
         Deck of Cards API
       </a>{' '}
@@ -19,57 +21,67 @@ const AcknowledgementSection = () => (
 );
 
 const IntroductionSection = () => (
-  <>
-    <p className="text-xl mb-4">
+  <section className="mb-8">
+    <p className="text-lg md:text-xl text-gray-700 mb-4 leading-relaxed">
       This is a demo project for a simple app using{' '}
       <a
         href="https://google.github.io/adk-docs/"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-500 hover:text-blue-700 underline"
+        className="text-blue-600 hover:text-blue-800 font-medium underline"
       >
         Google's ADK
       </a>{' '}
       framework. This project is intended to demonstrate how to setup a GCP project for deploying ADK app as a cloud run service.
     </p>
-    <p className="text-xl mb-4">
+    <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
       Secondary objective of this project is to demonstrate the power of LLMs, how they can be used to build conversation interface against pretty much any service that has reasonable APIs.
     </p>
-  </>
+  </section>
 );
 
 const PowerOfLLMsSection = () => (
-  <>
-    <h2 className="text-2xl font-bold mt-6 mb-3">The Power of LLM-based Agents as Middleware</h2>
-    <p className="text-xl mb-4">
+  <section className="mb-8 p-6 bg-white rounded-lg shadow-lg">
+    <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">The Power of LLM-based Agents as Middleware</h2>
+    <p className="text-lg text-gray-700 mb-6 leading-relaxed">
       This project, while simple in functionality, demonstrates the remarkable power of Large Language Models (LLMs) as middleware for backend services. The agent in this demo is able to:
     </p>
-    <ul className="list-disc list-inside mb-4 pl-4 text-xl">
-      <li className="mb-2">
-        <strong>Understand API Capabilities from Docstrings:</strong> The agent uses the docstrings of simple Python wrapper functions to understand what each API call does. No additional schema, OpenAPI spec, or manual translation is required—just clear function docstrings.
-      </li>
-      <li className="mb-2">
-        <strong>Interpret API Responses Directly:</strong> The agent can read and reason about the raw API responses (typically JSON), extracting the information it needs without any custom parsing or mapping logic.
-      </li>
-      <li className="mb-2">
-        <strong>Autonomously Orchestrate Workflows:</strong> Given a user request, the agent can decide which API(s) to call, in what order, and how to use the results—without any hardcoded rules or business logic. The LLM's reasoning ability enables it to create autonomous workflows on the fly.
-      </li>
+    <ul className="space-y-4 mb-6">
+      {[
+        {
+          title: "Understand API Capabilities from Docstrings",
+          text: "The agent uses the docstrings of simple Python wrapper functions to understand what each API call does. No additional schema, OpenAPI spec, or manual translation is required—just clear function docstrings."
+        },
+        {
+          title: "Interpret API Responses Directly",
+          text: "The agent can read and reason about the raw API responses (typically JSON), extracting the information it needs without any custom parsing or mapping logic."
+        },
+        {
+          title: "Autonomously Orchestrate Workflows",
+          text: "Given a user request, the agent can decide which API(s) to call, in what order, and how to use the results—without any hardcoded rules or business logic. The LLM's reasoning ability enables it to create autonomous workflows on the fly."
+        }
+      ].map((item, index) => (
+        <li key={index} className="p-4 bg-gray-50 rounded-md shadow-sm">
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">{item.title}</h3>
+          <p className="text-gray-600 leading-relaxed">{item.text}</p>
+        </li>
+      ))}
     </ul>
-    <p className="text-xl mb-4">
+    <p className="text-lg text-gray-700 leading-relaxed">
       Even though the functionality here is limited to drawing and shuffling cards, this is a powerful demonstration of how LLM-based agents can act as a universal interface layer for any backend service with reasonable API endpoints. With minimal glue code, LLMs can bridge the gap between natural language and programmatic APIs, opening up new possibilities for rapid prototyping, automation, and conversational interfaces.
     </p>
-  </>
+  </section>
 );
 
 const SpecialThanksSection = () => (
-  <blockquote className="mt-6 mb-4 p-4 border-l-4 border-gray-300 bg-gray-100">
-    <p className="text-base">
+  <blockquote className="mt-8 mb-6 p-6 border-l-4 border-green-500 bg-green-50 rounded-md shadow">
+    <p className="text-gray-700 leading-relaxed">
       <strong>Special thanks again to{' '}
       <a
         href="https://deckofcardsapi.com/"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-500 hover:text-blue-700 underline"
+        className="text-green-600 hover:text-green-800 font-medium underline"
       >
         Chase Roberts
       </a>{' '}
@@ -80,7 +92,15 @@ const SpecialThanksSection = () => (
 
 function LandingPage() {
   return (
-    <div className="p-6 max-w-2xl mx-auto">
+    <div className="p-4 md:p-8 max-w-4xl mx-auto bg-white rounded-xl shadow-2xl space-y-8">
+      <header className="text-center py-6">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800">
+          Demo ADK App
+        </h1>
+        <p className="text-lg text-gray-600 mt-2">
+          Exploring Google's ADK and the Power of LLMs
+        </p>
+      </header>
       <AcknowledgementSection />
       <IntroductionSection />
       <PowerOfLLMsSection />
