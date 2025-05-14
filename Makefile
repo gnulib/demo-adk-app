@@ -20,7 +20,7 @@ ifndef FIREBASE_APP_URL
     FIREBASE_APP_URL := https://default-firebase-app.web.app
 endif
 
-.PHONY: deploy-backend verify-backend
+.PHONY: deploy-backend verify-backend deploy-frontend
 
 # Target to build and deploy the backend using Google Cloud Build
 deploy-backend:
@@ -31,6 +31,20 @@ deploy-backend:
 verify-backend:
 	@echo "Verifying backend deployment status..."
 	@gcloud run services describe "$(GOOGLE_ADK_APP_NAME)-service" --platform managed --region $(GOOGLE_CLOUD_LOCATION)
+
+# Target to build and deploy the frontend
+deploy-frontend:
+	@echo "Fetching backend URL for $(GOOGLE_ADK_APP_NAME)-service..."
+	@APP_BACKEND_URL=$$(gcloud run services describe $(GOOGLE_ADK_APP_NAME)-service --platform managed --region $(GOOGLE_CLOUD_LOCATION) --format='value(status.url)'); \
+	if [ -z "$$APP_BACKEND_URL" ]; then \
+		echo "Error: Failed to fetch backend URL or URL is empty. Please ensure backend is deployed and $(GOOGLE_ADK_APP_NAME)-service is the correct service name."; \
+		exit 1; \
+	fi; \
+	echo "Using Backend URL: $$APP_BACKEND_URL"; \
+	echo "Building frontend with REACT_APP_BACKEND_URL=$$APP_BACKEND_URL..."; \
+	(cd frontend; REACT_APP_BACKEND_URL="$$APP_BACKEND_URL" npm run build); \
+	echo "Deploying frontend to Firebase Hosting..."; \
+	(cd frontend; firebase deploy --only hosting)
 
 # Example placeholder for a frontend build target
 # .PHONY: build-frontend
