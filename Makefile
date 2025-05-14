@@ -15,9 +15,9 @@ ifndef GOOGLE_GENAI_USE_VERTEXAI
     $(warning WARNING: GOOGLE_GENAI_USE_VERTEXAI is not set. Defaulting to 'false'.)
     GOOGLE_GENAI_USE_VERTEXAI := false
 endif
-ifndef FIREBASE_APP_URL
-    $(warning WARNING: FIREBASE_APP_URL is not set. Defaulting to 'https://$(GOOGLE_CLOUD_PROJECT).web.app'.)
-    FIREBASE_APP_URL := https://$(GOOGLE_CLOUD_PROJECT).web.app
+ifndef FIREBASE_APP_URLS
+    $(warning WARNING: FIREBASE_APP_URLS is not set. Defaulting to 'https://$(GOOGLE_CLOUD_PROJECT).web.app'.)
+    FIREBASE_APP_URLS := https://$(GOOGLE_CLOUD_PROJECT).web.app
 endif
 
 .PHONY: deploy-backend verify-backend deploy-frontend verify-frontend

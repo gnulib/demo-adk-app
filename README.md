@@ -242,7 +242,7 @@ This command will start an interactive process. Here's how to respond to the pro
 
 ```bash
 export FIREBASE_APP_ID=<<app ID from above>>
-export FIREBASE_APP_URLS="$GOOGLE_CLOUD_PROJECT.web.app, $GOOGLE_CLOUD_PROJECT.firebaseapp.com"
+export FIREBASE_APP_URLS="https://$GOOGLE_CLOUD_PROJECT.web.app"
 ```
 
 >TIP: you can add above line to your shell's rc file, e.g. `~/.zshrc` and reload
@@ -357,11 +357,12 @@ cli> join <<conversation id>> # this command joins a conversation
 
 <summary>Deploy ADK app as Cloud Run Service</summary>
 
-> Make sure that you have the following environment variables defined as described in the Google Cloud Setup step above:
+> Make sure that you have the following environment variables defined as described in the setup step above:
 > * GOOGLE_ADK_APP_NAME
 > * GOOGLE_CLOUD_LOCATION
 > * GOOGLE_ADK_APP_REPOSITORY
 > * GOOGLE_GENAI_USE_VERTEXAI
+> * FIREBASE_APP_URLS
 
 _Run the make target to build and deploy the backend:_
 
@@ -373,6 +374,27 @@ _Verify the status of cloud run service deployment:_
 
 ```bash
 make verify-backend
+```
+
+</details>
+
+<details>
+
+<summary>Deploy ADK web app with Firebase hosting</summary>
+
+> Make sure that you have the following environment variables defined as described in the Setup steps above:
+> * GOOGLE_ADK_APP_NAME
+
+_Run the make target to build and deploy the frontend:_
+
+```bash
+make deploy-frontend
+```
+
+_Verify the status of Firebase deployment:_
+
+```bash
+make verify-frontend
 ```
 
 </details>

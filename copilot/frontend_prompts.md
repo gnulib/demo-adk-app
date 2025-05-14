@@ -1,3 +1,27 @@
+#### prompt - add fronend deployment target ####
+
+add Makefile target deploy-frontend as following:
+- fetch the backend service URL using below command and save in a variable APP_BACKEND_URL
+```
+gcloud run services describe $GOOGLE_ADK_APP_NAME-service --platform managed --region $GOOGLE_CLOUD_LOCATION --format='value(status.url)'
+```
+- install all frontend dependencies
+- build the react app by setting the environment variable REACT_APP_BACKEND_URL using following command:
+```
+(cd frontend; REACT_APP_BACKEND_URL=$APP_BACKEND_URL npm run build)
+```
+- deploy the project using firebase hosting as follows:
+```
+(cd frontend; firebase deploy --only hosting)
+```
+
+add Makefile target verify-frontend as following:
+- run the following command:
+```
+(cd frontend; firebase hosting:sites:list)
+```
+
+
 #### prompt - add conversational UI in main app for backend service ####
 
 implement the main app functionality for logged in experience (replace current place holder) as following:
