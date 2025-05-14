@@ -261,7 +261,7 @@ function App() {
             <div className="flex-grow overflow-y-auto p-4 bg-gray-50 border border-gray-200 rounded-md mb-4 space-y-3">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.author === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-lg shadow ${
+                  <div className={`max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-lg shadow text-left ${ // Added text-left
                     msg.author === 'user' ? 'bg-blue-500 text-white' : 
                     msg.author === 'agent' ? 'bg-green-500 text-white' : 'bg-gray-300 text-black' // System messages
                   }`}>
