@@ -61,12 +61,12 @@ def get_fast_api_app(
         if config.CORS_ORIGINS:
             origins_from_config = [origin.strip() for origin in config.CORS_ORIGINS.split(',') if origin.strip()]
 
-        # If CORS_ORIGINS is not set or is empty after parsing, default to common development origin.
+        # If CORS_ORIGINS is not set or is empty after parsing, 
+        # and if IS_TESTING is true, default to common development origin.
         # For production, CORS_ORIGINS should be explicitly configured.
-        if not origins_from_config:
-            final_origins = ["http://localhost:3000"] # Default for React dev server
-        else:
-            final_origins = origins_from_config
+        final_origins = origins_from_config
+        if not final_origins and config.IS_TESTING:
+            final_origins = ["http://localhost:3000"] # Default for React dev server during testing
         
         if final_origins: # Ensure there's at least one origin to allow
             _app.add_middleware(
