@@ -1,22 +1,6 @@
 import React, { useState } from 'react';
 
-const AcknowledgementSection = () => (
-  <blockquote className="mb-6 p-6 border-l-4 border-blue-500 bg-blue-50 rounded-md shadow">
-    <p className="text-lg font-semibold text-blue-800 mb-2">Acknowledgement</p>
-    <p className="text-gray-700 leading-relaxed">
-      This project makes use of the excellent{' '}
-      <a
-        href="https://deckofcardsapi.com/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-600 hover:text-blue-800 font-medium underline"
-      >
-        Deck of Cards API
-      </a>{' '}
-      by Chase Roberts. Many thanks to Chase for providing this fun and useful API!
-    </p>
-  </blockquote>
-);
+// AcknowledgementSection removed
 
 const IntroductionSection = () => (
   <section className="mb-8">
@@ -43,17 +27,20 @@ const IntroductionSection = () => (
 
 const SpecialThanksSection = () => (
   <blockquote className="mt-8 mb-6 p-6 border-l-4 border-green-500 bg-green-50 rounded-md shadow">
-    <p className="text-gray-700 leading-relaxed">
-      <strong>Special thanks again to{' '}
+    <p className="text-gray-700 leading-relaxed mb-4">
+      This project makes use of the excellent{' '}
       <a
         href="https://deckofcardsapi.com/"
         target="_blank"
         rel="noopener noreferrer"
         className="text-green-600 hover:text-green-800 font-medium underline"
       >
-        Chase Roberts
+        Deck of Cards API
       </a>{' '}
-      for providing the Deck of Cards API, which made this demonstration possible. The open and well-documented API was essential in showcasing how LLM agents can interact with real-world services with minimal effort.</strong>
+      by Chase Roberts. Many thanks to Chase for providing this fun and useful API!
+    </p>
+    <p className="text-gray-700 leading-relaxed">
+      <strong>The open and well-documented API was essential in showcasing how LLM agents can interact with real-world services with minimal effort.</strong>
     </p>
   </blockquote>
 );
@@ -154,7 +141,7 @@ function LandingPage({ loginUser }) {
         </form>
       </div>
 
-      <AcknowledgementSection />
+      {/* AcknowledgementSection invocation removed */}
       <IntroductionSection />
       {/* PowerOfLLMsSection invocation removed */}
       <SpecialThanksSection />
