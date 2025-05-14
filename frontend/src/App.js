@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import logo from './logo.svg';
+// import logo from './logo.svg'; // Logo no longer used directly in App.js
 import './App.css';
-import { auth, sendEmailSignInLink } from './firebase';
+import { auth, sendEmailSignInLink } from './firebase'; // sendEmailSignInLink might be unused now
+import LandingPage from './LandingPage'; // Import the LandingPage component
 import {
   onAuthStateChanged,
   signOut,
@@ -66,32 +67,7 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        {user ? (
-          <div>
-            <p>Welcome, {user.email}</p>
-            <button onClick={handleSignOut}>Sign Out</button>
-          </div>
-        ) : (
-          <div>
-            <p>Please sign in.</p>
-            <form onSubmit={handleEmailSignIn} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <input
-                type="email"
-                value={email}
-                onChange={handleEmailChange}
-                placeholder="Email address"
-                required
-                style={{ padding: '0.5em', marginBottom: '1em' }}
-              />
-              <button type="submit" disabled={emailSent}>
-                {emailSent ? 'Email Sent!' : 'Sign In with Email Link'}
-              </button>
-            </form>
-          </div>
-        )}
-      </header>
+      <LandingPage />
     </div>
   );
 }
