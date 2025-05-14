@@ -1,4 +1,4 @@
-#### prompt 16 - logic to initialize VertexAiRagMemoryService for ADK agents on cloud run ####
+#### prompt - logic to initialize VertexAiRagMemoryService for ADK agents on cloud run ####
 '''
 modify pydantic object Config in utils.config as following:
 - add new field named "RAG_CORPUS" of type str, it will be optional and set to None
@@ -33,7 +33,7 @@ if not resource_id:
 '''
 
 
-#### prompt 15 - logic to use VertexAiSessionService for ADK Agents on Cloud Run ####
+#### prompt - logic to use VertexAiSessionService for ADK Agents on Cloud Run ####
 '''
 modify pydantic object Config in utils.config as following:
 - add new field named "AGENT_ID" of type str, it will be optional and set to None
@@ -72,7 +72,7 @@ similary modify services.runner wherever using app_name to use config.AGENT_ID a
 '''
 
 
-#### prompt 14 - changing environment variable names as per ADK expectation ####
+#### prompt - changing environment variable names as per ADK expectation ####
 '''
 update README.md, backend/utils/config.py, Makefile and backend/cloudbuild.yaml files for following changes to environment variable names to be injected and used in deployed run time:
 - use full name "GOOGLE_GENAI_USE_VERTEXAI" instead of "USE_VERTEXAI"
@@ -82,7 +82,7 @@ update README.md, backend/utils/config.py, Makefile and backend/cloudbuild.yaml 
 Also update backend/servies/provider.py, backend/services/runner.py and backend/api/app.py to use correct GOOGLE_CLOUD_PROJECT name
 '''
 
-#### prompt 13 - making test driver CLI easier ####
+#### prompt - making test driver CLI easier ####
 '''
 modify test.cli logic to make it easier for user as following:
 - use logic to work "in a conversation" and "out of conversation" modes
@@ -92,7 +92,7 @@ modify test.cli logic to make it easier for user as following:
 - there will be some special command to get out of "in a conversation" mode, which takes user back to "out of conversation" mode
 '''
 
-#### prompt 12 - concrete endpoint implementations ####
+#### prompt - concrete endpoint implementations ####
 '''
 make the placeholder implementations for api.app endpoints concrete as following:
 - create_conversation will create a new instance of session object with session service using the “hard_coded_user-01” as the user id and APP_NAME from config, and use id and last_update_time from Session object to return new Conversation object
@@ -102,7 +102,7 @@ make the placeholder implementations for api.app endpoints concrete as following
 - delete_conversation will use conversation_id, "hard_coded_user-01" and APP_NAME to call delete_session method on session service
 '''
 
-#### prompt 11 - wire up services and apps ####
+#### prompt - wire up services and apps ####
 '''
 - modify api.app as following:
   - modify get_fast_api_app method to take parameters for runner: services.runner.Runner, session_service: BaseSessionService, memory_service: BaseMemoryService, artifact_service: BaseArtifactService, config: Config
@@ -114,7 +114,7 @@ make the placeholder implementations for api.app endpoints concrete as following
 '''
 
 
-#### prompt 10 - fixing invoke method ####
+#### prompt - fixing invoke method ####
 '''
 re-implement the invoke method to use corred ADK specific logic using below sample code as an example:
 ```
@@ -148,7 +148,7 @@ for example:
 '''
 
 
-##### prompt 9 - add runner factory ####
+##### prompt - add runner factory ####
 '''
 add a submodule runner.py under backend/services and implement class Runner as following:
 - constructor initializes with parameters root_agent: BaseAgent, session_service: BaseSessionService, memory_service: BaseMemoryService, artifact_service: BaseArtifactService, config: Config
@@ -159,7 +159,7 @@ add a submodule runner.py under backend/services and implement class Runner as f
   - The method will return the agent’s final response as a new Message object. If the agent returns a structured output, that output will be a JSON string conforming to the schema as part of the agent's contract with clients. Runner will be oblivious of any such contract, and will simply pass back the response as a string.
 '''
 
-##### prompt 8 - add artifact service provider ####
+##### prompt - add artifact service provider ####
 '''
 update backend/services/provider.py to implement method get_artifact_service that will do the following:
 - takes input parameter config: Config
@@ -171,7 +171,7 @@ update backend/services/provider.py to implement method get_artifact_service tha
 '''
 
 
-##### prompt 7 - add memory service provider ####
+##### prompt - add memory service provider ####
 '''
 update backend/services/provider.py to implement method get_memory_service that will do the following:
 - takes input parameter config: Config
@@ -183,7 +183,7 @@ update backend/services/provider.py to implement method get_memory_service that 
 '''
 
 
-##### prompt 6 - add session service provider ####
+##### prompt - add session service provider ####
 '''
 update backend/services/provider.py to implement method get_session_service that will do the following:
 - takes input parameter config: Config
@@ -196,7 +196,7 @@ update backend/services/provider.py to implement method get_session_service that
 '''
 
 
-##### prompt 5 - add root agent provider ####
+##### prompt - add root agent provider ####
 '''
 add a submodule provider.py under backend/services and implement method get_root_agent that will do the following:
 - takes input parameter config: Config
@@ -205,7 +205,7 @@ add a submodule provider.py under backend/services and implement method get_root
 - will use the singleton reference in return value
 ''' 
 
-##### prompt 4 - modify Dockerfile for FastAPI service #####
+##### prompt - modify Dockerfile for FastAPI service #####
 '''
 Modify backend/Dockerfile for following:
 - no need to inject environment variables, they will be injected during deployment
@@ -227,7 +227,7 @@ Modify backend/cloudbuild.yaml to use --ser-env-vars in run deploy command for f
 Modify Makefile to pass the appropriate arguments for deploy-backend target
 '''
 
-##### prompt 3 - create placeholder main app for FastAPI server #####
+##### prompt - create placeholder main app for FastAPI server #####
 '''
 Create a new main.py file under backend directory to do the following:
 - get an instance of Config from utils.config module
@@ -237,7 +237,7 @@ Create a new main.py file under backend directory to do the following:
 '''
 
 
-##### prompt 2 - create placeholder endpoints without authN/authZ #####
+##### prompt - create placeholder endpoints without authN/authZ #####
 Modify api/app.py for following:
 
 - add new model class Conversation with following fields:
@@ -257,7 +257,7 @@ Modify api/app.py for following:
 
 - add delete_conversation to handle DELETE /conversations/{conversation_id} and return 204 no content
 
-##### prompt 1 - create placeholder FastAPI App Provider #####
+##### prompt - create placeholder FastAPI App Provider #####
 - create a new submodule api.app under backend directory
 - implement a method `get_fast_api_app` that takes parameter `config: Config` (from utils.config.Config) and returns back an instance of FastAPI
 - the method will initialize and return a singleton instance of FastAPI app
