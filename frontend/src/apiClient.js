@@ -1,7 +1,10 @@
 import { auth } from './firebase'; // To get the ID token
 
 const rawBaseUrl = process.env.REACT_APP_BACKEND_URL || '';
-const BASE_URL = rawBaseUrl.trim(); // Trim whitespace
+// Strip any inline comments starting with '#' and then trim whitespace
+const commentStartIndex = rawBaseUrl.indexOf('#');
+const cleanedBaseUrl = commentStartIndex !== -1 ? rawBaseUrl.substring(0, commentStartIndex) : rawBaseUrl;
+const BASE_URL = cleanedBaseUrl.trim();
 
 // Helper function to get the ID token
 const getIdToken = async () => {
