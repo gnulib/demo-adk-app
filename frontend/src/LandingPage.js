@@ -125,9 +125,12 @@ function LandingPage({ loginUser }) {
   };
 
   return (
-    <div className="flex flex-col md:flex-row md:space-x-8 items-start max-w-7xl mx-auto">
-      {/* Login Form Section */}
-      <div className="w-full md:w-1/3 lg:w-1/4 p-6 md:p-8 space-y-6 bg-white rounded-lg shadow-xl mb-8 md:mb-0 md:sticky md:top-8">
+    // Main container for the page, centered with max-width.
+    // This div used to be nested inside "Landing Page Content Section".
+    <div className="p-4 md:p-8 max-w-4xl mx-auto bg-white rounded-xl shadow-2xl space-y-8">
+      {/* Login Form Section - integrated at the top */}
+      {/* Styling adjusted for a centered card look, removed stickiness and specific column widths */}
+      <div className="w-full max-w-md mx-auto p-6 md:p-8 space-y-6 bg-gray-50 rounded-lg shadow-lg mb-12">
         <h2 className="text-2xl font-bold text-center text-gray-900">Login</h2>
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
@@ -170,23 +173,19 @@ function LandingPage({ loginUser }) {
         </form>
       </div>
 
-      {/* Landing Page Content Section */}
-      <div className="w-full md:w-2/3 lg:w-3/4">
-        <div className="p-4 md:p-8 bg-white rounded-xl shadow-2xl space-y-8">
-          <header className="text-center py-6">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800">
-              Demo ADK App
-            </h1>
-            <p className="text-lg text-gray-600 mt-2">
-              Exploring Google's ADK and the Power of LLMs
-            </p>
-          </header>
-          <AcknowledgementSection />
-          <IntroductionSection />
-          <PowerOfLLMsSection />
-          <SpecialThanksSection />
-        </div>
-      </div>
+      {/* Landing Page Content Sections - now follow the login form in the same container */}
+      <header className="text-center py-6">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800">
+          Demo ADK App
+        </h1>
+        <p className="text-lg text-gray-600 mt-2">
+          Exploring Google's ADK and the Power of LLMs
+        </p>
+      </header>
+      <AcknowledgementSection />
+      <IntroductionSection />
+      <PowerOfLLMsSection />
+      <SpecialThanksSection />
     </div>
   );
 }
