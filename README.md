@@ -403,38 +403,32 @@ make verify-frontend
 
 <summary>Interact with deployed app</summary>
 
-> Use the service URL obtained from `make verify-backend` (look for the `url:` field), or extract it directly using: `gcloud run services describe "$GOOGLE_ADK_APP_NAME-service" --platform managed --region $GOOGLE_CLOUD_LOCATION --format='value(status.url)'`
+1. Use the URL obtained from `make verify-frontend` in a browser
 
-**Step 1:** run the test CLI for interacting with the app (use url from above)
+1. Login using the test user created in project setup
 
-```bash
-(cd backend; source .env; python test/cli.py --host <<url>>)
+1. Join an existing conversation or create a new conversation
 
-cli> help
-
-cli> lc # this command lists existing conversations
-
-cli> cc # this command creates a new conversation
-
-cli> join <<conversation id>> # this command joins a conversation
-```
-
-**Step 2:** Converse with the agent to draw some cards from a deck, e.g.:
+1. Converse with the agent to draw some cards from a deck, e.g.:
 
 ```bash
-cli@<<conversation id>> draw me 2 cards from a new deck
+summarize what has happened so far
 ```
 
 ```bash
-cli@<<conversation id>> ok, add these drawn cards to a new pile John
+draw me 2 cards from a new deck
 ```
 
 ```bash
-cli@<<conversation id>> draw 2 more cards and add them to pile Jane
+ok, add these drawn cards to a new pile John
 ```
 
 ```bash
-cli@<<conversation id>> ok, who has bigger hand, John or Jane? use simple card comparison, all colors are same, but cards have weight according to their number.
+draw 2 more cards and add them to pile Jane
+```
+
+```bash
+ok, who has bigger hand, John or Jane? use simple card comparison, all colors are same, but cards have weight according to their number.
 ```
 
 </details>
