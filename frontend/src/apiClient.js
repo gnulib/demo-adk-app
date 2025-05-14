@@ -47,9 +47,20 @@ const makeRequest = async (url, method = 'GET', body = null) => {
     if (response.status === 204) {
       return null; 
     }
-    return await response.json();
+
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+      return await response.json();
+    } else {
+      // If response.ok is true, but content is not JSON, this is unexpected.
+      const responseText = await response.text(); // Get the actual response text
+      throw new Error(
+        `Expected JSON response from server, but received ${contentType || 'unknown content type'}. ` +
+        `Status: ${response.status}. Response body: ${responseText.substring(0, 200)}...` // Log part of the unexpected response
+      );
+    }
   } catch (error) {
-    console.error(`API request error for ${method} ${url}:`, error);
+    console.error(`API request error for ${method} ${url}:`, error.message); // Log error.message for clarity
     throw error; // Re-throw the error to be caught by the caller
   }
 };
