@@ -41,6 +41,8 @@ deploy-frontend:
 		exit 1; \
 	fi; \
 	echo "Using Backend URL: $$APP_BACKEND_URL"; \
+	echo "Installing frontend dependencies..."; \
+	(cd frontend; npm install); \
 	echo "Building frontend with REACT_APP_BACKEND_URL=$$APP_BACKEND_URL..."; \
 	(cd frontend; REACT_APP_BACKEND_URL="$$APP_BACKEND_URL" npm run build); \
 	echo "Deploying frontend to Firebase Hosting..."; \
