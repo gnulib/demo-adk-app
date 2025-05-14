@@ -54,17 +54,27 @@ def get_fast_api_app(
         _app.state.config = config # Storing config as well if needed in endpoints
 
         # You can add middleware, exception handlers, routers, etc. here
-        # For example, to enable CORS if your config.CORS_ORIGINS is set:
+        # For example, to enable CORS:
         from fastapi.middleware.cors import CORSMiddleware
+        
+        origins_from_config = []
         if config.CORS_ORIGINS:
-            origins = [origin.strip() for origin in config.CORS_ORIGINS.split(',') if origin.strip()]
-            if origins:
-                _app.add_middleware(
-                    CORSMiddleware,
-                    allow_origins=origins,
-                    allow_credentials=True,
-                    allow_methods=["*"],
-                allow_headers=["*"],
+            origins_from_config = [origin.strip() for origin in config.CORS_ORIGINS.split(',') if origin.strip()]
+
+        # If CORS_ORIGINS is not set or is empty after parsing, 
+        # and if IS_TESTING is true, default to common development origin.
+        # For production, CORS_ORIGINS should be explicitly configured.
+        final_origins = origins_from_config
+        if not final_origins and config.IS_TESTING:
+            final_origins = ["http://localhost:3000"] # Default for React dev server during testing
+        
+        if final_origins: # Ensure there's at least one origin to allow
+            _app.add_middleware(
+                CORSMiddleware,
+                allow_origins=final_origins,
+                allow_credentials=True,
+                allow_methods=["*"], # Allows all methods
+                allow_headers=["*"], # Allows all headers
             )
 
         USER_ID = "hard_coded_user-01" # Hardcoded user ID as per requirement
