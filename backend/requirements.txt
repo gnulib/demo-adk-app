@@ -7,4 +7,3 @@ uvicorn
 google-cloud-storage
 google-cloud-aiplatform
 firebase-admin
-firebase-admin
