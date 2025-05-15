@@ -146,24 +146,6 @@ firebase projects:addfirebase $GOOGLE_CLOUD_PROJECT
 
 1. Save
 
-**Step 7:** Save Web API key for local admin commands:
-
-1. Go to the [Firebase console](https://console.firebase.google.com/)
-
-1. Select your project created above.
-
-1. Click on gear icon (⚙) next to "Project Overview" (top left), then select "Project settings"
-
-1. Under "General" tab, in the "Your project" section on top, copy the "Web API Key"
-
-1. Save the key in environment variable:
-
-```bash
-export FIREBASE_WEB_API_KEY="<<your Web API key>>"
-```
-
-> add above line to your shell rc file (e.g. `~/.zshrc`) and reload / resource
-
 </details>
 
 ## Project Setup
@@ -337,10 +319,8 @@ _In one terminal run the app locally for testing project setup_
 
 _In another terminal run the test CLI for interacting with the app (use port from above)_
 
-> _(Make sure that environment variable `FIREBASE_WEB_API_KEY` is set from as described in Firevase Setup)_
-
 ```bash
-(cd backend; source .env; python test/cli.py --port 8000)
+(export $(grep REACT_APP_FIREBASE_API_KEY frontend/.env); cd backend; python test/cli.py --port 8000)
 
 cli> help
 

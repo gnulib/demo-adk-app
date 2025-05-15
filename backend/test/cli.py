@@ -157,11 +157,11 @@ def main():
     print(f"Using API base URL: {BASE_URL}")
 
     # Firebase Authentication
-    firebase_api_key = os.getenv("FIREBASE_WEB_API_KEY")
+    firebase_api_key = os.getenv("REACT_APP_FIREBASE_API_KEY")
     if not firebase_api_key:
-        print("Error: FIREBASE_WEB_API_KEY environment variable not set. Cannot authenticate.")
+        print("Error: REACT_APP_FIREBASE_API_KEY environment variable not set. Cannot authenticate.")
         sys.exit(1)
-
+    firebase_api_key = firebase_api_key.strip('"')
     email = input("Enter Firebase Email: ").strip()
     password = input("Enter Firebase Password: ").strip() # Consider using getpass for hidden input
 
