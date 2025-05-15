@@ -146,6 +146,24 @@ firebase projects:addfirebase $GOOGLE_CLOUD_PROJECT
 
 1. Save
 
+**Step 7:** Save Web API key for local admin commands:
+
+1. Go to the [Firebase console](https://console.firebase.google.com/)
+
+1. Select your project created above.
+
+1. Click on gear icon (⚙) next to "Project Overview" (top left), then select "Project settings"
+
+1. Under "General" tab, in the "Your project" section on top, copy the "Web API Key"
+
+1. Save the key in environment variable:
+
+```bash
+export FIREBASE_WEB_API_KEY="<<your Web API key>>"
+```
+
+> add above line to your shell rc file (e.g. `~/.zshrc`) and reload / resource
+
 </details>
 
 ## Project Setup
@@ -300,8 +318,6 @@ export PORT=8000
 export CORS_ORIGINS="http://localhost:3000, $FIREBASE_APP_URLS"
 export IS_TESTING=true
 export DECKOFCARDS_URL="https://deckofcardsapi.com/api/deck"
-export FIREBASE_KEY_JSON="{}"
-export FIREBASE_AUTH_EMULATOR_HOST="127.0.0.1:9099" # port here should be same as configured for auth emulator
 EOF
 ```
 
@@ -320,6 +336,8 @@ _In one terminal run the app locally for testing project setup_
 ```
 
 _In another terminal run the test CLI for interacting with the app (use port from above)_
+
+> _(Make sure that environment variable `FIREBASE_WEB_API_KEY` is set from as described in Firevase Setup)_
 
 ```bash
 (cd backend; source .env; python test/cli.py --port 8000)
@@ -342,9 +360,11 @@ cli> join <<conversation id>> # this command joins a conversation
 <summary>Test frontend setup locally</summary>
 
 1. _Once backend looks good, start frontend to interact with local agent service:_
+
 ```bash
 (cd frontend; npm run start)
 ```
+> _(above command uses `REACT_APP_BACKEND_URL` from `frontend/.env` file, and assumption is that local backend is running and listening on the same port mentioned in that variable. If port is different then modify the entry in `frontend/.env` file accordingly)_
 
 1. _(make sure that you have test user created as mentioned in project setup above)_
 
