@@ -52,7 +52,7 @@ steps:
   - '--allow-unauthenticated'
   - '--set-env-vars'
   - >-
-    GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=${_AR_REGION},GOOGLE_GENAI_USE_VERTEXAI=${_GOOGLE_GENAI_USE_VERTEXAI},APP_NAME=${_APP_NAME},CORS_ORIGINS=${_FIREBASE_APP_URLS},IS_TESTING=false,DECKOFCARDS_URL="https://deckofcardsapi.com/api/deck",FIREBASE_KEY_JSON="{}"
+    GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=${_AR_REGION},GOOGLE_GENAI_USE_VERTEXAI=${_GOOGLE_GENAI_USE_VERTEXAI},APP_NAME=${_APP_NAME},CORS_ORIGINS=${_FIREBASE_APP_URLS},IS_TESTING=false,DECKOFCARDS_URL="https://deckofcardsapi.com/api/deck"
 
 # Step 4: Add IAM policy binding to make the service publicly invokable
 # Uses the 'gcloud' builder to run the IAM policy binding command.

@@ -8,6 +8,7 @@ import argparse
 # BASE_URL will be initialized in main().
 BASE_URL: str = "" # Placeholder, will be set in main()
 ACTIVE_CONVERSATION_ID: str | None = None # None for "out of conversation" mode
+ID_TOKEN: str | None = None # To store the Firebase ID token
 
 def print_response(response: requests.Response):
     """Helper to print API response."""
@@ -39,8 +40,11 @@ def print_response(response: requests.Response):
 def create_conversation():
     """Calls POST /conversations"""
     print("Creating a new conversation...")
+    headers = {}
+    if ID_TOKEN:
+        headers["Authorization"] = f"Bearer {ID_TOKEN}"
     try:
-        response = requests.post(f"{BASE_URL}/conversations")
+        response = requests.post(f"{BASE_URL}/conversations", headers=headers)
         print_response(response)
     except requests.exceptions.ConnectionError as e:
         print(f"Error connecting to the server: {e}")
@@ -48,8 +52,11 @@ def create_conversation():
 def get_conversations():
     """Calls GET /conversations"""
     print("Fetching all conversations...")
+    headers = {}
+    if ID_TOKEN:
+        headers["Authorization"] = f"Bearer {ID_TOKEN}"
     try:
-        response = requests.get(f"{BASE_URL}/conversations")
+        response = requests.get(f"{BASE_URL}/conversations", headers=headers)
         print_response(response)
     except requests.exceptions.ConnectionError as e:
         print(f"Error connecting to the server: {e}")
@@ -60,9 +67,12 @@ def send_message(conv_id: str, text: str):
         print("Usage: send_message <conversation_id> <text>")
         return
     print(f"Sending message to conversation {conv_id}...")
+    headers = {}
+    if ID_TOKEN:
+        headers["Authorization"] = f"Bearer {ID_TOKEN}"
     try:
-        payload = {"text": text}
-        response = requests.post(f"{BASE_URL}/conversations/{conv_id}/messages", json=payload)
+        payload = {"text": text, "author": "user"} # Assuming backend expects author
+        response = requests.post(f"{BASE_URL}/conversations/{conv_id}/messages", json=payload, headers=headers)
         print_response(response)
     except requests.exceptions.ConnectionError as e:
         print(f"Error connecting to the server: {e}")
@@ -73,8 +83,11 @@ def get_conversation_history(conv_id: str):
         print("Usage: get_history <conversation_id>")
         return
     print(f"Fetching history for conversation {conv_id}...")
+    headers = {}
+    if ID_TOKEN:
+        headers["Authorization"] = f"Bearer {ID_TOKEN}"
     try:
-        response = requests.get(f"{BASE_URL}/conversations/{conv_id}/history")
+        response = requests.get(f"{BASE_URL}/conversations/{conv_id}/history", headers=headers)
         print_response(response)
     except requests.exceptions.ConnectionError as e:
         print(f"Error connecting to the server: {e}")
@@ -85,8 +98,11 @@ def delete_conversation(conv_id: str):
         print("Usage: delete_conversation <conversation_id>")
         return
     print(f"Deleting conversation {conv_id}...")
+    headers = {}
+    if ID_TOKEN:
+        headers["Authorization"] = f"Bearer {ID_TOKEN}"
     try:
-        response = requests.delete(f"{BASE_URL}/conversations/{conv_id}")
+        response = requests.delete(f"{BASE_URL}/conversations/{conv_id}", headers=headers)
         print_response(response)
     except requests.exceptions.ConnectionError as e:
         print(f"Error connecting to the server: {e}")
@@ -111,7 +127,7 @@ def print_help():
     print("  q, exit                              - Exit the CLI.\n")
 
 def main():
-    global BASE_URL, ACTIVE_CONVERSATION_ID
+    global BASE_URL, ACTIVE_CONVERSATION_ID, ID_TOKEN
 
     parser = argparse.ArgumentParser(description="Interactive API CLI client.")
     parser.add_argument("--host", type=str, default="localhost",
@@ -126,22 +142,60 @@ def main():
 
     scheme = ""
     if not host.startswith("http://") and not host.startswith("https://"):
-        scheme = "http://"
+        scheme = "http://" # Default to http if no scheme provided
 
     if port_to_use is not None:
         BASE_URL = f"{scheme}{host}:{port_to_use}"
         print(f"Using port {port_to_use} from command-line argument.")
     else:
-        BASE_URL = f"{scheme}{host}" # Port is omitted
-        if not scheme: # Host already had a scheme
+        BASE_URL = f"{scheme}{host}"
+        if not scheme and (host.startswith("http://") or host.startswith("https://")):
              print("Port not specified via --port argument. Omitting port from URL.")
         else:
              print("Port not specified via --port argument. Omitting port from URL (standard HTTP/HTTPS ports will be assumed).")
-
-
-    print("Interactive API CLI. Type 'help' for commands, 'exit' to quit.")
+    
     print(f"Using API base URL: {BASE_URL}")
 
+    # Firebase Authentication
+    firebase_api_key = os.getenv("FIREBASE_WEB_API_KEY")
+    if not firebase_api_key:
+        print("Error: FIREBASE_WEB_API_KEY environment variable not set. Cannot authenticate.")
+        sys.exit(1)
+
+    email = input("Enter Firebase Email: ").strip()
+    password = input("Enter Firebase Password: ").strip() # Consider using getpass for hidden input
+
+    auth_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={firebase_api_key}"
+    auth_payload = {
+        "email": email,
+        "password": password,
+        "returnSecureToken": True
+    }
+    try:
+        print("Authenticating with Firebase...")
+        auth_response = requests.post(auth_url, json=auth_payload)
+        auth_response.raise_for_status() # Raise an exception for HTTP errors
+        auth_data = auth_response.json()
+        ID_TOKEN = auth_data.get("idToken")
+        if not ID_TOKEN:
+            print("Login failed: idToken not found in response.")
+            print_response(auth_response)
+            sys.exit(1)
+        print("Successfully authenticated with Firebase.")
+        print("-" * 20)
+    except requests.exceptions.HTTPError as e:
+        print(f"Firebase authentication failed: {e.response.status_code}")
+        print_response(e.response)
+        sys.exit(1)
+    except requests.exceptions.ConnectionError as e:
+        print(f"Error connecting to Firebase authentication service: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"An unexpected error occurred during Firebase authentication: {e}")
+        sys.exit(1)
+
+    print("Interactive API CLI. Type 'help' for commands, 'exit' to quit.")
+    
     while True:
         try:
             prompt = f"cli@{ACTIVE_CONVERSATION_ID}> " if ACTIVE_CONVERSATION_ID else "cli> "

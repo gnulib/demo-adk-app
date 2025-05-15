@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import List, Optional, Any # Added Any for generic type hinting
+from typing import List, Optional, Any, Dict, Annotated # Added Any, Dict, Annotated
 
-from fastapi import FastAPI, HTTPException, status, Response, Request
+from fastapi import FastAPI, HTTPException, status, Response, Request, Depends
 # Pydantic models are now in api.models
 from google.adk.events import Event # Assuming this path is correct for your project structure
 from google.adk.sessions import BaseSessionService, Session as AdkSession # Removed ListSessionsResponse
@@ -11,6 +11,7 @@ from google.adk.artifacts import BaseArtifactService
 from utils.config import Config
 from api.models import Conversation, Message # Import models from the new module
 from services.runner import Runner # Import the Runner class
+from api.auth import get_authenticated_user, get_authorized_session # Import auth dependencies
 
 # Global variable to hold the singleton FastAPI app instance
 _app: Optional[FastAPI] = None
@@ -77,20 +78,24 @@ def get_fast_api_app(
                 allow_headers=["*"], # Allows all headers
             )
 
-        USER_ID = "hard_coded_user-01" # Hardcoded user ID as per requirement
+        # USER_ID = "hard_coded_user-01" # Hardcoded user ID removed, will use authenticated user's ID
 
         @_app.post("/conversations", response_model=Conversation, status_code=status.HTTP_201_CREATED)
-        async def create_conversation(request: Request):
+        async def create_conversation(
+            request: Request,
+            user: Annotated[Dict, Depends(get_authenticated_user)]
+        ):
             """
-            Creates a new conversation session.
+            Creates a new conversation session for the authenticated user.
             """
             session_service: BaseSessionService = request.app.state.session_service
             app_config: Config = request.app.state.config
+            user_id = user.get("uid")
             
             try:
                 app_name_to_use = app_config.AGENT_ID if app_config.AGENT_ID else app_config.APP_NAME
                 adk_session: AdkSession = session_service.create_session(
-                    user_id=USER_ID, app_name=app_name_to_use
+                    user_id=user_id, app_name=app_name_to_use
                 )
                 return Conversation(conv_id=adk_session.id, updated_at=adk_session.last_update_time)
             except Exception as e:
@@ -98,20 +103,21 @@ def get_fast_api_app(
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
         @_app.get("/conversations", response_model=List[Conversation])
-        async def get_conversations(request: Request):
+        async def get_conversations(
+            request: Request,
+            user: Annotated[Dict, Depends(get_authenticated_user)]
+        ):
             """
-            Retrieves a list of all conversations for the hardcoded user.
+            Retrieves a list of all conversations for the authenticated user.
             """
             session_service: BaseSessionService = request.app.state.session_service
             app_config: Config = request.app.state.config
+            user_id = user.get("uid")
             try:
-                # Assuming list_sessions returns an object with a .sessions attribute
-                # Type hinting as Any since the specific BaseModel type is not known/importable
                 app_name_to_use = app_config.AGENT_ID if app_config.AGENT_ID else app_config.APP_NAME
                 list_sessions_response: Any = session_service.list_sessions(
-                    user_id=USER_ID, app_name=app_name_to_use
+                    user_id=user_id, app_name=app_name_to_use
                 )
-                # Accessing the .sessions attribute directly
                 adk_sessions: List[AdkSession] = list_sessions_response.sessions
                 return [
                     Conversation(conv_id=s.id, updated_at=s.last_update_time) for s in adk_sessions
@@ -121,22 +127,17 @@ def get_fast_api_app(
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
         @_app.post("/conversations/{conversation_id}/messages", response_model=Message)
-        async def send_message(request: Request, conversation_id: str, message_request: Message):
+        async def send_message(
+            request: Request, 
+            message_request: Message,
+            adk_session: Annotated[AdkSession, Depends(get_authorized_session)] # Injects authorized session
+        ):
             """
             Sends a message to a specific conversation and gets a response from the agent.
+            User authorization for the conversation is handled by get_authorized_session.
             """
-            session_service: BaseSessionService = request.app.state.session_service
             app_runner: Runner = request.app.state.runner
-            app_config: Config = request.app.state.config
-
             try:
-                app_name_to_use = app_config.AGENT_ID if app_config.AGENT_ID else app_config.APP_NAME
-                adk_session: Optional[AdkSession] = session_service.get_session(
-                    session_id=conversation_id, user_id=USER_ID, app_name=app_name_to_use
-                )
-                if not adk_session:
-                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
-                
                 response_message = await app_runner.invoke(session=adk_session, msg=message_request)
                 return response_message
             except HTTPException: # Re-raise HTTPException
@@ -146,19 +147,14 @@ def get_fast_api_app(
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
         @_app.get("/conversations/{conversation_id}/history", response_model=List[Event])
-        async def get_conversation_history(request: Request, conversation_id: str):
+        async def get_conversation_history(
+            adk_session: Annotated[AdkSession, Depends(get_authorized_session)] # Injects authorized session
+        ):
             """
             Retrieves the event history for a specific conversation.
+            User authorization for the conversation is handled by get_authorized_session.
             """
-            session_service: BaseSessionService = request.app.state.session_service
-            app_config: Config = request.app.state.config
             try:
-                app_name_to_use = app_config.AGENT_ID if app_config.AGENT_ID else app_config.APP_NAME
-                adk_session: Optional[AdkSession] = session_service.get_session(
-                    session_id=conversation_id, user_id=USER_ID, app_name=app_name_to_use
-                )
-                if not adk_session:
-                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
                 return adk_session.events
             except HTTPException: # Re-raise HTTPException
                 raise
@@ -167,22 +163,24 @@ def get_fast_api_app(
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
         @_app.delete("/conversations/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
-        async def delete_conversation(request: Request, conversation_id: str):
+        async def delete_conversation(
+            request: Request,
+            adk_session: Annotated[AdkSession, Depends(get_authorized_session)] # Injects authorized session
+        ):
             """
             Deletes a specific conversation.
+            User authorization for the conversation is handled by get_authorized_session.
             """
             session_service: BaseSessionService = request.app.state.session_service
             app_config: Config = request.app.state.config
             try:
                 app_name_to_use = app_config.AGENT_ID if app_config.AGENT_ID else app_config.APP_NAME
                 session_service.delete_session(
-                    session_id=conversation_id, user_id=USER_ID, app_name=app_name_to_use
+                    session_id=adk_session.id, user_id=adk_session.user_id, app_name=app_name_to_use
                 )
                 return Response(status_code=status.HTTP_204_NO_CONTENT)
             except Exception as e:
                 # Log the exception e
-                # Consider if a 404 should be returned if delete is attempted on non-existent session,
-                # depending on session_service.delete_session behavior.
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     return _app

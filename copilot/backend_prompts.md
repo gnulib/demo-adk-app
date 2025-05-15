@@ -1,3 +1,47 @@
+#### prompt - update test driver CLI to use token ####
+
+modify the backend/test/cli.py test driver CLI as following:
+- user needs to login first, before any CLI commands can be used
+- ask user for email and password, then make the following HTTP request to get ID token (fetch FIREBASE_WEB_API_KEY from environment, give error if not present / set)
+```bash
+curl "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$FIREBASE_WEB_API_KEY" \
+-H 'Content-Type: application/json' \
+--data-binary '{"email":"test@example.com", "password":"secret123","returnSecureToken":true}'
+```
+- save the idToken from response
+- use the idToken in all API calls using Authorization with Beaer token
+
+#### prompt - wire in authN/authZ in FastAPI endpoints ####
+
+update FastAPI endpoing implementations in api/app.py as following:
+- every endpoint will have a user injected from dependency get authenticated user method in auth module
+- in the endpoints that have conversation id in resource path, will have session injected from get authenticated session method in auth module
+- update methods where hardcoded user id was being used, to use user's uid
+
+
+#### prompt - authN/authZ dependencies for FastAPI endpoints ####
+
+add authnauthz module under backend/api/ to implement the following:
+- module imports firebase_admin and firebase_admin.auth
+- implements a method to initialize module with storing a reference to config object
+- initializes firebase_admin(), no parameters uses default
+- initializes security_scheme with HTTPBearer()
+- defines an async dependency function to verify the firebase ID token as following:
+```
+async def get_authenticated_user(credentials: HTTPAuthorizationCredentials = Depends(security_scheme)) -> dict
+```
+  - method takes http authorization header credentials
+  - method verifies token in credentials using firebase_admin.auth.verify_id_token(token) method
+  - method returns back verified token, which is a dictionary
+- defines an async dependency function to implement authorization check for conversation as following:
+```
+async def get_authorized_session(conversation_id: Annotated[str,  Depends()], user: Annotated[dict, Depends(get_authenticated_user)]) -> Session
+```
+  - method takes conversation_id string and user details in dictionary from get_authenticated_user dependency
+  - method retrieves session object from session service using conversation ID, user's uid and from config APP_NAME
+  - method returns session object, if found, otherwise raises HTTP 404 not found exception
+
+
 #### prompt - logic to initialize VertexAiRagMemoryService for ADK agents on cloud run ####
 '''
 modify pydantic object Config in utils.config as following:
