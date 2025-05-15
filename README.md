@@ -7,16 +7,16 @@ _(This project is intentionally designed as a monorepo, i.e., has both the front
 
 ## Blog Series Companion
 This repository serves as a hands-on companion for a 3-part blog series.
-*   **Part 1:** [The Agent Stack : Deploying Your First ADK Agent on Google Cloud](https://www.linkedin.com/pulse/agent-stack-deploying-your-first-adk-google-cloud-amit-bhadoria-emvdc) - is now live!
-*   To follow the hands-on exercises for Part 1, please check out the specific code state using the following git command:
+*   **Part 2:** [The Agent Stack : Hosting a Secure Agent App with Firebase and Cloud Run](https://www.linkedin.com/pulse/agent-stack-hosting-secure-app-firebase-cloud-run-amit-bhadoria-cjvuc) - is now live!
+*   To follow the hands-on exercises for Part 2, please check out the specific code state using the following git command:
      ```bash
-     git checkout tags/blog-part-1
+     git checkout tags/blog-part-2
      ```
-> This command creates a new detached copy of project code from the `blog-part-1` tag, allowing you to work through the exercises.
+> This command creates a new detached copy of project code from the `blog-part-2` tag, allowing you to work through the exercises.
 
 ## Developer Setup
 
-> Following is a one time developer setup required on top of setup done with following parts of the blog series...
+> Following is a one time developer setup required on top of setup done with earlier parts of the blog series...
 >
 > * Google Cloud Setup from Part - 1 : [link to README with tag blog-part-1](https://github.com/gnulib/demo-adk-app/blob/blog-part-1/README.md)
 >
