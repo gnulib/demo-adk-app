@@ -18,7 +18,6 @@ class Config(BaseSettings):
     GOOGLE_GENAI_USE_VERTEXAI: str = Field(..., description="Boolean indicating if VertexAI is enabled.")
     APP_NAME: str = Field(..., description="A unique canonical name for the application.")
     DECKOFCARDS_URL: str = Field(..., description="URL for the Deckofcards API service to initialize client instance.")
-    FIREBASE_KEY_JSON: str = Field(..., description="JSON content of the Firebase service account key.")
     CORS_ORIGINS: str = Field(..., description="Comma-separated string of allowed origins for CORS.")
     PORT: int = Field(..., description="The port on which the application will run.")
     IS_TESTING: Optional[bool] = Field(None, description="Boolean indicating if the application is running in a testing environment.")
