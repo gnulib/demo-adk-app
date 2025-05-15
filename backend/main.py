@@ -9,6 +9,7 @@ from services.provider import (
     get_artifact_service,
 )
 from services.runner import Runner
+from api.auth import init_auth_module # Import the init function
 
 # Load application configuration at the module level
 app_config = get_config()
@@ -27,6 +28,9 @@ app_runner = Runner(
     artifact_service=artifact_service,
     config=app_config,
 )
+
+# Initialize the auth module with config and session_service
+init_auth_module(config=app_config, session_service=session_service)
 
 # Create FastAPI application instance at the module level
 # This allows Uvicorn to import 'app' directly: uvicorn backend.main:app
