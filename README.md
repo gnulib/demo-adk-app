@@ -7,6 +7,19 @@ This is a demo project for a simple app using [Google's ADK](https://google.gith
 
 Secondary objective of this project is to demonstrate the power of LLMs, how they can be used to build conversation interface against pretty much any service that has reasonable APIs.
 
+## Blog Series Companion
+This repository serves as a hands-on companion for a 3-part blog series.
+*   **Part 1:** [The Agent Stack : Deploying Your First ADK Agent on Google Cloud](https://www.linkedin.com/pulse/agent-stack-deploying-your-first-adk-google-cloud-amit-bhadoria-emvdc) - is now live!
+*   To follow the hands-on exercises for Part 1, please check out the specific code state using the following git command:
+     ```bash
+     git clone https://github.com/gnulib/demo-adk-app.git
+
+     cd demo-adk-app
+
+     git checkout tags/blog-part-1
+     ```
+> This command creates a new detached copy of project code from the blog-part-1 tag, allowing you to work through the exercises.
+
 > This project is intentionally designed as a monorepo, i.e., has both the frontend and backend code in the same git repository. For a larger, more complex, or production-grade applications, separating frontends and backends into different repositories is often recommended for better team collaboration, independent scaling, and clearer separation of concerns.
 
 ## Developer Setup
@@ -169,7 +182,13 @@ alias copilot="OPENAI_API_KEY=$OPENAI_CODE_ASSIST_KEY aider --model $AIDER_MODEL
 git clone https://github.com/gnulib/demo-adk-app.git
 
 cd demo-adk-app
+```
 
+```bash
+git checkout tags/blog-part-1
+```
+
+```bash
 python3 -m venv .venv
 ```
 
