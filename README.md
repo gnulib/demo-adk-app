@@ -159,7 +159,7 @@ firebase projects:addfirebase $GOOGLE_CLOUD_PROJECT
 _Install backend project dependencies:_
 
 ```bash
-pip install -r backend/requirements.txt
+pip install .
 ```
 
 _Install frontend project dependencies:_
