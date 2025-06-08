@@ -18,6 +18,33 @@ This repository serves as a hands-on companion for a 3-part blog series.
 
 > Following is a one time developer setup required...
 
+### Create project workspace
+
+<details>
+<summary><b>Step 1:</b> clone the repo</summary>
+
+```bash
+git clone https://github.com/gnulib/demo-adk-app.git
+
+cd demo-adk-app
+```
+</details>
+
+<details>
+
+<summary><b>Step 2:</b> initialize environment to work in project</summary>
+
+> create a python virtual environment within the repo project directory
+```bash
+python3 -m venv .venv
+```
+
+> activate python virtual environment
+```bash
+source .venv/bin/activate
+```
+</details>
+
 ### Google Cloud Setup
 
 Follow the steps listed in [GCP Setup](docs/GCP_SETUP.md) documentation for creating a Google Cloud Platform project and configuring appropriate APIs, roles, policies and storage buckets etc. required for this project.
@@ -94,7 +121,7 @@ firebase projects:addfirebase $GOOGLE_CLOUD_PROJECT
 
 ## Project Setup
 
-> Following is a one time setup required on top of setup done with Part - 1 of the blog series. If you have not completed the previous parts, please complete them before continuing here.
+> Following is a one time setup required **_after_** [Developer Setup](#developer-setup) and [GCP Setup](docs/GCP_SETUP.md) steps are complete. If you have not completed those steps, please complete them before continuing here.
 
 <details>
 
@@ -104,6 +131,12 @@ firebase projects:addfirebase $GOOGLE_CLOUD_PROJECT
 
 ```bash
 source .venv/bin/activate
+```
+
+> source project specific environment variables:
+
+```bash
+source .env
 ```
 
 > Install core development tools for project:

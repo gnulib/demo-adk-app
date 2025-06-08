@@ -15,7 +15,7 @@
 
 <summary><b>Step 2:</b> Install and setup <a href="https://cloud.google.com/sdk/docs/install">gcloud</a> on your local development machine </summary>
 
-> If you already have gcloud installed / configured from your work account and you want to following this example project in your personal account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
+> If you already have gcloud installed / configured from your work account and you want to use this example project with your personal account, then you might want to create a new configuration (in addition to existing work configuration) with `gcloud init` using your personal google cloud account.
 
 </details>
 
