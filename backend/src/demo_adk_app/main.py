@@ -1,15 +1,15 @@
 import uvicorn
 
-from api.app import get_fast_api_app
-from utils.config import get_config
-from services.provider import (
+from demo_adk_app.api.app import get_fast_api_app
+from demo_adk_app.utils.config import get_config
+from demo_adk_app.services.provider import (
     get_root_agent,
     get_session_service,
     get_memory_service,
     get_artifact_service,
 )
-from services.runner import Runner
-from api.auth import init_auth_module # Import the init function
+from demo_adk_app.services.runner import Runner
+from demo_adk_app.api.auth import init_auth_module # Import the init function
 
 # Load application configuration at the module level
 app_config = get_config()
