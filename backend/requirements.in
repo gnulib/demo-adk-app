@@ -3,4 +3,4 @@
 # Use 'pip-compile requirements.in' to generate requirements.txt
 
 # Install the application itself (this pulls dependencies from pyproject.toml)
--e ./src/demo_adk_app
+-e .
