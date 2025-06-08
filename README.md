@@ -36,7 +36,7 @@ This repository serves as a hands-on companion for a 3-part blog series.
 **Step 2:** Enable the Identity Toolkit APIs in your project:
 
 ```bash
-gcloud services enable identitytoolkit.googleapis.com aiplatform.reasoningEngines.list
+gcloud services enable identitytoolkit.googleapis.com
 ```
 > Above is new API for firebase authentication introduced in this part of the blog series, in addition to other APIs that were enabled in the earlier parts of the blog series.
 
