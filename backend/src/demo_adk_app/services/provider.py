@@ -91,7 +91,7 @@ def get_session_service(config: Config) -> BaseSessionService:
             vertexai.init(
                 project=config.GOOGLE_CLOUD_PROJECT,
                 location=config.GOOGLE_CLOUD_LOCATION,
-                staging_bucket=f"gs://{config.APP_NAME}" # Corrected f-string
+                staging_bucket=f"gs://{config.APP_NAME}-{config.GOOGLE_CLOUD_PROJECT}" # Corrected f-string
             )
             print("Vertex AI initialized.")
 

@@ -36,14 +36,14 @@ This repository serves as a hands-on companion for a 3-part blog series.
 **Step 2:** Enable the Identity Toolkit APIs in your project:
 
 ```bash
-gcloud services enable identitytoolkit.googleapis.com
+gcloud services enable identitytoolkit.googleapis.com aiplatform.reasoningEngines.list
 ```
 > Above is new API for firebase authentication introduced in this part of the blog series, in addition to other APIs that were enabled in the earlier parts of the blog series.
 
-**Step 3:** Create a Cloud Storage bucket for your project:
+**Step 3:** Create a Cloud Storage bucket for your project (used for RAG and Agent Engine ID):
 
 ```bash
-gcloud storage buckets create gs://$GOOGLE_ADK_APP_NAME \
+gcloud storage buckets create gs://$GOOGLE_ADK_APP_NAME-$GOOGLE_CLOUD_PROJECT \
     --default-storage-class STANDARD \
     --location $GOOGLE_CLOUD_LOCATION
 ```
@@ -64,13 +64,41 @@ gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
   --member=serviceAccount:$GOOGLE_CLOUD_PROJECT_NUMBER-compute@developer.gserviceaccount.com \
   --role=roles/cloudbuild.builds.builder \
   --condition=None
-```
+
+gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+  --member=serviceAccount:$GOOGLE_CLOUD_PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+  --role=roles/iam.serviceAccountUser \
+  --condition=None
+
+gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+  --member=serviceAccount:$GOOGLE_CLOUD_PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+  --role=roles/aiplatform.admin \
+  --condition=None
+  ```
 
 **Step 5:** Add necessary secret key access to service account:
 
 ```bash
 # No secret key access to be added yet.
 ```
+
+**Step 6:** (optional) override default organization policy `iam.allowedPolicyMemberDomains`
+* if your google project is part of an organization (e.g. associated with a google workspace) then it will inherit parent organization's policy `iam.allowedPolicyMemberDomains`, which prevents allowing all users access to cloud run service deployed in the project
+* need to override this at the project level as following:
+  * browse to cloud console -> IAM -> Organization policy
+  * search for `iam.allowedPolicyMemberDomains`, click details
+  * from policy detail page, click on "Manage policy"
+  * under "Policy Source", select "Override parent's policy"
+  * under "Polocy enforcement", select "Replace"
+  * under "Rules", add rule with value "Allow All"
+  * click Done
+  * click "Set polocy"
+* verify that project has the override configured / enabled:
+
+```bash
+gcloud org-policies list --project=$GOOGLE_CLOUD_PROJECT_ID
+```
+
 
 **Step 6:** Verify your configurations:
 
