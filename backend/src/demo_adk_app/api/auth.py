@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, status, Path
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Annotated, Optional, Dict
 
-from utils.config import Config
+from demo_adk_app.utils.config import Config
 from google.adk.sessions import Session as AdkSession, BaseSessionService
 
 # Module-level globals to store config and session service

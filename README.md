@@ -55,7 +55,15 @@ _(If you already have the bucket created earlier, you may get below error and yo
 **Step 4:** Add necessary roles to service account:
 
 ```bash
-# use same roles as previous setup instructions
+gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+  --member=serviceAccount:$GOOGLE_CLOUD_PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+  --role=roles/run.admin \
+  --condition=None
+
+gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+  --member=serviceAccount:$GOOGLE_CLOUD_PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+  --role=roles/cloudbuild.builds.builder \
+  --condition=None
 ```
 
 **Step 5:** Add necessary secret key access to service account:

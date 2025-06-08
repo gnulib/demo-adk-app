@@ -8,10 +8,10 @@ from google.adk.sessions import BaseSessionService, Session as AdkSession # Remo
 from google.adk.memory import BaseMemoryService
 from google.adk.artifacts import BaseArtifactService
 
-from utils.config import Config
-from api.models import Conversation, Message # Import models from the new module
-from services.runner import Runner # Import the Runner class
-from api.auth import get_authenticated_user, get_authorized_session # Import auth dependencies
+from demo_adk_app.utils.config import Config
+from demo_adk_app.api.models import Conversation, Message # Import models from the new module
+from demo_adk_app.services.runner import Runner # Import the Runner class
+from demo_adk_app.api.auth import get_authenticated_user, get_authorized_session # Import auth dependencies
 
 # Global variable to hold the singleton FastAPI app instance
 _app: Optional[FastAPI] = None

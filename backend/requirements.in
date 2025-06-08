@@ -1,6 +1,0 @@
-# src/demo_adk_app/requirements.in
-# This file defines the top-level dependencies for demo-adk-app package
-# Use 'pip-compile requirements.in' to generate requirements.txt
-
-# Install the application itself (this pulls dependencies from pyproject.toml)
--e .

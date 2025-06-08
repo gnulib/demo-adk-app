@@ -29,27 +29,19 @@ ENV PATH="/home/myuser/.local/bin:$PATH"
 # Install ADK and dependencies - Start
 
 # Upgrade pip
-RUN pip install --user --upgrade pip
+RUN pip install --no-cache-dir --upgrade pip
 
 # Copy the application code into the container
 COPY src/ /app/src/
 
 # Install the application as a module
-RUN pip install --user ./src/demo_adk_app
+RUN pip install  --no-cache-dir -r ./src/demo_adk_app/requirements.txt
 
 # Install ADK - End
 
-# Copy application code - Start
-
-# Copy the main application, API, and utility modules
-COPY main.py .
-COPY api/ /app/api/
-COPY utils/ /app/utils/
-COPY services/ /app/services/
-COPY simple_agent/ /app/simple_agent/
-
-# Copy application code - End
+# set the working directory for the application
+WORKDIR /app/src
 
 # Define the command to run when the container starts
 # $PORT is an environment variable typically provided by the hosting environment (e.g., Cloud Run)
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
+CMD ["sh", "-c", "uvicorn demo_adk_app.main:app --host 0.0.0.0 --port $PORT"]

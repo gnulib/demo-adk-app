@@ -25,6 +25,7 @@ endif
 # Target to build and deploy the backend using Google Cloud Build
 deploy-backend:
 	@echo "Building and deploying backend using Cloud Build..."
+	@(cd backend/src/demo_adk_app; pip-compile pyproject.toml -o requirements.txt)
 	@(cd backend; gcloud builds submit --config=cloudbuild.yaml . --substitutions="_AR_REGION=$(GOOGLE_CLOUD_LOCATION),_AR_REPO_NAME=$(GOOGLE_ADK_APP_REPOSITORY),_APP_NAME=$(GOOGLE_ADK_APP_NAME),_GOOGLE_GENAI_USE_VERTEXAI=$(GOOGLE_GENAI_USE_VERTEXAI),_FIREBASE_APP_URLS=$(FIREBASE_APP_URLS)")
 
 # Target to verify the status of the deployed backend service

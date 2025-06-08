@@ -25,8 +25,8 @@ import vertexai # For Vertex AI specific initializations
 # For this change, proceeding with the user's implied 'from vertexai import agent_engines' style.
 from vertexai import agent_engines, rag
 
-from utils.config import Config
-from simple_agent.agent import root_agent as simple_agent_instance
+from demo_adk_app.utils.config import Config
+from demo_adk_app.simple_agent.agent import root_agent as simple_agent_instance
 
 # Module-level variable to hold the singleton instance of the root agent
 _singleton_root_agent: Optional[BaseAgent] = None
