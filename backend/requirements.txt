@@ -1,9 +1,0 @@
-google-adk[database]
-requests
-pydantic
-pydantic-settings
-fastapi
-uvicorn
-google-cloud-storage
-google-cloud-aiplatform
-firebase-admin

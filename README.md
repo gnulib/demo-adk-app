@@ -156,13 +156,26 @@ firebase projects:addfirebase $GOOGLE_CLOUD_PROJECT
 
 <summary>Install dependencies</summary>
 
-_Install backend project dependencies:_
+> Activate project's virtual environment:
 
 ```bash
-pip install .
+source .venv/bin/activate
 ```
 
-_Install frontend project dependencies:_
+> Install core development tools for project:
+
+```bash
+# only required first time
+pip install --upgrade pip setuptools wheel build twine pip-tools
+```
+
+> Install backend agent app in editable mode:
+
+```bash
+pip install -e "./backend/src/demo_adk_app[dev]"
+```
+
+> Install frontend project dependencies:
 
 ```bash
 (cd frontend;  npm install)
@@ -314,7 +327,7 @@ EOF
 _In one terminal run the app locally for testing project setup_
 
 ```bash
-(cd backend; source .env; python main.py)
+(source backend/.env; cd backend/src; uvicorn demo_adk_app.main:app --reload)
 ```
 
 _In another terminal run the test CLI for interacting with the app (use port from above)_
