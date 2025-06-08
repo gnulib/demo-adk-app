@@ -18,7 +18,7 @@ This repository serves as a hands-on companion for a 3-part blog series.
 
 > Following is a one time developer setup required...
 
-### Create project workspace
+### Workspace Setup
 
 <details>
 <summary><b>Step 1:</b> clone the repo</summary>
@@ -32,7 +32,7 @@ cd demo-adk-app
 
 <details>
 
-<summary><b>Step 2:</b> initialize environment to work in project</summary>
+<summary><b>Step 2:</b> initialize python environment for project</summary>
 
 > create a python virtual environment within the repo project directory
 ```bash
@@ -43,85 +43,27 @@ python3 -m venv .venv
 ```bash
 source .venv/bin/activate
 ```
+
+> Install core development tools for project:
+
+```bash
+pip install --upgrade pip setuptools wheel build twine pip-tools
+```
+
 </details>
 
 ### Google Cloud Setup
 
 Follow the steps listed in [GCP Setup](docs/GCP_SETUP.md) documentation for creating a Google Cloud Platform project and configuring appropriate APIs, roles, policies and storage buckets etc. required for this project.
 
-<details>
-<summary>Firebase Setup</summary>
+### Firebase Setup
 
-> You'll be required to have a firebase project linked to the google cloud project created above, as following...
+Follow the steps listed in [Firebase Setup](docs/FIREBASE_SETUP.md) documentation for creating a Firebase project linked to your Google Cloud Platform project created above, and configuring appropriate firebase project configurations.
 
-**Step 1:** Install [Node.js](https://www.nodejs.org/) using [nvm](https://github.com/nvm-sh/nvm/blob/master/README.md) on your development machine:
-
-_(first install nvm)_
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-```
-
-_(second, close and reopen new terminal window)_
-
-_(third, install node using nvm)_
-
-```bash
-nvm install node
-````
-
-_(Installing Node.js automatically installs the `npm` command tools)_
-
-**Step 2:** Install firebase CLI on your development machine:
-
-```bash
-npm install -g firebase-tools
-```
-
-**Step 3:** Log in to firebase with your CLI:
-
-```bash
-# use 'firebase logout' if you are already logged in from a
-# different / work account and need to switch to personal account
-firebase login
-```
-
->This command will open a browser window asking you to log in with your Google account and grant Firebase CLI the necessary permissions. Once you've successfully logged in, the terminal will confirm that you are authenticated.
-
-**Step 4:** Add firebase to your google cloud project:
-
-```bash
-firebase projects:addfirebase $GOOGLE_CLOUD_PROJECT
-```
-
-> If you already had firebase added to google cloud project, then might get error, you can ignore that.
+## Getting Started
 
 
-**Step 5:** Enable email/password authentication for your firebase project:
-
-1. Go to the [Firebase console](https://console.firebase.google.com/)
-
-1. Select your project created above.
-
-1. On project dashboard, under Build -> Authentication click on “Get started”
-
-1. Select sign-in method, click on Add new provider
-
-1. Select the Native provider “Email/Password”, toggle “Enable” to on, save
-
-**Step 6:** Disable user self creation:
-1. Goto “Settings” tab under Authentication
-
-1. Click on “User actions”
-
-1. Deselect “Enable create” checkbox
-
-1. Save
-
-</details>
-
-## Project Setup
-
-> Following is a one time setup required **_after_** [Developer Setup](#developer-setup) and [GCP Setup](docs/GCP_SETUP.md) steps are complete. If you have not completed those steps, please complete them before continuing here.
+> Following steps should be performed **_after_** [Workspace Setup](#workspace-setup), [GCP Setup](docs/GCP_SETUP.md) and [Firebase Setup](docs/FIREBASE_SETUP.md) steps are complete. If you have not completed those steps, please complete them before continuing here.
 
 <details>
 
@@ -137,13 +79,6 @@ source .venv/bin/activate
 
 ```bash
 source .env
-```
-
-> Install core development tools for project:
-
-```bash
-# only required first time
-pip install --upgrade pip setuptools wheel build twine pip-tools
 ```
 
 > Install backend agent app in editable mode:
@@ -163,155 +98,23 @@ pip install -e "./backend/src/demo_adk_app[dev]"
 </details>
 
 <details>
-
-<summary>Initialize Firebase for Your Project</summary>
-
-**Step 1:** Initialize hosting for your frontend:
-
-```bash
-(cd frontend; firebase init hosting)
-```
-
-This command will start an interactive process. Here's how to respond to the prompts:
-
-1. **What do you want to use as your public directory?** This is the most important step for a React app. The build process for React applications (using `create-react-app`) typically outputs the production files into a `build` or `dist` folder. Enter `build` (or `dist` if you are using Vite or a custom setup) and press Enter.
-
-1. **Configure as a single-page application (rewrite all urls to /index.html)?** Type `Yes` (`y`) and press Enter. This is crucial for single-page applications like React apps, ensuring that routing works correctly.
-
-1. **Set up automatic builds and deploys with GitHub?** Type `No` (`n`) unless you specifically want to set up continuous deployment with GitHub Actions at this time. You can always set this up later.
-
-1. **File build/index.html already exists. Overwrite?** Type `No` (`n`). You don't want to overwrite the `index.html` file that is generated during the build process.
-
-After completing these steps, Firebase will create two new files in your project's root directory: `.firebaserc` and `firebase.json`.
-
-* `.firebaserc`: Stores your default Firebase project alias.
-
-* `firebase.json`: Contains the configuration for Firebase services, including Hosting. It will specify your public directory (`build`) and the rewrite rule for single-page applications.
-
-**Step 2:** Configure `firebase` to use your google project for frontend:
-
-```bash
-(cd frontend; firebase use $GOOGLE_CLOUD_PROJECT)
-```
-
-**Step 3:** Create test user for project:
-
-1. Go to the [Firebase console](https://console.firebase.google.com/)
-
-1. Select your project created above.
-
-1. On project dashboard, under Build -> Authentication click on “Users” tab
-
-1. Click on "Add user"
-
-1. Enter email and password for a test user (e.g. `test@example.com` / `secret123`)
-
-> The above test user can have any email/password, save it for using with testing later.
-
-**Step 4:** Create a new web app for your firebase project:
-
-_(first confirm that you don't already have web app)_
-
-```bash
-(cd frontend; firebase apps:list)
-```
-
-_(if don't have web app already, then create new)_
-
-```bash
-(cd frontend; firebase apps:create web)
-```
-
-This command will start an interactive process. Here's how to respond to the prompts:
-
-1. **What would you like to call your app?** Use "demo-adk-app-frontend".
-
-> save the app ID from output for use below.
-
-**Step 5:** Store the firebase web app ID and URLs as environment variable:
-
-```bash
-export FIREBASE_APP_ID=<<app ID from above>>
-export FIREBASE_APP_URLS="https://$GOOGLE_CLOUD_PROJECT.web.app"
-```
-
->TIP: you can add above line to your shell's rc file, e.g. `~/.zshrc` and reload
-
-</details>
-
-<details>
-
-<summary>Setup firebase frontend environment</summary>
-
-**Step 1:** Copy `frontend/.env.example` file as `frontend/.env`
-
-```bash
-cp frontend/.env.example frontend/.env
-```
-
-**Step 2:** Get firebase web app configuration:
-
-```bash
-(cd frontend; firebase apps:sdkconfig WEB $FIREBASE_APP_ID)
-```
-
-> output will look something like below:
-
-```js
-{
-  projectId: "YOUR_FIREBASE_PROJECT_ID",
-  appId: "YOUR_FIREBASE_APP_ID",
-  storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
-  messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID"
-}
-```
-
-**Step 3:** replace the placeholder values in `frontend/.env` file with your actual configuration from above.
-
-> **Important**: Keep your apiKey and other configuration details secure. While the apiKey for web apps is generally considered safe to include in your client-side code (as it only allows access to services you've enabled and configured security rules for), you should never expose sensitive server-side keys.
-
-</details>
-
-<details>
-
-<summary>Setup backend environment</summary>
-
-_create `backend/.env` file for local testing:_
-
-```bash
-cat > backend/.env <<'EOF'
-export GOOGLE_CLOUD_PROJECT=$GOOGLE_CLOUD_PROJECT
-export GOOGLE_CLOUD_LOCATION=$GOOGLE_CLOUD_LOCATION
-export GOOGLE_GENAI_USE_VERTEXAI=$GOOGLE_GENAI_USE_VERTEXAI
-export APP_NAME=$GOOGLE_ADK_APP_NAME
-export PORT=8000
-export CORS_ORIGINS="http://localhost:3000, $FIREBASE_APP_URLS"
-export IS_TESTING=true
-export DECKOFCARDS_URL="https://deckofcardsapi.com/api/deck"
-EOF
-```
-
-</details>
-
-## Getting Started
-> You'll be using two terminals, one terminal will be used to run backend service, and another terminal will be where you'll be running the frontend app for local testing.
-
-<details>
 <summary>Test backend setup locally</summary>
 
 _In one terminal run the app locally for testing project setup_
 
 ```bash
-(source backend/.env; cd backend/src; uvicorn demo_adk_app.main:app --reload)
+(source .env; cd backend/src; uvicorn demo_adk_app.main:app --reload)
 ```
 
 _In another terminal run the test CLI for interacting with the app (use port from above)_
 
 ```bash
 (export $(grep REACT_APP_FIREBASE_API_KEY frontend/.env); cd backend; python test/cli.py --port 8000)
+```
 
+_Use the test CLI to interact with app_:
+
+```bash
 cli> help
 
 cli> lc # this command lists existing conversations
