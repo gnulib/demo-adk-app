@@ -16,103 +16,11 @@ This repository serves as a hands-on companion for a 3-part blog series.
 
 ## Developer Setup
 
-> Following is a one time developer setup required on top of setup done with earlier parts of the blog series...
->
-> * Google Cloud Setup from Part - 1 : [link to README with tag blog-part-1](https://github.com/gnulib/demo-adk-app/blob/blog-part-1/README.md)
->
-> ⚠️ **IMPORTANT:** If you have not completed the previous parts, please complete them before continuing here.
+> Following is a one time developer setup required...
 
-<details>
-<summary>Google Cloud Setup</summary>
+### Google Cloud Setup
 
-**Step 1:** Export environment variables related to project:
-
-```bash
-# use same values as previous setup instructions
-```
-
-> You can add the above exports into your shell's environment file, e.g. `~/.zshrc`
-
-**Step 2:** Enable the Identity Toolkit APIs in your project:
-
-```bash
-gcloud services enable identitytoolkit.googleapis.com
-```
-> Above is new API for firebase authentication introduced in this part of the blog series, in addition to other APIs that were enabled in the earlier parts of the blog series.
-
-**Step 3:** Create a Cloud Storage bucket for your project (used for RAG and Agent Engine ID):
-
-```bash
-gcloud storage buckets create gs://$GOOGLE_ADK_APP_NAME-$GOOGLE_CLOUD_PROJECT \
-    --default-storage-class STANDARD \
-    --location $GOOGLE_CLOUD_LOCATION
-```
-
-_(If you already have the bucket created earlier, you may get below error and you can ignore it:)_
-
-> ERROR: (gcloud.storage.buckets.create) HTTPError 409: Your previous request to create the named bucket succeeded and you already own it.
-
-**Step 4:** Add necessary roles to service account:
-
-```bash
-gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
-  --member=serviceAccount:$GOOGLE_CLOUD_PROJECT_NUMBER-compute@developer.gserviceaccount.com \
-  --role=roles/run.admin \
-  --condition=None
-
-gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
-  --member=serviceAccount:$GOOGLE_CLOUD_PROJECT_NUMBER-compute@developer.gserviceaccount.com \
-  --role=roles/cloudbuild.builds.builder \
-  --condition=None
-
-gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
-  --member=serviceAccount:$GOOGLE_CLOUD_PROJECT_NUMBER-compute@developer.gserviceaccount.com \
-  --role=roles/iam.serviceAccountUser \
-  --condition=None
-
-gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
-  --member=serviceAccount:$GOOGLE_CLOUD_PROJECT_NUMBER-compute@developer.gserviceaccount.com \
-  --role=roles/aiplatform.admin \
-  --condition=None
-  ```
-
-**Step 5:** Add necessary secret key access to service account:
-
-```bash
-# No secret key access to be added yet.
-```
-
-**Step 6:** (optional) override default organization policy `iam.allowedPolicyMemberDomains`
-* if your google project is part of an organization (e.g. associated with a google workspace) then it will inherit parent organization's policy `iam.allowedPolicyMemberDomains`, which prevents allowing all users access to cloud run service deployed in the project
-* need to override this at the project level as following:
-  * browse to cloud console -> IAM -> Organization policy
-  * search for `iam.allowedPolicyMemberDomains`, click details
-  * from policy detail page, click on "Manage policy"
-  * under "Policy Source", select "Override parent's policy"
-  * under "Polocy enforcement", select "Replace"
-  * under "Rules", add rule with value "Allow All"
-  * click Done
-  * click "Set polocy"
-* verify that project has the override configured / enabled:
-
-```bash
-gcloud org-policies list --project=$GOOGLE_CLOUD_PROJECT_ID
-```
-
-
-**Step 6:** Verify your configurations:
-
-```bash
-gcloud config list # verify gcloud is using correct google cloud account and project
-
-gcloud artifacts repositories list # verify artifact repository exists
-
-gcloud storage buckets list --format="json(name)" # verify that storage bucket for app name exists
-```
-
-> Above command will display your current `gcloud` configuration, including the active account and the project, and the default region/zone if you set them. These should match the project and google cloud account you are using for this demo.
-
-</details>
+Follow the steps listed in [GCP Setup](docs/GCP_SETUP.md) documentation for creating a Google Cloud Platform project and configuring appropriate APIs, roles, policies and storage buckets etc. required for this project.
 
 <details>
 <summary>Firebase Setup</summary>
@@ -225,13 +133,7 @@ pip install -e "./backend/src/demo_adk_app[dev]"
 
 <summary>Initialize Firebase for Your Project</summary>
 
-**Step 1:** Configure `firebase` to use your google project for frontend:
-
-```bash
-(cd frontend; firebase use $GOOGLE_CLOUD_PROJECT)
-```
-
-**Step 2:** Initialize hosting for your frontend:
+**Step 1:** Initialize hosting for your frontend:
 
 ```bash
 (cd frontend; firebase init hosting)
@@ -252,6 +154,12 @@ After completing these steps, Firebase will create two new files in your project
 * `.firebaserc`: Stores your default Firebase project alias.
 
 * `firebase.json`: Contains the configuration for Firebase services, including Hosting. It will specify your public directory (`build`) and the rewrite rule for single-page applications.
+
+**Step 2:** Configure `firebase` to use your google project for frontend:
+
+```bash
+(cd frontend; firebase use $GOOGLE_CLOUD_PROJECT)
+```
 
 **Step 3:** Create test user for project:
 
