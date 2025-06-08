@@ -1,0 +1,41 @@
+# resume-schema-service/pyproject.toml
+
+# my_org_monorepo/pyproject.toml
+#
+# This file configures development tools for the entire monorepo.
+# It does NOT define a Python package itself.
+#
+# Tools like Ruff, MyPy, and Pytest will look for this file at the project root
+# to find their global configurations.
+
+[tool.pytest.ini_options]
+# Add 'src' to the Python path for pytest to discover tests and import modules
+# from both 'resume_schema_service' and 'resume_schema_client' correctly.
+pythonpath = ["src"]
+
+# Define where pytest should look for test files.
+testpaths = [
+    "tests",
+    "src/demo_adk_app",
+]
+addopts = "--strict-markers -vv"
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "D", "UP", "B", "A", "C4", "SIM", "ISC", "TID", "PL", "RET", "PTH", "ERA", "PIE", "RSE", "RUF"]
+ignore = ["D100", "D104", "D105", "D107"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

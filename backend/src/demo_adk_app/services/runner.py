@@ -5,8 +5,8 @@ from google.adk.artifacts import BaseArtifactService
 from google.adk.runners import Runner as AdkRunner # Alias to avoid name collision
 from google.genai import types # For ADK Content and Part objects
 
-from utils.config import Config
-from api.models import Message
+from demo_adk_app.utils.config import Config
+from demo_adk_app.api.models import Message
 
 
 class Runner:

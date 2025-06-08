@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "demo-adk-app"
+version = "0.1.0"
+description = "A demo app for ADK framework"
+authors = [
+    { name="Amit Bhadoria", email="amit@integratingfactor.com" }
+]
+dependencies = [
+    "google-adk[database]~=1.2.1",
+    "requests",
+    "pydantic",
+    "pydantic-settings",
+    "fastapi",
+    "uvicorn",
+    "google-cloud-storage",
+    "google-cloud-aiplatform",
+    "firebase-admin"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest~=8.2.0",
+    "httpx~=0.28.1", # For testing FastAPI endpoints
+    "ruff~=0.4.0",   # Tools can be listed here, but often configured globally at root
+    "mypy~=1.10.0",  # Tools can be listed here, but often configured globally at root
+    "pip-tools",     # For managing requirements.txt
+    "keyrings.google-artifactregistry-auth", # For AR auth in local dev
+]
+
+# For building this specific package when in src/resume_schema_service/
+[tool.setuptools.packages.find]
+where = ["."] # Look for packages in the current directory (which is 'src/resume_schema_service/')

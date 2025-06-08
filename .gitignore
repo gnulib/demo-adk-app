@@ -2,6 +2,9 @@
 .venv
 backend/**/__pycache__/
 **/.env
+**/build/
+**/*.egg-info/
+**/requirements.txt
 
 # firebase CLI
 **/firebase-debug.log

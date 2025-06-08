@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, status, Path
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Annotated, Optional, Dict
 
-from utils.config import Config
+from demo_adk_app.utils.config import Config
 from google.adk.sessions import Session as AdkSession, BaseSessionService
 
 # Module-level globals to store config and session service
@@ -83,7 +83,7 @@ async def get_authorized_session(
 
     try:
         app_name_to_use = _config_instance.AGENT_ID if _config_instance.AGENT_ID else _config_instance.APP_NAME
-        adk_session: Optional[AdkSession] = _session_service_instance.get_session(
+        adk_session: Optional[AdkSession] = await _session_service_instance.get_session(
             session_id=conversation_id, user_id=user_id, app_name=app_name_to_use
         )
         if not adk_session:

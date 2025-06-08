@@ -8,10 +8,10 @@ from google.adk.sessions import BaseSessionService, Session as AdkSession # Remo
 from google.adk.memory import BaseMemoryService
 from google.adk.artifacts import BaseArtifactService
 
-from utils.config import Config
-from api.models import Conversation, Message # Import models from the new module
-from services.runner import Runner # Import the Runner class
-from api.auth import get_authenticated_user, get_authorized_session # Import auth dependencies
+from demo_adk_app.utils.config import Config
+from demo_adk_app.api.models import Conversation, Message # Import models from the new module
+from demo_adk_app.services.runner import Runner # Import the Runner class
+from demo_adk_app.api.auth import get_authenticated_user, get_authorized_session # Import auth dependencies
 
 # Global variable to hold the singleton FastAPI app instance
 _app: Optional[FastAPI] = None
@@ -94,7 +94,7 @@ def get_fast_api_app(
             
             try:
                 app_name_to_use = app_config.AGENT_ID if app_config.AGENT_ID else app_config.APP_NAME
-                adk_session: AdkSession = session_service.create_session(
+                adk_session: AdkSession = await session_service.create_session(
                     user_id=user_id, app_name=app_name_to_use
                 )
                 return Conversation(conv_id=adk_session.id, updated_at=adk_session.last_update_time)
@@ -115,7 +115,7 @@ def get_fast_api_app(
             user_id = user.get("uid")
             try:
                 app_name_to_use = app_config.AGENT_ID if app_config.AGENT_ID else app_config.APP_NAME
-                list_sessions_response: Any = session_service.list_sessions(
+                list_sessions_response: Any = await session_service.list_sessions(
                     user_id=user_id, app_name=app_name_to_use
                 )
                 adk_sessions: List[AdkSession] = list_sessions_response.sessions
@@ -175,7 +175,7 @@ def get_fast_api_app(
             app_config: Config = request.app.state.config
             try:
                 app_name_to_use = app_config.AGENT_ID if app_config.AGENT_ID else app_config.APP_NAME
-                session_service.delete_session(
+                await session_service.delete_session(
                     session_id=adk_session.id, user_id=adk_session.user_id, app_name=app_name_to_use
                 )
                 return Response(status_code=status.HTTP_204_NO_CONTENT)

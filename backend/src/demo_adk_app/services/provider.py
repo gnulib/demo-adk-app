@@ -25,8 +25,8 @@ import vertexai # For Vertex AI specific initializations
 # For this change, proceeding with the user's implied 'from vertexai import agent_engines' style.
 from vertexai import agent_engines, rag
 
-from utils.config import Config
-from simple_agent.agent import root_agent as simple_agent_instance
+from demo_adk_app.utils.config import Config
+from demo_adk_app.simple_agent.agent import root_agent as simple_agent_instance
 
 # Module-level variable to hold the singleton instance of the root agent
 _singleton_root_agent: Optional[BaseAgent] = None
@@ -91,7 +91,7 @@ def get_session_service(config: Config) -> BaseSessionService:
             vertexai.init(
                 project=config.GOOGLE_CLOUD_PROJECT,
                 location=config.GOOGLE_CLOUD_LOCATION,
-                staging_bucket=f"gs://{config.APP_NAME}" # Corrected f-string
+                staging_bucket=f"gs://{config.APP_NAME}-{config.GOOGLE_CLOUD_PROJECT}" # Corrected f-string
             )
             print("Vertex AI initialized.")
 
