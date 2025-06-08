@@ -28,16 +28,14 @@ ENV PATH="/home/myuser/.local/bin:$PATH"
 
 # Install ADK and dependencies - Start
 
-# Copy the requirements file into the container
-COPY requirements.txt .
-
 # Upgrade pip
 RUN pip install --user --upgrade pip
 
-# Install the Python dependencies
-# Use --user flag to install packages into the user's home directory (~/.local)
-# This is important because we are running as a non-root user.
-RUN pip install --user -r requirements.txt
+# Copy the application code into the container
+COPY src/ /app/src/
+
+# Install the application as a module
+RUN pip install --user ./src/demo_adk_app
 
 # Install ADK - End
 
