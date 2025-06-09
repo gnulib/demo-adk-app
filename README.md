@@ -6,13 +6,10 @@ _(This project is intentionally designed as a monorepo, i.e., has both the front
 > This project makes use of the excellent [Deck of Cards API](https://deckofcardsapi.com/) by Chase Roberts. Many thanks to Chase for providing this fun and useful API!
 
 ## Blog Series Companion
-This repository serves as a hands-on companion for a 3-part blog series.
-*   **Part 2:** [The Agent Stack : Hosting a Secure Agent App with Firebase and Cloud Run](https://www.linkedin.com/pulse/agent-stack-hosting-secure-app-firebase-cloud-run-amit-bhadoria-cjvuc) - is now live!
-*   To follow the hands-on exercises for Part 2, please check out the specific code state using the following git command:
-     ```bash
-     git checkout tags/blog-part-2
-     ```
-> This command creates a new detached copy of project code from the `blog-part-2` tag, allowing you to work through the exercises.
+This repository serves as a hands-on companion for a 3-part blog series:
+* **Part 1:** [The Agent Stack : Deploying Your First ADK Agent on Google Cloud](https://www.linkedin.com/pulse/agent-stack-deploying-your-first-adk-google-cloud-amit-bhadoria-emvdc) - is now live!
+* **Part 2:** [The Agent Stack : Hosting a Secure Agent App with Firebase and Cloud Run](https://www.linkedin.com/pulse/agent-stack-hosting-secure-app-firebase-cloud-run-amit-bhadoria-cjvuc) - is now live!
+* **Part 3:** The Agent Stack : Multi-Agent Orchestration & Autonomy - coming soon!
 
 ## Developer Setup
 
