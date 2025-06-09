@@ -12,7 +12,7 @@ def _load_instructions():
 
 root_agent = Agent(
     name="game_master_agent",
-    model="gemini-2.5-pro",
+    model="gemini-2.5-pro-preview-05-06",
     description=(
         "The central orchestrator for the Blackjack application, managing game flow and coordinating sub-agents."
     ),

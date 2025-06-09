@@ -27,16 +27,14 @@
 
 ```bash
 cat > .env <<'EOF'
+# GCP Project specific environment variables
 export GOOGLE_CLOUD_PROJECT="<<<YOUR_GOOGLE_PROJECT_CREATED_ABOVE>>>"
 export GOOGLE_CLOUD_LOCATION="<<<<LOCATION_TO_USE>>>" #e.g. us-central1
 export GOOGLE_CLOUD_PROJECT_NUMBER="$(gcloud projects describe $GOOGLE_CLOUD_PROJECT --format='value(projectNumber)')"
 export GOOGLE_ADK_APP_REPOSITORY="adk-apps"
 export GOOGLE_ADK_APP_NAME="demo-adk-app"
 export GOOGLE_GENAI_USE_VERTEXAI="True"
-export PORT=8000
-export CORS_ORIGINS="http://localhost:3000, $FIREBASE_APP_URLS"
-export IS_TESTING=true
-export DECKOFCARDS_URL="https://deckofcardsapi.com/api/deck"
+
 EOF
 ```
 

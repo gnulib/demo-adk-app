@@ -183,8 +183,12 @@ This command will start an interactive process. Here's how to respond to the pro
 > update the `.env` file in project's root directory with firebase web app ID and URLs:
 
 ```bash
+cat >> .env <<'EOF'
+# Firebase Project specific environment variables
 export FIREBASE_APP_ID=<<app ID from above>>
 export FIREBASE_APP_URLS="https://$GOOGLE_CLOUD_PROJECT.web.app"
+
+EOF
 ```
 
 > source `.env` into current terminal environment

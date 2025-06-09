@@ -8,7 +8,7 @@ def _load_instructions():
 
 root_agent = Agent(
     name="dealer_agent",
-    model="gemini-2.5-flash",
+    model="gemini-2.5-pro-preview-05-06",
     description=(
         "Executes Blackjack gameplay: manages deck, deals cards, processes player actions, determines outcomes."
     ),
