@@ -9,3 +9,6 @@ backend/**/__pycache__/
 # firebase CLI
 **/firebase-debug.log
 **/.firebase/
+
+# vscode
+.vscode/
