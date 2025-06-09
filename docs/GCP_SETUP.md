@@ -4,7 +4,7 @@
 
 <details>
 
-<summary><b>Step 1:</b> Create a new <a href="https://cloud.google.com/resource-manager/docs/creating-managing-projects"> Google Cloud project </a> and enable billing.</summary>
+<summary><b>Step 1:</b> Create a new <a href="https://cloud.google.com/resource-manager/docs/creating-managing-projects"> Google Cloud project </a> and enable billing</summary>
 
 
 > If you are an individual developer, you should be able to signup for a new Google Cloud by [getting started for free](https://cloud.google.com/free) program.
@@ -21,7 +21,7 @@
 
 <details>
 
-<summary><b>Step 3:</b> Export environment variables related to project</summary>
+<summary><b>Step 3:</b> Export environment variables related to GCP project</summary>
 
 > below `.env` file should be at the root of your project directory and sourced every time you start working on the project in a new terminal session.
 

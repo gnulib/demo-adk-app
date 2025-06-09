@@ -100,19 +100,19 @@ pip install -e "./backend/src/demo_adk_app[dev]"
 <details>
 <summary>Test backend setup locally</summary>
 
-_In one terminal run the app locally for testing project setup_
+> _In one terminal run the app locally for testing project setup_
 
 ```bash
 (source .env; cd backend/src; uvicorn demo_adk_app.main:app --reload)
 ```
 
-_In another terminal run the test CLI for interacting with the app (use port from above)_
+> _In another terminal run the test CLI for interacting with the app (use port from above)_
 
 ```bash
 (export $(grep REACT_APP_FIREBASE_API_KEY frontend/.env); cd backend; python test/cli.py --port 8000)
 ```
 
-_Use the test CLI to interact with app_:
+> _Use the test CLI to interact with app_:
 
 ```bash
 cli> help
@@ -132,17 +132,16 @@ cli> join <<conversation id>> # this command joins a conversation
 
 <summary>Test frontend setup locally</summary>
 
-1. _Once backend looks good, start frontend to interact with local agent service:_
+> _Once backend looks good, start frontend to interact with local agent service:_
 
 ```bash
 (cd frontend; npm run start)
 ```
 > _(above command uses `REACT_APP_BACKEND_URL` from `frontend/.env` file, and assumption is that local backend is running and listening on the same port mentioned in that variable. If port is different then modify the entry in `frontend/.env` file accordingly)_
 
-1. _(make sure that you have test user created as mentioned in project setup above)_
+> _(make sure that you have test user created as mentioned in [Firebase Setup](docs/FIREBASE_SETUP.md) above)_
 
-1. _Interact with the app frontend and confirm connectivity and functionality works as expected._
-
+> _Interact with the app frontend and confirm connectivity and functionality works as expected._
 
 </details>
 

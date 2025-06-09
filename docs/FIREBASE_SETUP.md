@@ -178,9 +178,9 @@ This command will start an interactive process. Here's how to respond to the pro
 
 <details>
 
-<summary><b>Step 4:</b> Store the firebase web app ID and URLs as environment variables</summary>
+<summary><b>Step 4:</b> Export environment variables related to Firebase project</summary>
 
-> update the `.env` file in project's root directory with folowing:
+> update the `.env` file in project's root directory with firebase web app ID and URLs:
 
 ```bash
 export FIREBASE_APP_ID=<<app ID from above>>
