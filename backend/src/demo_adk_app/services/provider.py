@@ -27,6 +27,7 @@ from vertexai import agent_engines, rag
 
 from demo_adk_app.utils.config import Config
 from demo_adk_app.simple_agent.agent import root_agent as simple_agent_instance
+from demo_adk_app.agents.game_master_agent.agent import root_agent as game_master_agent
 
 # Module-level variable to hold the singleton instance of the root agent
 _singleton_root_agent: Optional[BaseAgent] = None
@@ -56,7 +57,7 @@ def get_root_agent(config: Config) -> BaseAgent:
     if _singleton_root_agent is None:
         # The root_agent from simple_agent.agent is already an initialized instance.
         # We are ensuring that this provider returns that same instance as a singleton.
-        _singleton_root_agent = simple_agent_instance
+        _singleton_root_agent = game_master_agent
     return _singleton_root_agent
 
 
