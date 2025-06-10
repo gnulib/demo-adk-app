@@ -50,7 +50,15 @@ def create_conversation():
         headers["Authorization"] = f"Bearer {ID_TOKEN}"
     try:
         response = requests.post(f"{BASE_URL}/conversations", headers=headers)
-        print_response(response)
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, list):
+                for index, conversation in enumerate(data):
+                    print(f"{index}: {conversation.get('conv_id')}")
+            else:
+                print("Unexpected response format.")
+        else:
+            print_response(response)
         if response.status_code == 201:  # Assuming 201 Created is the success status code
             data = response.json()
             conv_id = data.get("conv_id")
@@ -257,10 +265,23 @@ def main():
                     if len(args) < 1:
                         print("Usage: join <conversation_id>")
                     else:
-                        # Optional: Could add a check here to see if conv_id is valid
-                        # by trying to fetch its history or details.
-                        ACTIVE_CONVERSATION_ID = args[0]
-                        print(f"Joined conversation {ACTIVE_CONVERSATION_ID}. Type 'leave' to exit conversation mode.")
+                        if args[0].isdigit():
+                            index = int(args[0])
+                            response = requests.get(f"{BASE_URL}/conversations", headers={"Authorization": f"Bearer {ID_TOKEN}"})
+                            if response.status_code == 200:
+                                data = response.json()
+                                if 0 <= index < len(data):
+                                    ACTIVE_CONVERSATION_ID = data[index].get('conv_id')
+                                    print(f"Joined conversation {ACTIVE_CONVERSATION_ID}. Type 'leave' to exit conversation mode.")
+                                else:
+                                    print("Invalid index.")
+                            else:
+                                print("Failed to fetch conversations.")
+                        else:
+                            # Optional: Could add a check here to see if conv_id is valid
+                            # by trying to fetch its history or details.
+                            ACTIVE_CONVERSATION_ID = args[0]
+                            print(f"Joined conversation {ACTIVE_CONVERSATION_ID}. Type 'leave' to exit conversation mode.")
                 elif command == "url":
                     if len(args) < 1:
                         print(f"Current base URL: {BASE_URL}")
