@@ -15,6 +15,7 @@ def set_active_conversation(conv_id: str):
     global ACTIVE_CONVERSATION_ID
     ACTIVE_CONVERSATION_ID = conv_id
     print(f"Joined conversation {ACTIVE_CONVERSATION_ID}. Type 'leave' to exit conversation mode.")
+def print_response(response: requests.Response):
     """Helper to print API response."""
     print(f"Status Code: {response.status_code}")
     if not response.text:
@@ -23,7 +24,7 @@ def set_active_conversation(conv_id: str):
         return
 
     try:
-        data = response.json() # Attempt to parse as JSON
+        data = response.json()  # Attempt to parse as JSON
         # Check if the response is specifically a Message object (e.g., from send_message)
         # which is a dictionary with a single key "text".
         if isinstance(data, dict) and len(data) == 1 and "text" in data:
