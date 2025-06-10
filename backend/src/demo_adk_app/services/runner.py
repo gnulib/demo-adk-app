@@ -1,3 +1,5 @@
+import logging
+
 from google.adk.agents import BaseAgent
 from google.adk.sessions import BaseSessionService, Session as AdkSession
 from google.adk.memory import BaseMemoryService
@@ -8,6 +10,8 @@ from google.genai import types # For ADK Content and Part objects
 from demo_adk_app.utils.config import Config
 from demo_adk_app.api.models import Message
 
+# Get a logger instance for this module
+logger = logging.getLogger(__name__)
 
 class Runner:
     """
@@ -62,27 +66,28 @@ class Runner:
         # Prepare the user's message in ADK format
         content = types.Content(role='user', parts=[types.Part(text=msg.text)])
 
-        final_response_text = "Agent did not produce a final response."  # Default
+        full_response_text = ""  # To accumulate all parts of the response
 
         # Key Concept: run_async executes the agent logic and yields Events.
         # We iterate through events to find the final answer.
         async for event in adk_runner.run_async(
             user_id=session.user_id, session_id=session.id, new_message=content
         ):
+            # accumulate the full response text if needed
+            if event.content and event.content.parts:
+                full_response_text += ''.join(part.text for part in event.content.parts if part.text)
+
             # You can uncomment the line below to see *all* events during execution
-            # print(f"  [Event] Author: {event.author}, Type: {type(event).__name__}, Final: {event.is_final_response()}, Content: {event.content}")
+            logger.info("  [Event] Author: %s, Type: %s, Final: %s,\nContent: %s", event.author, type(event).__name__, event.is_final_response(), event.content)
 
             # Key Concept: is_final_response() marks the concluding message for the turn.
             if event.is_final_response():
-                if event.content and event.content.parts:
-                    # Assuming text response in the first part
-                    final_response_text = event.content.parts[0].text
-                elif event.actions and event.actions.escalate:  # Handle potential errors/escalations
-                    final_response_text = f"Agent escalated: {event.error_message or 'No specific message.'}"
+                if event.actions and event.actions.escalate:  # Handle potential errors/escalations
+                    full_response_text += f"Agent escalated: {event.error_message or 'No specific message.'}"
                 # Add more checks here if needed (e.g., specific error codes)
                 break  # Stop processing events once the final response is found
         
         # The agent's final response is returned as a string.
         # If the agent returns structured output, it will be a JSON string.
         # This Runner class remains oblivious to that contract and passes it as is.
-        return Message(text=final_response_text)
+        return Message(text=full_response_text)

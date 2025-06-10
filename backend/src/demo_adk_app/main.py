@@ -19,11 +19,16 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # Get the logger for the specific module you want to silence
-adk_llm_logger = logging.getLogger('google_adk.google.adk.models.google_llm')
-# Set its level to CRITICAL to effectively disable all but the most severe messages
-adk_llm_logger.setLevel(logging.INFO)
-# Prevent it from passing messages up to parent loggers (like the root logger)
-# adk_llm_logger.propagate = False
+adk_llm_loggers = [logging.getLogger('google_adk.google.adk.models.google_llm'),
+                   logging.getLogger('google_genai._api_client'),
+                   logging.getLogger('google_genai.models'),
+                   logging.getLogger('google_genai.types'),
+                   logging.getLogger('httpx'),]
+for adk_llm_logger in adk_llm_loggers:
+    # Set its level to CRITICAL to effectively disable all but the most severe messages
+    adk_llm_logger.setLevel(logging.CRITICAL)
+    # Prevent it from passing messages up to parent loggers (like the root logger)
+    adk_llm_logger.propagate = False
 
 # Load application configuration at the module level
 app_config = get_config()
