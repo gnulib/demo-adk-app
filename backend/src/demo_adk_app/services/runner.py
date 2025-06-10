@@ -6,9 +6,38 @@ from google.adk.memory import BaseMemoryService
 from google.adk.artifacts import BaseArtifactService
 from google.adk.runners import Runner as AdkRunner # Alias to avoid name collision
 from google.genai import types # For ADK Content and Part objects
-
+from google.adk.events import Event # Import Event for type hinting
 from demo_adk_app.utils.config import Config
 from demo_adk_app.api.models import Message
+
+
+def log_event(event: Event) -> str:
+    """
+    Helper function to log an ADK event in a readable format.
+
+    Args:
+        event: The ADK event to log.
+
+    Returns:
+        A formatted string representation of the event.
+    """
+    if event.content and event.content.parts:
+        if event.get_function_calls():
+            response = f"[Event] Author: {event.author}, Tool Call Requests:\n"
+            for function_call in event.get_function_calls():
+                response += f"Tool Name: {function_call.name} with Args: {function_call.args}\n"
+            return response
+        elif event.get_function_responses():
+            response = f"[Event] Author: {event.author}, Tool Call Responses:\n"
+            for function_response in event.get_function_responses():
+                response += f"Tool Name: {function_response.name} Response: {function_response.response}\n"
+            return response
+    if event.error_message:
+        return f"[Event] Author: {event.author}, Type: Error, Message: {event.error_message}"
+    if event.actions and event.actions.escalate:
+        return f"[Event] Author: {event.author}, Type: Escalation, Message: {event.error_message or 'No specific message.'}"
+    if event.is_final_response():
+        return f"[Event] Author: {event.author}, Type: Final Response,\nContent: {event.content.parts[0].text if event.content.parts else 'No content'}"
 
 # Get a logger instance for this module
 logger = logging.getLogger(__name__)
@@ -78,7 +107,7 @@ class Runner:
                 full_response_text += ''.join(part.text for part in event.content.parts if part.text)
 
             # You can uncomment the line below to see *all* events during execution
-            logger.info("  [Event] Author: %s, Type: %s, Final: %s,\nContent: %s", event.author, type(event).__name__, event.is_final_response(), event.content)
+            logger.info(log_event(event))
 
             # Key Concept: is_final_response() marks the concluding message for the turn.
             if event.is_final_response():

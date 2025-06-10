@@ -28,7 +28,7 @@ for adk_llm_logger in adk_llm_loggers:
     # Set its level to CRITICAL to effectively disable all but the most severe messages
     adk_llm_logger.setLevel(logging.CRITICAL)
     # Prevent it from passing messages up to parent loggers (like the root logger)
-    adk_llm_logger.propagate = False
+    # adk_llm_logger.propagate = False
 
 # Load application configuration at the module level
 app_config = get_config()
