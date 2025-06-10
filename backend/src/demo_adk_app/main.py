@@ -1,4 +1,5 @@
 import uvicorn
+import logging
 
 from demo_adk_app.api.app import get_fast_api_app
 from demo_adk_app.utils.config import get_config
@@ -10,6 +11,19 @@ from demo_adk_app.services.provider import (
 )
 from demo_adk_app.services.runner import Runner
 from demo_adk_app.api.auth import init_auth_module # Import the init function
+
+# Configure basic logging to console
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# Get a logger instance for this module
+logger = logging.getLogger(__name__)
+
+# Get the logger for the specific module you want to silence
+adk_llm_logger = logging.getLogger('google_adk.google.adk.models.google_llm')
+# Set its level to CRITICAL to effectively disable all but the most severe messages
+adk_llm_logger.setLevel(logging.INFO)
+# Prevent it from passing messages up to parent loggers (like the root logger)
+# adk_llm_logger.propagate = False
 
 # Load application configuration at the module level
 app_config = get_config()
