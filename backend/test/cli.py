@@ -10,7 +10,11 @@ BASE_URL: str = "" # Placeholder, will be set in main()
 ACTIVE_CONVERSATION_ID: str | None = None # None for "out of conversation" mode
 ID_TOKEN: str | None = None # To store the Firebase ID token
 
-def print_response(response: requests.Response):
+def set_active_conversation(conv_id: str):
+    """Sets the active conversation ID."""
+    global ACTIVE_CONVERSATION_ID
+    ACTIVE_CONVERSATION_ID = conv_id
+    print(f"Joined conversation {ACTIVE_CONVERSATION_ID}. Type 'leave' to exit conversation mode.")
     """Helper to print API response."""
     print(f"Status Code: {response.status_code}")
     if not response.text:
@@ -46,6 +50,11 @@ def create_conversation():
     try:
         response = requests.post(f"{BASE_URL}/conversations", headers=headers)
         print_response(response)
+        if response.status_code == 201:  # Assuming 201 Created is the success status code
+            data = response.json()
+            conv_id = data.get("conv_id")
+            if conv_id:
+                set_active_conversation(conv_id)
     except requests.exceptions.ConnectionError as e:
         print(f"Error connecting to the server: {e}")
 
