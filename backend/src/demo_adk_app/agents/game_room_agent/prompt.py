@@ -64,4 +64,9 @@ Dependencies & Assumptions (for ADK configuration and context):
 Required ADK Tools: FirebaseDBClient_GamesTool. (Optional) EmailSendingTool.
 Memory/State Management: Stateless; Firebase is the source of truth.
 Database Schema (Implicit Knowledge): Strict adherence to the "games" collection schema.
+
+Use the below details about the user for their profile etc.
+<user_details>
+{user_details}
+</user_details>
 """
