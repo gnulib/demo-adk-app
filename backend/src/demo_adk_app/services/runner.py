@@ -1,4 +1,6 @@
 import logging
+import time
+from typing import Dict
 
 from google.adk.agents import BaseAgent
 from google.adk.sessions import BaseSessionService, Session as AdkSession
@@ -6,7 +8,7 @@ from google.adk.memory import BaseMemoryService
 from google.adk.artifacts import BaseArtifactService
 from google.adk.runners import Runner as AdkRunner # Alias to avoid name collision
 from google.genai import types # For ADK Content and Part objects
-from google.adk.events import Event # Import Event for type hinting
+from google.adk.events import Event, EventActions # Import Event for type hinting
 from demo_adk_app.utils.config import Config
 from demo_adk_app.api.models import Message
 
@@ -71,19 +73,44 @@ class Runner:
         self._artifact_service = artifact_service
         self._config = config # Stored if needed for future runner configurations
 
-    async def invoke(self, session: AdkSession, msg: Message) -> Message:
+    async def invoke(self, user: Dict, session: AdkSession, msg: Message) -> Message:
         """
         Invokes the root agent with the given message within the provided session.
 
         Args:
+            user: The authenticated user's details from Firebase ID token.
             session: The ADK session object for the current interaction.
             msg: The user's message to the agent.
 
         Returns:
             A Message object containing the agent's response.
         """
-        # Instantiate the ADK Runner
         app_name_to_use = self._config.AGENT_ID if self._config.AGENT_ID else self._config.APP_NAME
+        # make sure that session has user's details for tools to use
+        if not session.state.get('user_details', None):
+            current_time = time.time()
+            state_changes = {
+                "user_details": user,
+            }
+            actions_with_update = EventActions(state_delta=state_changes)
+            system_event = Event(
+                invocation_id="user_details_update",
+                author='system',
+                actions=actions_with_update,
+                timestamp=current_time
+            )
+            await self._session_service.append_event(
+                session=session,
+                event=system_event,
+            )
+            session = await self._session_service.get_session(
+                app_name=app_name_to_use,
+                user_id=session.user_id,
+                session_id=session.id
+            )
+            logger.info(f"Updated session {session.id} with state: {session.state}")
+
+        # Instantiate the ADK Runner
         adk_runner = AdkRunner(
             app_name=app_name_to_use,
             agent=self._root_agent,

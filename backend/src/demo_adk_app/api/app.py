@@ -130,6 +130,7 @@ def get_fast_api_app(
         async def send_message(
             request: Request, 
             message_request: Message,
+            user: Annotated[Dict, Depends(get_authenticated_user)],
             adk_session: Annotated[AdkSession, Depends(get_authorized_session)] # Injects authorized session
         ):
             """
@@ -138,7 +139,7 @@ def get_fast_api_app(
             """
             app_runner: Runner = request.app.state.runner
             try:
-                response_message = await app_runner.invoke(session=adk_session, msg=message_request)
+                response_message = await app_runner.invoke(user=user, session=adk_session, msg=message_request)
                 return response_message
             except HTTPException: # Re-raise HTTPException
                 raise
