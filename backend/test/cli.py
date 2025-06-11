@@ -10,6 +10,11 @@ BASE_URL: str = "" # Placeholder, will be set in main()
 ACTIVE_CONVERSATION_ID: str | None = None # None for "out of conversation" mode
 ID_TOKEN: str | None = None # To store the Firebase ID token
 
+def set_active_conversation(conv_id: str):
+    """Sets the active conversation ID."""
+    global ACTIVE_CONVERSATION_ID
+    ACTIVE_CONVERSATION_ID = conv_id
+    print(f"Joined conversation {ACTIVE_CONVERSATION_ID}. Type 'leave' to exit conversation mode.")
 def print_response(response: requests.Response):
     """Helper to print API response."""
     print(f"Status Code: {response.status_code}")
@@ -19,7 +24,7 @@ def print_response(response: requests.Response):
         return
 
     try:
-        data = response.json() # Attempt to parse as JSON
+        data = response.json()  # Attempt to parse as JSON
         # Check if the response is specifically a Message object (e.g., from send_message)
         # which is a dictionary with a single key "text".
         if isinstance(data, dict) and len(data) == 1 and "text" in data:
@@ -45,7 +50,20 @@ def create_conversation():
         headers["Authorization"] = f"Bearer {ID_TOKEN}"
     try:
         response = requests.post(f"{BASE_URL}/conversations", headers=headers)
-        print_response(response)
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, list):
+                for index, conversation in enumerate(data):
+                    print(f"{index}: {conversation.get('conv_id')}")
+            else:
+                print("Unexpected response format.")
+        else:
+            print_response(response)
+        if response.status_code == 201:  # Assuming 201 Created is the success status code
+            data = response.json()
+            conv_id = data.get("conv_id")
+            if conv_id:
+                set_active_conversation(conv_id)
     except requests.exceptions.ConnectionError as e:
         print(f"Error connecting to the server: {e}")
 
@@ -247,10 +265,23 @@ def main():
                     if len(args) < 1:
                         print("Usage: join <conversation_id>")
                     else:
-                        # Optional: Could add a check here to see if conv_id is valid
-                        # by trying to fetch its history or details.
-                        ACTIVE_CONVERSATION_ID = args[0]
-                        print(f"Joined conversation {ACTIVE_CONVERSATION_ID}. Type 'leave' to exit conversation mode.")
+                        if args[0].isdigit():
+                            index = int(args[0])
+                            response = requests.get(f"{BASE_URL}/conversations", headers={"Authorization": f"Bearer {ID_TOKEN}"})
+                            if response.status_code == 200:
+                                data = response.json()
+                                if 0 <= index < len(data):
+                                    ACTIVE_CONVERSATION_ID = data[index].get('conv_id')
+                                    print(f"Joined conversation {ACTIVE_CONVERSATION_ID}. Type 'leave' to exit conversation mode.")
+                                else:
+                                    print("Invalid index.")
+                            else:
+                                print("Failed to fetch conversations.")
+                        else:
+                            # Optional: Could add a check here to see if conv_id is valid
+                            # by trying to fetch its history or details.
+                            ACTIVE_CONVERSATION_ID = args[0]
+                            print(f"Joined conversation {ACTIVE_CONVERSATION_ID}. Type 'leave' to exit conversation mode.")
                 elif command == "url":
                     if len(args) < 1:
                         print(f"Current base URL: {BASE_URL}")

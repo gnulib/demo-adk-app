@@ -57,6 +57,21 @@ Follow the steps listed in [GCP Setup](docs/GCP_SETUP.md) documentation for crea
 
 Follow the steps listed in [Firebase Setup](docs/FIREBASE_SETUP.md) documentation for creating a Firebase project linked to your Google Cloud Platform project created above, and configuring appropriate firebase project configurations.
 
+### Project Setup
+
+Add the backend application specific environment variables in `.env` file at the root of your project directory:
+
+```bash
+cat >> .env <<'EOF'
+# Demo project specific environment variables
+export APP_NAME=$GOOGLE_ADK_APP_NAME
+export PORT=8000
+export CORS_ORIGINS="http://localhost:3000, $FIREBASE_APP_URLS"
+export IS_TESTING=true
+export DECKOFCARDS_URL="https://deckofcardsapi.com/api/deck"
+EOF
+```
+
 ## Getting Started
 
 
