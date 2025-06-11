@@ -132,6 +132,8 @@ class Runner:
             # accumulate the full response text if needed
             if event.content and event.content.parts:
                 full_response_text += ''.join(part.text for part in event.content.parts if part.text)
+            if event.error_message:
+                full_response_text += f"\n[Event] Author: {event.author}, Type: Error, Message: {event.error_message}"
 
             # You can uncomment the line below to see *all* events during execution
             logger.info(log_event(event))
