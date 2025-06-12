@@ -1,7 +1,6 @@
-from typing import Dict, Any
 from google.adk.tools import ToolContext
 
-def create_game(max_num_players: int, tool_context: ToolContext) -> Dict:
+def create_game(max_num_players: int, tool_context: ToolContext):
     """
     create a new game on behalf of the user
     Args:
@@ -32,7 +31,7 @@ def create_game(max_num_players: int, tool_context: ToolContext) -> Dict:
         "message" : f"created new game room with ID {new_game_room_id} for maximum {max_num_players} players"
     }
 
-def join_game(game_room_id: str, tool_context: ToolContext) -> Dict:
+def join_game(game_room_id: str, tool_context: ToolContext):
     """
     join a new game as a player
     Args:
@@ -75,7 +74,7 @@ def join_game(game_room_id: str, tool_context: ToolContext) -> Dict:
         "message" : f"added user as player for game room with ID {game_room_id}"
     }
 
-def start_game(tool_context: ToolContext) -> Dict:
+def start_game(tool_context: ToolContext):
     """
     handle start game request by host of the game
     Args:
@@ -85,9 +84,9 @@ def start_game(tool_context: ToolContext) -> Dict:
     """
     state = tool_context.state
 
-def get_game_status(tool_context: ToolContext) -> Dict:
+def get_game_status(tool_context: ToolContext):
     """
-    create a new game on behalf of the user
+    get status of the current game
     Args:
         tool_context: The ADK tool context.
     Returns:
