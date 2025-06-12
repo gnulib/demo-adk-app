@@ -1,5 +1,6 @@
 from google.adk.agents import Agent
 from .prompt import PROMPT
+from demo_adk_app.utils.tools import memorize
 
 root_agent = Agent(
     name="game_room_agent",
@@ -8,5 +9,5 @@ root_agent = Agent(
         "Manages Blackjack game room lifecycle: creation, player joining/leaving, status tracking via Firebase."
     ),
     instruction=PROMPT,
-    tools=[],
+    tools=[memorize],
 )
