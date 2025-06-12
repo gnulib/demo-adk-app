@@ -17,11 +17,13 @@
 from datetime import datetime
 import json
 import os
-from typing import Dict, Any
+from typing import Optional
 
+from google.genai import types
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.sessions.state import State
 from google.adk.tools import ToolContext
+from .constants import StateVariables
 
 
 def memorize_list(key: str, value: str, tool_context: ToolContext):
@@ -89,17 +91,11 @@ def initialize_session_state_for_instruction_prompts(callback_context: CallbackC
         callback_context: The callback context.
     """
     state = callback_context.state
-    variables = [
-        "user_id",
-        "user_details",
-        "user_role",
-        "game_room_id",
-        "game_room_status",
-        "current_turn_player_id"
-
-    ]
+    variables = [v for v in vars(StateVariables) if not v.startswith("__")]
 
     for variable in variables:
-        if not variable in state:
-            print(f"initializing variable: {variable}")
-            state[variable] = None
+        key = getattr(StateVariables, variable)
+        if not key in state:
+            print(f"initializing variable: {key}")
+            state[key] = None
+    return None

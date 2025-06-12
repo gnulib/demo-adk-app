@@ -1,4 +1,6 @@
 from google.adk.tools import ToolContext
+from .models import GameRoom
+from demo_adk_app.utils.constants import StateVariables
 
 def create_game(max_num_players: int, tool_context: ToolContext):
     """
@@ -11,25 +13,34 @@ def create_game(max_num_players: int, tool_context: ToolContext):
     """
     state = tool_context.state
     # make sure that user id is available in session state
-    user_id = state.get("user_id", None)
+    user_id = state.get(StateVariables.USER_ID, None)
     if not user_id:
         return {
             "status" : "error",
             "message" : "user id is not known"
         }
+    # check if user is already enrolled in a game
+    if StateVariables.GAME_ROOM_ID in state:
+        game_room = state.get(f"app:{game.game_room_id}_{StateVariables.GAME_DETAILS}")
+        return {
+            "status" : "error",
+            "message" : f"user id already enrolled with game room: {game_room}"
+        }
     # create a new game room
-    new_game_room_id = "1234" # todo: change with actual new id generation later
-    state["game_room_id"] = new_game_room_id
-    # make the user as host of the game
-    state["user_role"] = "host"
-    # add user to player list of the game room (application scope, to share with all users)
-    state[f"app:{new_game_room_id}_players"] = [user_id]
-    # add number if players for game (application scope, to share with all users)
-    state[f"app:{new_game_room_id}_num_players"] = max_num_players
-    return {
-        "status" : "success",
-        "message" : f"created new game room with ID {new_game_room_id} for maximum {max_num_players} players"
-    }
+    game_room = GameRoom(
+        game_room_id="1234", # todo: change with actual new id generation later
+        host_user_id=user_id,
+        players= [user_id],
+        max_number_players=max_num_players,
+        game_status="pre-game",
+        current_turn_player_id = user_id # we start with host player
+    )
+    # set this game as the current game for session
+    state[StateVariables.GAME_ROOM_ID] = game_room.game_room_id
+    # mark user as host for current game
+    state[StateVariables.USER_ROLE] = "host"
+    # add game details to application scope
+    state[f"app:{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room
 
 def join_game(game_room_id: str, tool_context: ToolContext):
     """
@@ -49,29 +60,30 @@ def join_game(game_room_id: str, tool_context: ToolContext):
             "message" : "user id is not known"
         }
     # check if game room exists (app scope)
-    max_num_players = state.get(f"app:{game_room_id}_num_players", 0)
-    players = state.get(f"app:{game_room_id}_players", None)
-    if not players:
+    game_room = state.get(f"app:{game_room_id}_{StateVariables.GAME_DETAILS}", None)
+    if not game_room:
         return {
             "status" : "error",
             "message" : f"game room with id {game_room_id} does not exist"
         }
+
     # check if game has room for new player to join
-    if max_num_players >= len(players):
+    if game_room.max_num_players >= len(game_room.players):
         return {
             "status" : "error",
             "message" : f"game room with id {game_room_id} has already reached max players"
         }
     # set the game room for current session
-    state["game_room_id"] = game_room_id
+    state[StateVariables.GAME_ROOM_ID] = game_room.game_room_id
     # make the user as player of the game
-    state["user_role"] = "player"
+    state[StateVariables.USER_ROLE] = "player"
     # add user to player list of the game room (application scope, to share with all users)
-    players.append(user_id)
-    state[f"app:{game_room_id}_players"] = players
+    game_room.players.append(user_id)
+    # save the game room state
+    state[f"app:{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room
     return {
         "status" : "success",
-        "message" : f"added user as player for game room with ID {game_room_id}"
+        "message" : f"added user as player for game room: {game_room}"
     }
 
 def start_game(tool_context: ToolContext):
@@ -84,12 +96,31 @@ def start_game(tool_context: ToolContext):
     """
     state = tool_context.state
 
-def get_game_status(tool_context: ToolContext):
+def get_game_details(game_room_id: str, tool_context: ToolContext):
     """
-    get status of the current game
+    get details of the current game
     Args:
         tool_context: The ADK tool context.
     Returns:
-        A status message from handling user request
+        A status message from getting game details
     """
     state = tool_context.state
+    # make sure that user id is available in session state
+    user_id = state.get("user_id", None)
+    if not user_id:
+        return {
+            "status" : "error",
+            "message" : "user id is not known"
+        }
+    # check if game room exists (app scope)
+    game_room = state.get(f"app:{game_room_id}_{StateVariables.GAME_DETAILS}", None)
+    if not game_room:
+        return {
+            "status" : "error",
+            "message" : f"game room with id {game_room_id} does not exist"
+        }
+    # return dtails of the game
+    return {
+        "status" : "success",
+        "game_room_details" : game_room
+    }

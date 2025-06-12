@@ -21,5 +21,5 @@ root_agent = Agent(
         user_profile_agent,
         concierge_agent,
     ],
-    before_agent_callback=initialize_session_state_for_instruction_prompts
+    # before_agent_callback=[initialize_session_state_for_instruction_prompts]
 )

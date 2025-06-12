@@ -5,7 +5,7 @@ from .tools import (
     create_game,
     join_game,
     start_game,
-    get_game_status
+    get_game_details
 
 )
 
@@ -16,5 +16,5 @@ root_agent = Agent(
         "Manages Blackjack game room lifecycle: creation, player joining/leaving, status tracking via Firebase."
     ),
     instruction=PROMPT,
-    tools=[memorize, create_game, join_game, start_game, get_game_status],
+    tools=[memorize, create_game, join_game, start_game, get_game_details],
 )

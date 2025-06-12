@@ -120,6 +120,10 @@ def get_session_service(config: Config) -> BaseSessionService:
         except Exception as e:
             print(f"Error during Vertex AI agent engine setup: {e}. AGENT_ID will not be set by this process.")
             # Depending on requirements, might want to re-raise or handle differently.
+            # Fallback to InMemorySessionService
+            print("Falling back to InMemorySessionService.")
+            _singleton_session_service = InMemorySessionService()
+            return _singleton_session_service
 
     # 1. Check for IS_TESTING
     if config.IS_TESTING:
