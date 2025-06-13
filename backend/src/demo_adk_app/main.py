@@ -19,7 +19,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # Get the logger for the specific module you want to silence
-adk_llm_loggers = [#logging.getLogger('google_adk.google.adk.models.google_llm'),
+adk_llm_loggers = [logging.getLogger('google_adk.google.adk.models.google_llm'),
+                   logging.getLogger('google_adk.google.adk.sessions.vertex_ai_session_service'),
                    logging.getLogger('google_genai._api_client'),
                    logging.getLogger('google_genai.models'),
                    logging.getLogger('google_genai.types'),
