@@ -11,6 +11,7 @@ from google.adk.runners import Runner as AdkRunner # Alias to avoid name collisi
 from google.genai import types # For ADK Content and Part objects
 from google.adk.events import Event, EventActions # Import Event for type hinting
 from demo_adk_app.utils.config import Config
+from demo_adk_app.utils.constants import StateVariables
 from demo_adk_app.api.models import Message
 
 
@@ -88,11 +89,11 @@ class Runner:
         """
         app_name_to_use = self._config.AGENT_ID if self._config.AGENT_ID else self._config.APP_NAME
         # make sure that session has user's details for tools to use
-        if not session.state.get('user_details', None):
+        if not session.state.get(StateVariables.USER_DETAILS, None):
             current_time = time.time()
             state_changes = {
-                "user_details": user,
-                "user_id": user.get("email", None)
+                StateVariables.USER_DETAILS: user,
+                StateVariables.USER_ID: user.get("email", None)
             }
             actions_with_update = EventActions(state_delta=state_changes)
             system_event = Event(

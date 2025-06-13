@@ -9,6 +9,7 @@ from google.adk.memory import BaseMemoryService
 from google.adk.artifacts import BaseArtifactService
 
 from demo_adk_app.utils.config import Config
+from demo_adk_app.utils.constants import StateVariables
 from demo_adk_app.api.models import Conversation, Message # Import models from the new module
 from demo_adk_app.services.runner import Runner # Import the Runner class
 from demo_adk_app.api.auth import get_authenticated_user, get_authorized_session # Import auth dependencies
@@ -95,7 +96,11 @@ def get_fast_api_app(
             try:
                 app_name_to_use = app_config.AGENT_ID if app_config.AGENT_ID else app_config.APP_NAME
                 adk_session: AdkSession = await session_service.create_session(
-                    user_id=user_id, app_name=app_name_to_use
+                    user_id=user_id, app_name=app_name_to_use,
+                    state={
+                        StateVariables.USER_DETAILS : user,
+                        StateVariables.USER_ID: user.get("email", None)
+                    }
                 )
                 return Conversation(conv_id=adk_session.id, updated_at=adk_session.last_update_time)
             except Exception as e:
