@@ -85,7 +85,9 @@ def initialize_session_state_for_instruction_prompts(callback_context: CallbackC
     """
     Sets up the initial state with all variables that are being used in the instruction prompts
     Set this as a callback as before_agent_call of the root_agent.
-    This gets called before the system instruction is contructed.
+    This gets called before the system instruction is constructed.
+
+    NOTE: this is not required, using '?' to make state variables optional in prompt
 
     Args:
         callback_context: The callback context.

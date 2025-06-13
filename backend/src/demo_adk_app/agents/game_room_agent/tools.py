@@ -1,11 +1,13 @@
 from google.adk.tools import ToolContext
+from google.adk.sessions import State
 from .models import GameRoom
 from demo_adk_app.utils.constants import StateVariables
 
-def create_game(max_num_players: int, tool_context: ToolContext):
+def create_game(game_room_id: str, max_num_players: int, tool_context: ToolContext):
     """
     create a new game on behalf of the user
     Args:
+        game_room_id: user provided id for game room
         max_num_players: maximum number of players to allow joining the game
         tool_context: The ADK tool context.
     Returns:
@@ -20,14 +22,23 @@ def create_game(max_num_players: int, tool_context: ToolContext):
             "message" : "user id is not known"
         }
     # check if user is already enrolled in a game
-    game_room_id = state.get(f"app:{user_id}_{StateVariables.CURRENT_GAME}", None)
-    if game_room_id:
+    old_game_room_id = state.get(f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}", None)
+    if old_game_room_id:
         return {
             "status" : "error",
-            "message" : f"user id already enrolled with game room: {game_room_id}"
+            "message" : f"user id already enrolled with game room: {old_game_room_id}"
         }
+
+    # check if game room exists (app scope)
+    game_room_dict = state.get(f"{State.APP_PREFIX}{game_room_id}_{StateVariables.GAME_DETAILS}", None)
+    if game_room_dict:
+        return {
+            "status" : "error",
+            "message" : f"game room with id {game_room_id} already exists"
+        }
+
     # create a new game room
-    game_room_id = "1234" # todo: change with actual new id generation later
+    # game_room_id = "1234" # todo: change with actual new id generation later
     game_room = GameRoom(
         game_room_id=game_room_id,
         host_user_id=user_id,
@@ -37,13 +48,13 @@ def create_game(max_num_players: int, tool_context: ToolContext):
         current_turn_player_id = user_id # we start with host player
     )
     # set this game as the current game for user (app scope)
-    state[f"app:{user_id}_{StateVariables.CURRENT_GAME}"] = game_room.game_room_id
+    state[f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}"] = game_room.game_room_id
     # also set the game as current game in session scope
     state[StateVariables.GAME_ROOM_ID] = game_room.game_room_id
     # mark user as host for current game (session scope)
     state[StateVariables.USER_ROLE] = "host"
     # add game details to application scope
-    state[f"app:{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
+    state[f"{State.APP_PREFIX}{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
     # also add to current session state (session scope) to use with prompts
     state[StateVariables.GAME_DETAILS] = game_room.model_dump()
     return {
@@ -69,15 +80,15 @@ def join_game(game_room_id: str, tool_context: ToolContext):
             "message" : "user id is not known"
         }
     # check if user is already enrolled in a game
-    if state.get(f"app:{user_id}_{StateVariables.CURRENT_GAME}", None):
-        game_room_id = state.get(f"app:{user_id}_{StateVariables.CURRENT_GAME}")
+    if state.get(f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}", None):
+        game_room_id = state.get(f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}")
         return {
             "status" : "error",
             "message" : f"user id already enrolled with game room: {game_room_id}"
         }
 
     # check if game room exists (app scope)
-    game_room_dict = state.get(f"app:{game_room_id}_{StateVariables.GAME_DETAILS}", None)
+    game_room_dict = state.get(f"{State.APP_PREFIX}{game_room_id}_{StateVariables.GAME_DETAILS}", None)
     if not game_room_dict:
         return {
             "status" : "error",
@@ -95,7 +106,7 @@ def join_game(game_room_id: str, tool_context: ToolContext):
 
         }
     # set this game as the current game for user (app scope)
-    state[f"app:{user_id}_{StateVariables.CURRENT_GAME}"] = game_room.game_room_id
+    state[f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}"] = game_room.game_room_id
     # set the game room for current session
     state[StateVariables.GAME_ROOM_ID] = game_room.game_room_id
     # make the user as player of the game
@@ -103,7 +114,7 @@ def join_game(game_room_id: str, tool_context: ToolContext):
     # add user to player list of the game room (application scope, to share with all users)
     game_room.players.append(user_id)
     # save the game room state
-    state[f"app:{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
+    state[f"{State.APP_PREFIX}{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
     # also add to current session state (session scope) to use with prompts
     state[StateVariables.GAME_DETAILS] = game_room.model_dump()
     return {
@@ -138,7 +149,7 @@ def get_game_details(game_room_id: str, tool_context: ToolContext):
     #         "message" : "user id is not known"
     #     }
     # check if game room exists (app scope)
-    game_room_dict = state.get(f"app:{game_room_id}_{StateVariables.GAME_DETAILS}", None)
+    game_room_dict = state.get(f"{State.APP_PREFIX}{game_room_id}_{StateVariables.GAME_DETAILS}", None)
     if not game_room_dict:
         return {
             "status" : "error",
