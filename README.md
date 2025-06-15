@@ -207,6 +207,8 @@ make verify-frontend
 
 <summary>Interact with deployed app</summary>
 
+> This app lets users play a game of Blackjack!
+
 1. Use the URL obtained from `make verify-frontend` in a browser
 
 1. Login using the test user created in project setup
@@ -220,19 +222,11 @@ summarize what has happened so far
 ```
 
 ```bash
-draw me 2 cards from a new deck
+i want to host a new game
 ```
 
 ```bash
-ok, add these drawn cards to a new pile John
-```
-
-```bash
-draw 2 more cards and add them to pile Jane
-```
-
-```bash
-ok, who has bigger hand, John or Jane? use simple card comparison, all colors are same, but cards have weight according to their number.
+i want to join a game
 ```
 
 </details>
