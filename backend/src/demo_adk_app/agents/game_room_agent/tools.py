@@ -122,7 +122,7 @@ def join_game(game_room_id: str, tool_context: ToolContext):
         "message" : f"added user as player for game room: {game_room}"
     }
 
-def start_game(tool_context: ToolContext):
+def start_game(game_room_id: str, tool_context: ToolContext):
     """
     handle start game request by host of the game
     Args:
@@ -131,6 +131,48 @@ def start_game(tool_context: ToolContext):
         A status message from handling user request
     """
     state = tool_context.state
+    # make sure that user id is available in session state
+    user_id = state.get(StateVariables.USER_ID, None)
+    if not user_id:
+        return {
+            "status" : "error",
+            "message" : "user id is not known"
+        }
+
+    # check if game room exists (app scope)
+    game_room_dict = state.get(f"{State.APP_PREFIX}{game_room_id}_{StateVariables.GAME_DETAILS}", None)
+    if not game_room_dict:
+        return {
+            "status" : "error",
+            "message" : f"game room with id {game_room_id} does not exist"
+        }
+
+    # convert to pydantic model
+    game_room = GameRoom.model_validate(game_room_dict)
+
+    # check if user is enrolled in the game
+    if user_id not in game_room.players:
+        return {
+            "status" : "error",
+            "message" : f"user is not enrolled with game room: {game_room_id}"
+        }
+
+    # check if requesting user is host, or if number of players in reached max
+    if user_id != game_room.host_user_id and len(game_room.players) < game_room.max_number_players:
+        return {
+            "status" : "error",
+            "message" : "cannot start game, still waiting for players, only host can start early"
+        }
+
+    # start the game
+    game_room.game_status = "in-game"
+    # save the game room state
+    state[f"{State.APP_PREFIX}{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
+    # also add to current session state (session scope) to use with prompts
+    state[StateVariables.GAME_DETAILS] = game_room.model_dump()
+    # return nothing from function call so that
+    # agent continue sprocessing request now that game is in session
+    return None
 
 def get_game_details(game_room_id: str, tool_context: ToolContext):
     """
