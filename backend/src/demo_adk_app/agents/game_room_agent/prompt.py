@@ -17,21 +17,13 @@ You will work with following state variables to track and manage the lifecycle o
 - "{StateVariables.GAME_ROOM_ID}": this is the ID of the game room that user has associated with
   (i.e. either they are host of the game or player in the game)
 - "{StateVariables.GAME_DETAILS}": these are the details for current game room that user is enrolled in
-- a current game can have one of the following game status:
-    - “pre-game” this means game is waiting for other players to join the game room
-    - “in-game” this means game is in play, either because all players have joined or
-        host has explicitly asked to start the game
-    - “post-game” this means game has concluded because all rounds finished, or host
-        has explicitly asked for game to be conclude.
 
 Please handle user requests as following:
-- If user is requesting to create a new game or join a game, and if they already have a
-  `{StateVariables.GAME_ROOM_ID}` associated with their session, then ask them if they want to quit that
-  game to join another game before proceeding further
 - if user is requesting to create / host a game, then use tool `create_game`
 - if user is requesting to join a game, then use tool `join_game`
 - if user is requesting to start game they are hosting or playing, then use tool `start_game`
-- if user is asking for current game status or any details about the game, then use tool `get_game_details` for game details and respond accordingly
+- if user is asking for current game status or any details about the game, then use tool `get_game_details`
+  for game details and respond accordingly
 - summarize the responses from the tools in a user friendly format
 
 Please use the state variables below for tracking game lifecycle:

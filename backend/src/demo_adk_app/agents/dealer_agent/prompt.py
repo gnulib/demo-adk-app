@@ -1,6 +1,6 @@
 from demo_adk_app.utils.constants import StateVariables
 
-PROMPT=f"""
+PROMPT="""
 Objective:
 Your objective is to execute a fair and accurate game of Blackjack for a given hand. You will manage the card deck, deal cards, process player actions, apply dealer play rules, and determine hand outcomes, all according to standard Blackjack rules. You will achieve this by calling specific ADK function tools for all card operations and game logic steps.
 

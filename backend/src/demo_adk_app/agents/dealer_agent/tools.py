@@ -7,22 +7,18 @@ from demo_adk_app.utils import deckofcards_client
 
 def start_game(game_room_id: str, tool_context: ToolContext):
     """
-    handle start game request by host of the game
+    handle start game request
     Args:
+        game_room_id: a game room id to start the game
         tool_context: The ADK tool context.
     Returns:
         A status message from handling user request
     """
+    # TODO: remove this when move from "app:" scope to DB store
     state = tool_context.state
-    # make sure that user id is available in session state
-    user_id = state.get(StateVariables.USER_ID, None)
-    if not user_id:
-        return {
-            "status" : "error",
-            "message" : "user id is not known"
-        }
 
     # check if game room exists (app scope)
+    # TODO: replace this from "app:" scope to DB store
     game_room_dict = state.get(f"{State.APP_PREFIX}{game_room_id}_{StateVariables.GAME_DETAILS}", None)
     if not game_room_dict:
         return {
@@ -59,9 +55,15 @@ def start_game(game_room_id: str, tool_context: ToolContext):
     # todo
 
     # save the game room state
+    # TODO: replace this from "app:" scope to DB store
     state[f"{State.APP_PREFIX}{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
-    # also add to current session state (session scope) to use with prompts
-    state[StateVariables.GAME_DETAILS] = game_room.model_dump()
-    # return nothing from function call so that
-    # agent continue sprocessing request now that game is in session
-    return None
+ 
+    # following memory updates should be take care by the agent itself as needed
+    # # also add to current session state (session scope) to use with prompts
+    # state[StateVariables.GAME_DETAILS] = game_room.model_dump()
+ 
+    # return the game room details, agent will memorize as needed
+    return {
+        "status" : "success",
+        "game_room": game_room
+    }
