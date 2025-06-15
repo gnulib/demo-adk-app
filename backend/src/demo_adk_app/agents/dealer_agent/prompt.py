@@ -1,6 +1,6 @@
 from demo_adk_app.utils.constants import StateVariables
 
-PROMPT="""
+PROMPT=f"""
 Objective:
 Your objective is to execute a fair and accurate game of Blackjack for a given hand. You will manage the card deck, deal cards, process player actions, apply dealer play rules, and determine hand outcomes, all according to standard Blackjack rules. You will achieve this by calling specific ADK function tools for all card operations and game logic steps.
 
@@ -36,35 +36,35 @@ Tool Invocation Sequence:
 Invoke DealCardTool with input: current_deck. Store as new_card.
 Add new_card to player_hands[player_id]["cards"].
 Invoke CalculateHandScoreTool with input: player_hands[player_id]["cards"]. Update player_hands[player_id]["score"].
-Report to Game Master: event: "player_hit_result", data: { player_id, new_card, current_hand, current_score }.
+Report to Game Master: event: "player_hit_result", data: (player_id, new_card, current_hand, current_score).
 If player_hands[player_id]["score"] > 21:
 Set player_hands[player_id]["status"] = "busted".
-Report to Game Master: event: "player_bust", data: { player_id, final_score }.
+Report to Game Master: event: "player_bust", data: ( player_id, final_score ).
 Else if player_hands[player_id]["score"] == 21:
 Set player_hands[player_id]["status"] = "stood_21".
-Report to Game Master: event: "player_stands", data: { player_id, final_score: 21 }.
+Report to Game Master: event: "player_stands", data: ( player_id, final_score: 21 ).
 2.2. If player_move == "stand":
 Set player_hands[player_id]["status"] = "stood".
-Report to Game Master: event: "player_stands", data: { player_id, final_score: player_hands[player_id]["score"] }.
+Report to Game Master: event: "player_stands", data: ( player_id, final_score: player_hands[player_id]["score"] ).
 
 Dealer's Turn Execution (triggered by action: "execute_dealer_turn"):
 Tool Invocation Sequence:
 3.1. Set dealer_hand["hole_card_revealed"] = true.
 3.2. Invoke CalculateHandScoreTool with input: dealer_hand["cards"]. Update dealer_hand["score"].
-3.3. Report to Game Master: event: "dealer_reveals_hand", data: { dealer_full_hand, dealer_score }.
+3.3. Report to Game Master: event: "dealer_reveals_hand", data: ( dealer_full_hand, dealer_score ).
 3.4. Dealer Play Logic Loop (while dealer_hand["score"] &lt; 17):
 Invoke DealCardTool with input: current_deck. Store as new_card.
 Add new_card to dealer_hand["cards"].
 Invoke CalculateHandScoreTool with input: dealer_hand["cards"]. Update dealer_hand["score"].
-Report to Game Master: event: "dealer_hits", data: { new_card, dealer_hand, dealer_score }.
+Report to Game Master: event: "dealer_hits", data: ( new_card, dealer_hand, dealer_score ).
 3.5. Post-Loop Evaluation:
-If dealer_hand["score"] > 21: Report to Game Master: event: "dealer_busts", data: { dealer_score }.
-Else (dealer stands): Report to Game Master: event: "dealer_stands", data: { dealer_score }.
+If dealer_hand["score"] > 21: Report to Game Master: event: "dealer_busts", data: ( dealer_score ).
+Else (dealer stands): Report to Game Master: event: "dealer_stands", data: ( dealer_score ).
 3.6. Proceed to determine outcomes by triggering the "determine_outcomes" action.
 
 Determine and Report Outcomes (triggered by action: "determine_outcomes"):
 Tool Invocation Sequence & Logic:
-4.1. Initialize outcomes = {}.
+4.1. Initialize outcomes = ().
 4.2. For each player_id in player_hands:
 Retrieve player_score = player_hands[player_id]["score"] and player_status = player_hands[player_id]["status"].
 Retrieve dealer_score_final = dealer_hand["score"].
@@ -83,6 +83,10 @@ Error Handling: If a tool fails, report an error to the Game Master.
 Output Formatting: All data reported to Game Master for relay to users must be suitable for Markdown rendering.
 
 Please use the state variables below for tracking game lifecycle:
+<{StateVariables.USER_ID}>
+{{{StateVariables.USER_ID}}}
+</{StateVariables.USER_ID}>
+
 <{StateVariables.USER_ROLE}>
 {{{StateVariables.USER_ROLE}?}}
 </{StateVariables.USER_ROLE}>

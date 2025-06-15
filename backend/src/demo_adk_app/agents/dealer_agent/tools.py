@@ -45,7 +45,7 @@ def start_game(game_room_id: str, tool_context: ToolContext):
     game_room.bets={}
 
     # initialize a new full deck of card
-    game_room.deck = deckofcards_client.shuffle_new_deck(deck_count=1, jokers_enabled=False)
+    game_room.deck = deckofcards_client.shuffle_new_deck(deck_count=1, jokers_enabled=False, cards=None)
 
     # set game status to "dealing"
     game_room.game_status = "dealing"

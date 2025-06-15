@@ -27,6 +27,10 @@ Please handle user requests as following:
 - summarize the responses from the tools in a user friendly format
 
 Please use the state variables below for tracking game lifecycle:
+<{StateVariables.USER_ID}>
+{{{StateVariables.USER_ID}}}
+</{StateVariables.USER_ID}>
+
 <{StateVariables.USER_ROLE}>
 {{{StateVariables.USER_ROLE}?}}
 </{StateVariables.USER_ROLE}>

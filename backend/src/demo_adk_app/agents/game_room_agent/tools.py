@@ -174,9 +174,11 @@ def start_game(game_room_id: str, user_id: str, tool_context: ToolContext):
     # start the game
     game_room.game_status = "in-game"
 
+    # save the game room state
+    # TODO: replace this from "app:" scope to DB store
+    state[f"{State.APP_PREFIX}{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
+
     # following memory updates should be take care by the agent itself as needed
-    # # save the game room state
-    # state[f"{State.APP_PREFIX}{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
     # # also add to current session state (session scope) to use with prompts
     # state[StateVariables.GAME_DETAILS] = game_room.model_dump()
 
