@@ -1,5 +1,6 @@
 from google.adk.agents import Agent
 from .prompt import PROMPT
+from .tools import start_game
 
 root_agent = Agent(
     name="dealer_agent",
@@ -8,5 +9,7 @@ root_agent = Agent(
         "Executes Blackjack gameplay: manages deck, deals cards, processes player actions, determines outcomes."
     ),
     instruction=PROMPT,
-    tools=[],
+    tools=[
+        start_game,
+    ],
 )
