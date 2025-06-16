@@ -24,6 +24,7 @@ from google.adk.agents.callback_context import CallbackContext
 from google.adk.sessions.state import State
 from google.adk.tools import ToolContext
 from .constants import StateVariables
+from .models import GameRoom
 
 
 def memorize_list(key: str, value: str, tool_context: ToolContext):
@@ -101,3 +102,46 @@ def initialize_session_state_for_instruction_prompts(callback_context: CallbackC
             print(f"initializing variable: {key}")
             state[key] = None
     return None
+
+def _load_game_room(game_room_id: str, tool_context: ToolContext):
+    """
+    utility method to load game room object
+    Args:
+        game_room_id: a game room id to load the game
+        tool_context: The ADK tool context.
+    Returns:
+        game_room: if successfule
+        error: if failure
+    """
+    # TODO: remove this when move from "app:" scope to DB store
+    state = tool_context.state
+
+    # check if game room exists (app scope)
+    # TODO: replace this from "app:" scope to DB store
+    # game_room_dict = state.get(f"{State.APP_PREFIX}{game_room_id}_{StateVariables.GAME_DETAILS}", None)
+    game_room_dict = state.get(f"{game_room_id}_{StateVariables.GAME_DETAILS}", None)
+    if not game_room_dict:
+        return None, {
+            "status" : "error",
+            "message" : f"game room with id {game_room_id} does not exist"
+        }
+
+    # convert to pydantic model
+    game_room = GameRoom.model_validate(game_room_dict)
+    return game_room, None
+
+def _save_game_room(game_room: GameRoom, tool_context: ToolContext):
+    """
+    utility method to save game room object
+    Args:
+        game_room: a game room object to save
+        tool_context: The ADK tool context.
+    Returns:
+        None
+    """
+    # TODO: remove this when move from "app:" scope to DB store
+    state = tool_context.state
+
+    # TODO: replace this from "app:" scope to DB store
+    # state[f"{State.APP_PREFIX}{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
+    state[f"{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
