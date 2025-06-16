@@ -57,42 +57,6 @@ def initialize_game_room(game_room_id: str, tool_context: ToolContext):
         "game_room": game_room
     }
 
-def deal_card(game_room_id: str, deck_id: str, player_id: str, tool_context: ToolContext):
-    """
-    deal 1 card to a player in a game
-    Args:
-        game_room_id: a game room id for the game
-        deck_id: deck id from the deck in game room
-        player_id: a user id of the player to deal the card
-        tool_context: The ADK tool context.
-    Returns:
-        A status message from handling user request
-    """
-
-    # load game room object
-    game_room, error = _load_game_room(game_room_id, tool_context)
-    if error:
-        return error
-
-    # make sure player is in the game
-    if player_id not in game_room.players:
-        return {
-            "status" : "error",
-            "message" : "player is not part of the game's players list"
-        }
-
-    # deal a card to the player
-    game_room.player_cards[player_id].append(deckofcards_client.draw_cards(deck_id, 1))
-
-    # save game room
-    _save_game_room(game_room, tool_context)
-
-    # return the game room details, agent will memorize as needed
-    return {
-        "status" : "success",
-        "game_room": game_room
-    }
-
 def create_deck_tool(game_room_id: str, tool_context: ToolContext):
     """
     creat a new shuffled deck of card for the game
