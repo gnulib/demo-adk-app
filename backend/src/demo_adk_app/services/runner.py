@@ -145,11 +145,20 @@ class Runner:
                 # Key Concept: is_final_response() marks the concluding message for the turn.
                 if event.is_final_response():
                     if event.content and event.content.parts:
-                        full_response_text += ''.join(part.text for part in event.content.parts if part.text)
+                        full_response_text += "\n" + ''.join(part.text for part in event.content.parts if part.text)
                     if event.actions and event.actions.escalate:  # Handle potential errors/escalations
                         full_response_text += f"Agent escalated: {event.error_message or 'No specific message.'}"
                     # Add more checks here if needed (e.g., specific error codes)
                     break  # Stop processing events once the final response is found
+                else:
+                    if event.partial and event.content and event.content.parts:
+                        full_response_text += ''.join(part.text for part in event.content.parts if part.text)
+                    elif event.actions and event.actions.transfer_to_agent:
+                        full_response_text += f"\n{event.author} transferring to {event.actions.transfer_to_agent} ...\n"
+                    elif event.get_function_calls():
+                        for function in event.get_function_calls():
+                            full_response_text += f"\n{event.author} calling function: {function.name} ...\n" if function.name != "transfer_to_agent" else ""
+
         except Exception as e:
             logger.error(e)
             logger.error(traceback.format_exc())
