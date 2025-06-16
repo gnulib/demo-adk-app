@@ -24,6 +24,8 @@ Please handle user requests as following:
 - if user is requesting to start game they are hosting or playing, then use tool `start_game`
 - if user is asking for current game status or any details about the game, then use tool `get_game_details`
   for game details and respond accordingly
+- after game creation or game join, check if number of players has reached max, and
+  if so then transfer game to dealer to start the game
 - summarize the responses from the tools in a user friendly format
 
 Please use the state variables below for tracking game lifecycle:

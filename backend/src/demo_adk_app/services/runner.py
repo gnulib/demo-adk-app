@@ -144,6 +144,8 @@ class Runner:
 
                 # Key Concept: is_final_response() marks the concluding message for the turn.
                 if event.is_final_response():
+                    if event.content and event.content.parts:
+                        full_response_text += ''.join(part.text for part in event.content.parts if part.text)
                     if event.actions and event.actions.escalate:  # Handle potential errors/escalations
                         full_response_text += f"Agent escalated: {event.error_message or 'No specific message.'}"
                     # Add more checks here if needed (e.g., specific error codes)

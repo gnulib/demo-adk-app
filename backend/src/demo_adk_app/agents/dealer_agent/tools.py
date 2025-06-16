@@ -213,3 +213,46 @@ def draw_card_tool(game_room_id: str, tool_context):
 
     # return the card
     return card
+
+def calculate_card_value(card: dict):
+    """
+    calculate value of a standlone card
+    Args:
+        card: card object to evaluate
+    Returns:
+        value of the card
+    """
+    print(f"evaluating card: {card}")
+    value_str = card['value']
+    if value_str in ['JACK', 'QUEEN', 'KING']:
+        return 10
+    elif value_str == 'ACE':
+        return 11
+    else:
+        return int(value_str)
+
+
+def calculate_hand_score(player_hand: list[dict]):
+    """
+    calculate value of a card, based on player's hand
+    Args:
+        player_hand: list of card objects in a player's hand
+    Returns:
+        score of player's hand based on all cards
+    """
+    score = 0
+    num_aces = 0
+    # first calculate score based on each card's standalone value
+    for card in player_hand:
+        card_value = calculate_card_value(card)
+        # also keep track of number of aces
+        if card_value == 11:
+            num_aces += 1
+        score += card_value
+
+    # now adjust score based on ACEs to optimum value
+    while score > 21 and num_aces > 0:
+        score -= 10
+        num_aces -= 1
+
+    return score

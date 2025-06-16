@@ -3,17 +3,19 @@ from google.adk.sessions import State
 from .models import GameRoom
 from demo_adk_app.utils.constants import StateVariables
 
-def create_game(game_room_id: str, user_id: str, max_num_players: int, tool_context: ToolContext):
+def create_game(game_room_id: str, user_id: str, tool_context: ToolContext):
     """
     create a new game on behalf of the user
     Args:
         game_room_id: user provided id for game room
         user_id : user id of the player hosting the game
-        max_num_players: maximum number of players to allow joining the game
         tool_context: The ADK tool context.
     Returns:
         A status message from handling user request
     """
+    # hardcoding to 1 -- we'll only have single player mode for MVP
+    max_num_players: int = 1
+
     # TODO: remove this when move from "app:" scope to DB store
     state = tool_context.state
 
