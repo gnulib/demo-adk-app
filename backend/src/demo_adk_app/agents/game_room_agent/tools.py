@@ -22,7 +22,8 @@ def create_game(game_room_id: str, user_id: str, tool_context: ToolContext):
 
     # check if user is already enrolled in a game
     # TODO: replace this from "app:" scope to DB store
-    old_game_room_id = state.get(f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}", None)
+    # old_game_room_id = state.get(f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}", None)
+    old_game_room_id = state.get(f"{user_id}_{StateVariables.CURRENT_GAME}", None)
     if old_game_room_id:
         return {
             "status" : "error",
@@ -46,7 +47,8 @@ def create_game(game_room_id: str, user_id: str, tool_context: ToolContext):
     )
     # set this game as the current game for user (app scope)
     # TODO: replace this from "app:" scope to DB store
-    state[f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}"] = game_room.game_room_id
+    # state[f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}"] = game_room.game_room_id
+    state[f"{user_id}_{StateVariables.CURRENT_GAME}"] = game_room.game_room_id
 
     # following memory updates should be take care by the agent itself as needed
     # # also set the game as current game in session scope
@@ -80,8 +82,10 @@ def join_game(game_room_id: str, user_id: str, tool_context: ToolContext):
 
     # check if user is already enrolled in a game
     # TODO: replace this from "app:" scope to DB store
-    if state.get(f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}", None):
-        game_room_id = state.get(f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}")
+    # if state.get(f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}", None):
+    if state.get(f"{user_id}_{StateVariables.CURRENT_GAME}", None):
+        # game_room_id = state.get(f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}")
+        game_room_id = state.get(f"{user_id}_{StateVariables.CURRENT_GAME}")
         return {
             "status" : "error",
             "message" : f"user id already enrolled with game room: {game_room_id}"
@@ -109,7 +113,8 @@ def join_game(game_room_id: str, user_id: str, tool_context: ToolContext):
 
     # set this game as the current game for user (app scope)
     # TODO: replace this from "app:" scope to DB store
-    state[f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}"] = game_room.game_room_id
+    # state[f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}"] = game_room.game_room_id
+    state[f"{user_id}_{StateVariables.CURRENT_GAME}"] = game_room.game_room_id
 
     # following memory updates should be take care by the agent itself as needed
     # # set the game room for current session
