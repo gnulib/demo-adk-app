@@ -1,6 +1,7 @@
 from google.adk.tools import ToolContext
 from google.adk.sessions import State
-from .models import GameRoom
+from ...utils.models import GameRoom
+from ...utils.tools import _load_game_room, _save_game_room
 from demo_adk_app.utils.constants import StateVariables
 
 def create_game(game_room_id: str, user_id: str, tool_context: ToolContext):
@@ -28,10 +29,9 @@ def create_game(game_room_id: str, user_id: str, tool_context: ToolContext):
             "message" : f"user id already enrolled with game room: {old_game_room_id}"
         }
 
-    # check if game room exists (app scope)
-    # TODO: replace this from "app:" scope to DB store
-    game_room_dict = state.get(f"{State.APP_PREFIX}{game_room_id}_{StateVariables.GAME_DETAILS}", None)
-    if game_room_dict:
+    # check if game room exists
+    game_room, _ = _load_game_room(game_room_id, tool_context)
+    if game_room:
         return {
             "status" : "error",
             "message" : f"game room with id {game_room_id} already exists"
@@ -56,9 +56,8 @@ def create_game(game_room_id: str, user_id: str, tool_context: ToolContext):
     # # also add to current session state (session scope) to use with prompts
     # state[StateVariables.GAME_DETAILS] = game_room.model_dump()
 
-    # add game details to application scope
-    # TODO: replace this from "app:" scope to DB store
-    state[f"{State.APP_PREFIX}{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
+    # save game details
+    _save_game_room(game_room, tool_context)
 
     # return the game room details, agent will memorize as needed
     return {
@@ -88,17 +87,10 @@ def join_game(game_room_id: str, user_id: str, tool_context: ToolContext):
             "message" : f"user id already enrolled with game room: {game_room_id}"
         }
 
-    # check if game room exists (app scope)
-    # TODO: replace this from "app:" scope to DB store
-    game_room_dict = state.get(f"{State.APP_PREFIX}{game_room_id}_{StateVariables.GAME_DETAILS}", None)
-    if not game_room_dict:
-        return {
-            "status" : "error",
-            "message" : f"game room with id {game_room_id} does not exist"
-        }
-
-    # convert to pydantic model
-    game_room = GameRoom.model_validate(game_room_dict)
+    # check if game room exists
+    game_room, error = _load_game_room(game_room_id, tool_context)
+    if error:
+        return error
 
     # check if game has room for new player to join
     if game_room.max_num_players >= len(game_room.players):
@@ -131,8 +123,7 @@ def join_game(game_room_id: str, user_id: str, tool_context: ToolContext):
     game_room.players.append(user_id)
 
     # save the game room state
-    # TODO: replace this from "app:" scope to DB store
-    state[f"{State.APP_PREFIX}{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
+    _save_game_room(game_room, tool_context)
 
     # return the game room details, agent will memorize as needed
     return {
@@ -153,17 +144,10 @@ def start_game(game_room_id: str, user_id: str, tool_context: ToolContext):
     # TODO: remove this when move from "app:" scope to DB store
     state = tool_context.state
 
-    # check if game room exists (app scope)
-    # TODO: replace this from "app:" scope to DB store
-    game_room_dict = state.get(f"{State.APP_PREFIX}{game_room_id}_{StateVariables.GAME_DETAILS}", None)
-    if not game_room_dict:
-        return {
-            "status" : "error",
-            "message" : f"game room with id {game_room_id} does not exist"
-        }
-
-    # convert to pydantic model
-    game_room = GameRoom.model_validate(game_room_dict)
+    # check if game room exists
+    game_room, error = _load_game_room(game_room_id, tool_context)
+    if error:
+        return error
 
     # check if user is enrolled in the game
     if user_id not in game_room.players:
@@ -183,12 +167,7 @@ def start_game(game_room_id: str, user_id: str, tool_context: ToolContext):
     game_room.game_status = "in-game"
 
     # save the game room state
-    # TODO: replace this from "app:" scope to DB store
-    state[f"{State.APP_PREFIX}{game_room.game_room_id}_{StateVariables.GAME_DETAILS}"] = game_room.model_dump()
-
-    # following memory updates should be take care by the agent itself as needed
-    # # also add to current session state (session scope) to use with prompts
-    # state[StateVariables.GAME_DETAILS] = game_room.model_dump()
+    _save_game_room(game_room, tool_context)
 
     # transfer to parent agent
     tool_context.actions.transfer_to_agent = tool_context._invocation_context.agent.parent_agent.name
@@ -208,19 +187,13 @@ def get_game_details(game_room_id: str, tool_context: ToolContext):
     Returns:
         A status message from getting game details
     """
-    # TODO: remove this when move from "app:" scope to DB store
-    state = tool_context.state
 
     # check if game room exists (app scope)
-    # TODO: replace this from "app:" scope to DB store
-    game_room_dict = state.get(f"{State.APP_PREFIX}{game_room_id}_{StateVariables.GAME_DETAILS}", None)
-    if not game_room_dict:
-        return {
-            "status" : "error",
-            "message" : f"game room with id {game_room_id} does not exist"
-        }
+    game_room, error = _load_game_room(game_room_id, tool_context)
+    if error:
+        return error
     # return dtails of the game
     return {
         "status" : "success",
-        "game_room" : game_room_dict
+        "game_room" : game_room
     }

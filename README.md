@@ -131,9 +131,9 @@ cli> help
 
 cli> lc # this command lists existing conversations
 
-cli> cc # this command creates a new conversation
+cli> cc # this command creates and joins a new conversation
 
-cli> join <<conversation id>> # this command joins a conversation
+cli@9d9f5435-d569-4db2-b3b4-6cddf9c0e830> start a new game
 ```
 
 > When you interact with the agent, if you get error like `google.genai.errors.ClientError: 403 PERMISSION_DENIED` -- this usually means either VertexAI API has not be enabled in your project, or your current environment is using a different google cloud project. Please make sure that you have completed all the steps mentioned above in "Google Cloud Setup" and are using the correct google project in your environment variables (`GOOGLE_CLOUD_PROJECT`) and with `gcloud` CLI _(check config in `gcloud config list` and `gcloud auth list`)_.
