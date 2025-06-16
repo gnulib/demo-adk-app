@@ -133,9 +133,9 @@ class Runner:
             async for event in adk_runner.run_async(
                 user_id=session.user_id, session_id=session.id, new_message=content
             ):
-                # accumulate the full response text if needed
-                if event.content and event.content.parts:
-                    full_response_text += ''.join(part.text for part in event.content.parts if part.text)
+                # # accumulate the full response text if needed
+                # if event.content and event.content.parts:
+                #     full_response_text += ''.join(part.text for part in event.content.parts if part.text)
                 if event.error_message:
                     full_response_text += f"\n[Event] Author: {event.author}, Type: Error, Message: {event.error_message}"
 

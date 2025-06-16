@@ -41,8 +41,6 @@ def create_game(game_room_id: str, user_id: str, max_num_players: int, tool_cont
         host_user_id=user_id,
         players= [user_id],
         max_number_players=max_num_players,
-        game_status="pre-game",
-        current_turn_player_id = user_id # we start with host player
     )
     # set this game as the current game for user (app scope)
     # TODO: replace this from "app:" scope to DB store
@@ -107,6 +105,14 @@ def join_game(game_room_id: str, user_id: str, tool_context: ToolContext):
             "message" : f"game room with id {game_room_id} has already reached max players"
 
         }
+
+    # check that game is still accepting players
+    if game_room.game_status != "pre-game":
+        return {
+            "status" : "error",
+            "message" : f"game is not accepting new players, status is {game_room.game_status}"
+        }
+
     # set this game as the current game for user (app scope)
     # TODO: replace this from "app:" scope to DB store
     state[f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}"] = game_room.game_room_id

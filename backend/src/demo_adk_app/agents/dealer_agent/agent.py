@@ -1,6 +1,7 @@
 from google.adk.agents import Agent
 from .prompt import PROMPT
-from .tools import start_game
+from .tools import initialize_game_room, deal_card, create_deck_tool, shuffle_deck_tool, draw_card_tool
+from demo_adk_app.utils.tools import memorize
 
 root_agent = Agent(
     name="dealer_agent",
@@ -10,6 +11,11 @@ root_agent = Agent(
     ),
     instruction=PROMPT,
     tools=[
-        start_game,
+        memorize,
+        initialize_game_room,
+        # deal_card,
+        create_deck_tool,
+        shuffle_deck_tool,
+        draw_card_tool,
     ],
 )

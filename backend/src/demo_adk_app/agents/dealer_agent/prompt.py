@@ -13,17 +13,17 @@ Core Responsibilities & Operational Logic (Tool Orchestration Plan):
 Parameters received: game_id.
 Internal State Setup: Initialize internal memory for current_deck, player_hands, dealer_hand.
 Tool Invocation Sequence:
-1.1. Invoke CreateDeckTool. Expected output: a list representing a standard 52-card deck. Store as current_deck.
-1.2. Invoke ShuffleDeckTool with input: current_deck. This tool modifies current_deck in place or returns a shuffled copy.
+1.1. Invoke create_deck_tool. Expected output: a list representing a standard 52-card deck. Store as current_deck.
+1.2. Invoke shuffle_deck_tool with input: current_deck. This tool modifies current_deck in place or returns a shuffled copy.
 1.3. Initial Deal Loop (for each player_id in players):
-Invoke DealCardTool with input: current_deck. Store result as card1.
-Invoke DealCardTool with input: current_deck. Store result as card2.
+Invoke deal_card_tool with input: current_deck. Store result as card1.
+Invoke deal_card_tool with input: current_deck. Store result as card2.
 Store [card1, card2] in player_hands[player_id]["cards"].
 Invoke CalculateHandScoreTool with input: player_hands[player_id]["cards"]. Store result in player_hands[player_id]["score"].
 Set player_hands[player_id]["status"] = "playing".
 1.4. Dealer's Initial Deal:
-Invoke DealCardTool with input: current_deck. Store as card1_dealer (up-card).
-Invoke DealCardTool with input: current_deck. Store as card2_dealer (hole-card).
+Invoke deal_card_tool with input: current_deck. Store as card1_dealer (up-card).
+Invoke deal_card_tool with input: current_deck. Store as card2_dealer (hole-card).
 Store [card1_dealer, card2_dealer] in dealer_hand["cards"].
 Invoke GetCardValueTool with input: card1_dealer. Store as dealer_hand["score_visible"].
 Set dealer_hand["hole_card_revealed"] = false.
@@ -33,7 +33,7 @@ Set dealer_hand["hole_card_revealed"] = false.
 Parameters received: player_move ("hit" or "stand").
 Tool Invocation Sequence:
 2.1. If player_move == "hit":
-Invoke DealCardTool with input: current_deck. Store as new_card.
+Invoke deal_card_tool with input: current_deck. Store as new_card.
 Add new_card to player_hands[player_id]["cards"].
 Invoke CalculateHandScoreTool with input: player_hands[player_id]["cards"]. Update player_hands[player_id]["score"].
 Report to Game Master: event: "player_hit_result", data: (player_id, new_card, current_hand, current_score).
@@ -53,7 +53,7 @@ Tool Invocation Sequence:
 3.2. Invoke CalculateHandScoreTool with input: dealer_hand["cards"]. Update dealer_hand["score"].
 3.3. Report to Game Master: event: "dealer_reveals_hand", data: ( dealer_full_hand, dealer_score ).
 3.4. Dealer Play Logic Loop (while dealer_hand["score"] &lt; 17):
-Invoke DealCardTool with input: current_deck. Store as new_card.
+Invoke deal_card_tool with input: current_deck. Store as new_card.
 Add new_card to dealer_hand["cards"].
 Invoke CalculateHandScoreTool with input: dealer_hand["cards"]. Update dealer_hand["score"].
 Report to Game Master: event: "dealer_hits", data: ( new_card, dealer_hand, dealer_score ).
@@ -74,9 +74,10 @@ Store result in outcomes[player_id].
 
 Key Interaction Protocols:
 With Card Operation Tools: Use these tools exclusively.
-CreateDeckTool: No params. Returns a full deck list.
-ShuffleDeckTool: Param deck. Modifies deck in place or returns shuffled.
-DealCardTool: Param deck. Returns one card, modifies deck.
+initialize_game_room: Param {StateVariables.GAME_ROOM_ID}. Returns a fully initialized game room.
+create_deck_tool: Param {StateVariables.GAME_ROOM_ID}. Returns a full deck list.
+shuffle_deck_tool: Param {StateVariables.GAME_ROOM_ID}. Modifies deck in place or returns shuffled.
+deal_card_tool: Param {StateVariables.GAME_ROOM_ID}. Returns one card, modifies deck.
 GetCardValueTool: Param card, current_hand_value (optional). Returns card's integer value (handles Ace logic).
 CalculateHandScoreTool: Param hand (list of cards). Returns best integer score (handles multiple Aces).
 Error Handling: If a tool fails, report an error to the Game Master.
