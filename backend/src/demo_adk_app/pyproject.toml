@@ -15,6 +15,7 @@ dependencies = [
     "pydantic",
     "pydantic-settings",
     "fastapi",
+    "sse-starlette",
     "uvicorn",
     "google-cloud-storage",
     "google-cloud-aiplatform",

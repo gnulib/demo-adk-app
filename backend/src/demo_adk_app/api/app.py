@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Optional, Any, Dict, Annotated # Added Any, Dict, Annotated
 
 from fastapi import FastAPI, HTTPException, status, Response, Request, Depends
+from sse_starlette.sse import EventSourceResponse
 # Pydantic models are now in api.models
 from google.adk.events import Event # Assuming this path is correct for your project structure
 from google.adk.sessions import BaseSessionService, Session as AdkSession # Removed ListSessionsResponse
@@ -10,7 +11,7 @@ from google.adk.artifacts import BaseArtifactService
 
 from demo_adk_app.utils.config import Config
 from demo_adk_app.utils.constants import StateVariables
-from demo_adk_app.api.models import Conversation, Message # Import models from the new module
+from demo_adk_app.api.models import Conversation, Message, StreamingEvent # Import models from the new module
 from demo_adk_app.services.runner import Runner # Import the Runner class
 from demo_adk_app.api.auth import get_authenticated_user, get_authorized_session # Import auth dependencies
 
@@ -151,6 +152,43 @@ def get_fast_api_app(
             except Exception as e:
                 # Log the exception e
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+        @_app.post("/conversations/{conversation_id}/submit", response_model=StreamingEvent)
+        async def send_message(
+            request: Request, 
+            message_request: Message,
+            user: Annotated[Dict, Depends(get_authenticated_user)],
+            adk_session: Annotated[AdkSession, Depends(get_authorized_session)] # Injects authorized session
+        ):
+            """
+            Submit's a user message to a specific conversation for processing. Client needs to use
+            `stream` endpoint to fetch the processing results.
+
+            User authorization for the conversation is handled by get_authorized_session.
+            """
+            app_runner: Runner = request.app.state.runner
+            try:
+                response_message = await app_runner.submit(user=user, session=adk_session, msg=message_request)
+                return response_message
+            except HTTPException: # Re-raise HTTPException
+                raise
+            except Exception as e:
+                # Log the exception e
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+        @_app.get("/conversations/{conversation_id}/stream")
+        async def stream_messages(
+            request: Request, 
+            message_request: Message,
+            user: Annotated[Dict, Depends(get_authenticated_user)],
+            adk_session: Annotated[AdkSession, Depends(get_authorized_session)] # Injects authorized session
+        ):
+            """
+            Streams events from agent's processing of last user submitted message.
+            User authorization for the conversation is handled by get_authorized_session.
+            """
+            app_runner: Runner = request.app.state.runner
+            return EventSourceResponse(app_runner.stream(user=user, session=adk_session, msg=message_request))
 
         @_app.get("/conversations/{conversation_id}/history", response_model=List[Event])
         async def get_conversation_history(
