@@ -67,6 +67,53 @@ def create_game(game_room_id: str, user_id: str, tool_context: ToolContext):
         "game_room": game_room
     }
 
+def leave_game(game_room_id: str, user_id: str, tool_context: ToolContext):
+    """
+    leave a game as a player
+    Args:
+        game_room_id: a game room id user wants to leave
+        user_id : user id of the player requesting to leave the game
+        tool_context: The ADK tool context.
+    Returns:
+        A status message from handling user request
+    """
+    # TODO: remove this when move from "app:" scope to DB store
+    state = tool_context.state
+
+    # check if user is already enrolled in a game
+    # TODO: replace this from "app:" scope to DB store
+    # if state.get(f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}", None):
+    if not state.get(f"{user_id}_{StateVariables.CURRENT_GAME}", None):
+        return {
+            "status" : "error",
+            "message" : f"user is not enrolled with game room: {game_room_id}"
+        }
+
+    # check if game room exists
+    game_room, error = _load_game_room(game_room_id, tool_context)
+    if error:
+        return error
+
+    # set this game as the current game for user (app scope)
+    # TODO: replace this from "app:" scope to DB store
+    # state[f"{State.APP_PREFIX}{user_id}_{StateVariables.CURRENT_GAME}"] = game_room.game_room_id
+    state[f"{user_id}_{StateVariables.CURRENT_GAME}"] = None
+
+    # remove user from player list of the game room (application scope, to share with all users)
+    game_room.players.remove(user_id)
+    game_room.player_cards.pop(user_id)
+    game_room.player_scores.pop(user_id)
+
+    # save the game room state
+    _save_game_room(game_room, tool_context)
+
+    # return the game room details, agent will memorize as needed
+    return {
+        "status" : "success",
+        "game_room": game_room
+    }
+
+
 def join_game(game_room_id: str, user_id: str, tool_context: ToolContext):
     """
     join a new game as a player
@@ -97,7 +144,7 @@ def join_game(game_room_id: str, user_id: str, tool_context: ToolContext):
         return error
 
     # check if game has room for new player to join
-    if game_room.max_num_players >= len(game_room.players):
+    if game_room.max_number_players >= len(game_room.players):
         return {
             "status" : "error",
             "message" : f"game room with id {game_room_id} has already reached max players"
