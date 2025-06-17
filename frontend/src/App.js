@@ -20,7 +20,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [appError, setAppError] = useState(''); // To distinguish from LandingPage error
 
-  const [currentEventSource, setCurrentEventSource] = useState(null); // For managing SSE connection
+  // Use a ref for the AbortController to avoid re-renders when it changes
+  const abortControllerRef = useRef(null); 
 
   const messagesEndRef = useRef(null); // For auto-scrolling
   const messageInputRef = useRef(null); // For focusing message input
@@ -60,16 +61,16 @@ function App() {
     scrollToBottom();
   }, [messages]);
 
-  // Effect to clean up EventSource when component unmounts or conversation changes
+  // Effect to clean up AbortController when component unmounts or conversation changes
   useEffect(() => {
     return () => {
-      if (currentEventSource) {
-        console.log("Cleaning up EventSource due to component unmount or conversation change.");
-        currentEventSource.close();
-        setCurrentEventSource(null);
+      if (abortControllerRef.current) {
+        console.log("Aborting SSE stream due to component unmount or conversation change.");
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
       }
     };
-  }, [currentEventSource, currentConversationId]); // Add currentConversationId to re-evaluate if it changes
+  }, [currentConversationId]); // Re-run if conversationId changes, to clean up old stream
 
   // Effect to focus message input after agent response
   useEffect(() => {
@@ -188,12 +189,15 @@ function App() {
     setIsLoading(true); // Indicate agent is "thinking"
     setAppError('');
 
-    // Close any existing event source before starting a new one
-    if (currentEventSource) {
-      console.log("Closing previous EventSource before sending new message.");
-      currentEventSource.close();
-      setCurrentEventSource(null);
+    // If there's an existing AbortController, abort the previous stream
+    if (abortControllerRef.current) {
+      console.log("Aborting previous SSE stream before sending new message.");
+      abortControllerRef.current.abort();
     }
+
+    // Create a new AbortController for the current request
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
 
     let agentMessageId = `agent-${Date.now()}`; // ID for the agent's entire response for this turn
     let isAgentMessageInitialized = false;
@@ -210,12 +214,14 @@ function App() {
       // If submitEvent.type is "info" or something else positive, proceed.
 
       // 2. Stream events
-      const es = await apiClient.streamConversationEvents(
+      // apiClient.streamConversationEvents is now async but doesn't return the EventSource object directly.
+      // It manages the connection internally.
+      await apiClient.streamConversationEvents(
         currentConversationId,
         submitPayload, // Pass the same payload (text, author) to stream endpoint
         {
           onOpen: () => {
-            console.log("SSE connection established by App.js.");
+            console.log("SSE connection established by App.js (via fetchEventSource).");
           },
           onEvent: (eventData) => {
             // eventData is { type: "message" | "action" | "error" | "end", data: any }
@@ -273,44 +279,45 @@ function App() {
             console.error("SSE stream connection error reported to App.js:", error);
             setAppError(`Streaming connection error: ${error.message || 'Unknown error'}`);
             setIsLoading(false);
-            setCurrentEventSource(null); // Ensure EventSource state is cleared
+            // No EventSource state to clear here. AbortController might be aborted by fetchEventSource itself on error.
+            if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+                // If the error didn't come from an abort, and the controller is still active,
+                // it might be good to abort it, though fetchEventSource's onerror should handle closure.
+            }
+            abortControllerRef.current = null; // Clear ref if connection truly failed/closed
             isAgentMessageInitialized = false;
           },
-          onClose: () => { // Called when EventSource is closed (by "end" from server or by error handler)
-            console.log("SSE connection closed, reported to App.js.");
+          onClose: () => { // Called when EventSource is closed
+            console.log("SSE connection closed, reported to App.js (via fetchEventSource).");
             setIsLoading(false);
-            setCurrentEventSource(null); // Ensure EventSource state is cleared
+            abortControllerRef.current = null; // Clear ref as connection is closed
             // isAgentMessageInitialized state persists until next message send.
-          }
+          },
+          abortSignal: signal // Pass the signal here
         }
       );
-      
-      if (es) {
-        setCurrentEventSource(es);
-      } else {
-        // If es is null (e.g., no token), apiClient would have called onError.
-        // Ensure loading is false if we didn't even start streaming.
-        setIsLoading(false);
-      }
+      // No 'es' object is returned to set in state anymore.
+      // If apiClient.streamConversationEvents itself throws (e.g., token issue before fetchEventSource call),
+      // it will be caught by the outer catch block.
 
-    } catch (error) { // This catches errors from submitMessage or if streamConversationEvents setup fails
+    } catch (error) { // This catches errors from submitMessage or if streamConversationEvents setup fails (e.g. no token)
       console.error("Failed to send message or establish stream:", error);
       setAppError(error.message || 'Failed to communicate with agent.');
       setMessages(prev => [...prev, { id: `err-submit-${Date.now()}`, text: `Error: ${error.message || 'Agent failed to respond.'}`, author: 'system', timestamp: new Date().toISOString() }]);
       setIsLoading(false);
-      if (currentEventSource) { // Should be null if error was before es assignment
-        currentEventSource.close();
-        setCurrentEventSource(null);
+      if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+        abortControllerRef.current.abort(); // Abort if an error occurred during setup
       }
+      abortControllerRef.current = null;
     }
     // setIsLoading(false) is now primarily handled by the onClose/onError callbacks of the stream, or in catch blocks.
   };
 
   const handleGoBackToConversations = () => {
-    if (currentEventSource) {
-      console.log("Closing EventSource due to going back to conversations list.");
-      currentEventSource.close();
-      setCurrentEventSource(null);
+    if (abortControllerRef.current) {
+      console.log("Aborting SSE stream due to going back to conversations list.");
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
     }
     setCurrentConversationId(null);
     setMessages([]);
