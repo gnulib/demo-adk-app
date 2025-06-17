@@ -34,9 +34,6 @@ def initialize_game_room(game_room_id: str, tool_context: ToolContext):
         game_room.player_scores[player] = 0
         game_room.player_cards[player] = []
 
-    # initialize a new full deck of card
-    game_room.deck = deckofcards_client.shuffle_new_deck(deck_count=1, jokers_enabled=False, cards=None)
-
     # set game status to "dealing"
     game_room.game_status = "dealing"
 
@@ -51,42 +48,6 @@ def initialize_game_room(game_room_id: str, tool_context: ToolContext):
     # # also add to current session state (session scope) to use with prompts
     # state[StateVariables.GAME_DETAILS] = game_room.model_dump()
  
-    # return the game room details, agent will memorize as needed
-    return {
-        "status" : "success",
-        "game_room": game_room
-    }
-
-def deal_card(game_room_id: str, deck_id: str, player_id: str, tool_context: ToolContext):
-    """
-    deal 1 card to a player in a game
-    Args:
-        game_room_id: a game room id for the game
-        deck_id: deck id from the deck in game room
-        player_id: a user id of the player to deal the card
-        tool_context: The ADK tool context.
-    Returns:
-        A status message from handling user request
-    """
-
-    # load game room object
-    game_room, error = _load_game_room(game_room_id, tool_context)
-    if error:
-        return error
-
-    # make sure player is in the game
-    if player_id not in game_room.players:
-        return {
-            "status" : "error",
-            "message" : "player is not part of the game's players list"
-        }
-
-    # deal a card to the player
-    game_room.player_cards[player_id].append(deckofcards_client.draw_cards(deck_id, 1))
-
-    # save game room
-    _save_game_room(game_room, tool_context)
-
     # return the game room details, agent will memorize as needed
     return {
         "status" : "success",
@@ -119,22 +80,13 @@ def create_deck_tool(game_room_id: str, tool_context: ToolContext):
     else:
         game_room.deck = deck
 
-    # draw all 52 cards and return back the cards
-    cards = deckofcards_client.draw_cards(game_room.deck["deck_id"], 52)
-    if not "success" in cards or not cards["success"]:
-        return {
-            "status" : "error",
-            "mesage" : f"failed to draw cards from deck: {cards}"
-        }
-    else:
-        game_room.cards = [{"value" : card["value"], "code" : card["code"], "suit" : card["suit"]} for card in cards["cards"]]
-
     # save game room object
     _save_game_room(game_room, tool_context)
 
-    # return the list of cards
-    return game_room.cards
-
+    return {
+        "status" : "success",
+        "message" : "new deck of cards created"
+    }
 
 def shuffle_deck_tool(game_room_id: str, tool_context):
     """
@@ -146,7 +98,10 @@ def shuffle_deck_tool(game_room_id: str, tool_context):
         A shuffled deck of cards
     """
     # NO OP, deck sould already be shuffled, will just return None
-    return None
+    return {
+        "status" : "success",
+        "message" : "deck is shuffled"
+    }
 
 def draw_card_tool(game_room_id: str, tool_context):
     """
@@ -164,14 +119,17 @@ def draw_card_tool(game_room_id: str, tool_context):
     if error:
         return error
 
-    # pop the top card from deck
-    card = game_room.cards.pop()
-
-    # save game room object
-    _save_game_room(game_room, tool_context)
-
-    # return the card
-    return card
+    # draw 1 card from the deck
+    cards = deckofcards_client.draw_cards(game_room.deck["deck_id"], 1)
+    if not "success" in cards or not cards["success"]:
+        return {
+            "status" : "error",
+            "mesage" : f"failed to draw cards from deck: {cards}"
+        }
+    else:
+        # return the card
+        card = cards["cards"][0]
+        return {"value" : card["value"], "code" : card["code"], "suit" : card["suit"]}
 
 def calculate_card_value(card: dict):
     """

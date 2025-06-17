@@ -4,6 +4,7 @@ from typing import Dict
 import traceback
 
 from google.adk.agents import BaseAgent
+from google.adk.agents.run_config import RunConfig, StreamingMode
 from google.adk.sessions import BaseSessionService, Session as AdkSession
 from google.adk.memory import BaseMemoryService
 from google.adk.artifacts import BaseArtifactService
@@ -42,6 +43,9 @@ def log_event(event: Event) -> str:
         return f"[Event] Author: {event.author}, Type: Escalation, Message: {event.error_message or 'No specific message.'}"
     if event.is_final_response():
         return f"[Event] Author: {event.author}, Type: Final Response,\nContent: {event.content.parts[0].text if event.content and event.content.parts else 'No content'}"
+    elif event.partial and event.content and event.content.parts:
+        return f"[Event] Author: {event.author}, Type: Partial Response,\nContent: {event.content.parts[0].text if event.content and event.content.parts else 'No content'}"
+    return f"Unknown Event:\n{event}"
 
 # Get a logger instance for this module
 logger = logging.getLogger(__name__)
@@ -131,28 +135,36 @@ class Runner:
         # We iterate through events to find the final answer.
         try:
             async for event in adk_runner.run_async(
-                user_id=session.user_id, session_id=session.id, new_message=content
+                user_id=session.user_id, session_id=session.id,
+                new_message=content,
+                run_config=RunConfig(streaming_mode=StreamingMode.SSE)
             ):
                 # # accumulate the full response text if needed
                 # if event.content and event.content.parts:
                 #     full_response_text += ''.join(part.text for part in event.content.parts if part.text)
                 if event.error_message:
-                    full_response_text += f"\n[Event] Author: {event.author}, Type: Error, Message: {event.error_message}"
+                    full_response_text += f"\n[Event] Author: {event.author}, Type: Error, Message: {event.error_message}\n"
 
                 # You can uncomment the line below to see *all* events during execution
                 logger.info(log_event(event))
 
                 # Key Concept: is_final_response() marks the concluding message for the turn.
                 if event.is_final_response():
-                    if event.content and event.content.parts:
-                        full_response_text += "\n" + ''.join(part.text for part in event.content.parts if part.text)
+                    #### in case of SSE / streaming, partial response is being collected
+                    # if event.content and event.content.parts:
+                    #     # full_response_text += "\n" + ''.join(part.text for part in event.content.parts if part.text)
+                    #     full_response_text = event.content.parts[0].text
                     if event.actions and event.actions.escalate:  # Handle potential errors/escalations
-                        full_response_text += f"Agent escalated: {event.error_message or 'No specific message.'}"
-                    # Add more checks here if needed (e.g., specific error codes)
-                    break  # Stop processing events once the final response is found
+                        full_response_text += f"\nAgent escalated: {event.error_message or 'No specific message.'}\n"
+                    #### in case of SSE, we just keep looping until run_async does EOF and loop ends itself
+                    #### no need to explicitly break the loop
+                    # if event.turn_complete:
+                    #     logger.info("Turn complete, returning response to user.")
+                    #     break  # Stop processing events once the final response is found
                 else:
                     if event.partial and event.content and event.content.parts:
-                        full_response_text += ''.join(part.text for part in event.content.parts if part.text)
+                        text = ''.join(part.text for part in event.content.parts if part.text)
+                        full_response_text += text
                     elif event.actions and event.actions.transfer_to_agent:
                         full_response_text += f"\n{event.author} transferring to {event.actions.transfer_to_agent} ...\n"
                     elif event.get_function_calls():
