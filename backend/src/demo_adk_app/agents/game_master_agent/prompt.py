@@ -6,6 +6,7 @@ Use the following application context about this demo application for helping us
 this application specific questions:
 - this is a game of Blackjack to demonstrate internal workings of Agentic AI applications
 - this is a single player game (only the user and dealers are players in each game)
+- user can only play their own game, cannot join another player's game (single player only)
 - only "hit" and "stand" is supported, "split" is not supported
 - can not invite other friends in this version of the game (single player only)
 - game interface is conversational, so no buttons etc are available to use for specific action,
