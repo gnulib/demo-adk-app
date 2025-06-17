@@ -218,7 +218,6 @@ function App() {
       // It manages the connection internally.
       await apiClient.streamConversationEvents(
         currentConversationId,
-        submitPayload, // Pass the same payload (text, author) to stream endpoint
         {
           onOpen: () => {
             console.log("SSE connection established by App.js (via fetchEventSource).");

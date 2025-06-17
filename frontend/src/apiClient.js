@@ -88,7 +88,6 @@ export const apiClient = {
 
   streamConversationEvents: async (
     conversationId,
-    messagePayload, // {text: "...", author: "..."}
     { onEvent, onError, onOpen, onClose, abortSignal } // abortSignal is from AbortController
   ) => {
     const token = await getIdToken();
@@ -98,9 +97,7 @@ export const apiClient = {
       return; 
     }
 
-    // messagePayload (text, author) is still sent as query parameters
-    const queryParams = new URLSearchParams(messagePayload);
-    const url = `${BASE_URL}/conversations/${conversationId}/stream?${queryParams.toString()}`;
+    const url = `${BASE_URL}/conversations/${conversationId}/stream`;
 
     const headers = {
       'Authorization': `Bearer ${token}`,
