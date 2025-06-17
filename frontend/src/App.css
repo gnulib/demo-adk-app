@@ -37,29 +37,33 @@
   }
 }
 
-/* Loading Overlay and Spinner Styles */
-.loading-overlay {
-  position: fixed; /* Or 'absolute' if you want it relative to a specific container */
+/* Styles for the spinner within the input form */
+.input-spinner-overlay {
+  position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  /* Adjust right offset to avoid covering the send button.
+     This value may need tweaking based on the button's actual width and spacing.
+     Send button: px-4 (1rem padding L/R) + text. Form space-x-2 (0.5rem).
+     Approx. 80px to 100px for button + space. */
+  right: 90px; 
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000; /* Ensure it's on top */
+  justify-content: center;
+  pointer-events: none; /* Allows interaction with underlying elements if ever needed, though input is disabled */
 }
 
-.spinner {
-  border: 8px solid #f3f3f3; /* Light grey */
-  border-top: 8px solid #3498db; /* Blue */
+.input-spinner {
+  border: 3px solid rgba(0, 0, 0, 0.1); /* Lighter border for subtle appearance */
+  border-top: 3px solid #3498db; /* Blue accent */
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite;
+  width: 24px; /* Smaller spinner */
+  height: 24px;
+  animation: spin 1s linear infinite; /* Reuses the existing spin animation */
 }
 
+/* Ensure @keyframes spin is present (it is, from previous changes) */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
