@@ -114,9 +114,14 @@ def send_message(conv_id: str, text: str):
         
         try:
             sse_headers = headers.copy() # Use the same auth headers
-            # sseclient-py typically handles 'Accept': 'text/event-stream'
+            # sseclient-py typically handles 'Accept': 'text/event-stream' automatically
+            # when initialized with a response object.
             
-            client = SSEClient(stream_url, params=stream_params, headers=sse_headers)
+            # Make the GET request with stream=True
+            response_for_sse = requests.get(stream_url, params=stream_params, headers=sse_headers, stream=True)
+            response_for_sse.raise_for_status() # Raise an exception for bad status codes
+
+            client = SSEClient(response_for_sse)
             for event in client:
                 if not event.data: # Skip empty keep-alive messages if any
                     continue
