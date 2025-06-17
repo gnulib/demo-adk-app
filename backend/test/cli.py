@@ -105,7 +105,7 @@ def send_message(conv_id: str, text: str):
             return
 
         # 2. Stream the response
-        print(f"Streaming response from conversation {conv_id}...")
+        print(f"Streaming response from conversation {conv_id}...\n")
         stream_url = f"{BASE_URL}/conversations/{conv_id}/stream"
         
         # SSEClient needs headers for authorization.
@@ -122,7 +122,7 @@ def send_message(conv_id: str, text: str):
             response_for_sse.raise_for_status() # Raise an exception for bad status codes
 
             client = SSEClient(response_for_sse)
-            PREFIX="\n\n"
+            PREFIX=""
             for event in client.events():
                 if not event.data: # Skip empty keep-alive messages if any
                     continue
