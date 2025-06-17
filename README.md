@@ -1,9 +1,9 @@
-# demo-adk-app
+# A Single Player Blackjack
 
-_(This project is intentionally designed as a monorepo, i.e., has both the frontend and backend code in the same git repository. For a larger, more complex, or production-grade applications, separating frontends and backends into different repositories is often recommended for better team collaboration, independent scaling, and clearer separation of concerns.)_
+This is a demo project to showcase building end-to-end application using Google ADK and Firebase. The application uses Firebase for user authentication and hosting react webapp, and LLM agents in the backend for running a single player game of Blackjack. **The primary objective of this project is to showcase how to architect, build, deploy and host an end to end solution for a conversational AI application on GCP infrastructure.**
 
-> **Acknowledgement:**  
-> This project makes use of the excellent [Deck of Cards API](https://deckofcardsapi.com/) by Chase Roberts. Many thanks to Chase for providing this fun and useful API!
+**Acknowledgement:**
+This project makes use of the excellent [Deck of Cards API](https://deckofcardsapi.com/) by Chase Roberts. Many thanks to Chase for providing this fun and useful API!
 
 ## Blog Series Companion
 This repository serves as a hands-on companion for a 3-part blog series:
@@ -231,15 +231,19 @@ i want to start a new game
 
 ## The Power of Language Agents
 
-This project, while simple in functionality, demonstrates the remarkable power of Language Agents. The agents in this demo are able to:
+This project, while simple in functionality, demonstrates the remarkable power of Language Agents:
 
-- **Autonomously Orchestrate Workflows:**  
-  The multi-agent architecture uses LLM reasoning to determine how to delegate specific to tasks to different agents. Given a user request, the LLM can decide which agent to delegate the request,
-  which function / tool to call (if necessary), in what order, and with what parameters — without any hardcoded rules or business logic. The LLM's reasoning ability enables it to create autonomous workflows on the fly.
+- **Navigation through Natural Conversations:**
+  The LLM agents are great at natural language understanding, and can provide a powerful conversational interface to end users for interacting with a backend system purely based on natural language conversation (no UI). The agents use basic building blocks of **memory**, **tools** and **state**, to create an experience for users to navigate the application in an easy and conversational manner.
 
-- **Understand tools Capabilities from Docstrings:**  
-  The agent uses the docstrings of simple Python wrapper functions to understand what each tool / function call does. No additional schema, OpenAPI spec, or manual translation is required—just clear function docstrings. The agent can read and reason about the raw tool responses (typically JSON), extracting the information it needs without any custom parsing or mapping logic.
+- **Autonomously Orchestrate Workflows:**
+  The multi-agent architecture uses LLM reasoning to determine how to delegate specific tasks to different agents. Given a user request, the LLM can decide which agent to delegate the request,
+  which function / tool to call (if necessary), in what order, and with what parameters — without any hardcoded rules or business logic. The LLM's **reasoning ability** enables it to create autonomous workflows on the fly and responde to user's conversations naturally _**without prescribing** any specific navigation path or workflow_ to the user.
 
-Even though the functionality here is limited to a single player game of Blackjack, this is a powerful demonstration of how LLM-based multi-agent systems can act as an autonoush system. With minimal glue code, LLMs can bridge the gap between natural language and task orchestration, opening up new possibilities for rapid prototyping, automation, and conversational interfaces.
+- **Understand Tool Capabilities Dynamically:**
+  The agents use simple reflection on functions and pydantic models to
+  understand what each tool / function call does. No additional schema, OpenAPI spec, or manual translation is required—just clear function docstrings. The agent can read and reason about the raw tool responses and memory data, extracting the information it needs without any custom parsing or mapping logic.
 
-> **Special thanks again to [Chase Roberts](https://deckofcardsapi.com/) for providing the Deck of Cards API, which made this demonstration possible. The open and well-documented API was essential in showcasing how LLM agents can interact with real-world services with minimal effort.**
+Even though the functionality here is limited to a single player game of Blackjack, this is a powerful demonstration of how LLM-based multi-agent systems can act as an autonmous system. With minimal glue code, LLMs can bridge the gap between natural language and task orchestration, opening up new possibilities for rapid prototyping, automation, and conversational interfaces.
+
+> **Special thanks again to [Chase Roberts](https://deckofcardsapi.com/) for providing the Deck of Cards API, which made this demonstration possible.**
