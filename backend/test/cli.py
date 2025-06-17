@@ -1,6 +1,7 @@
 import requests
 import json
 import readline # For better input experience
+from sseclient import SSEClient # For Server-Sent Events
 import sys
 import os
 import argparse
@@ -88,12 +89,67 @@ def send_message(conv_id: str, text: str):
     headers = {}
     if ID_TOKEN:
         headers["Authorization"] = f"Bearer {ID_TOKEN}"
+    
+    payload = {"text": text, "author": "user"}
+
     try:
-        payload = {"text": text, "author": "user"} # Assuming backend expects author
-        response = requests.post(f"{BASE_URL}/conversations/{conv_id}/messages", json=payload, headers=headers)
-        print_response(response)
+        # 1. Submit the message
+        print(f"Submitting message to conversation {conv_id}...")
+        submit_url = f"{BASE_URL}/conversations/{conv_id}/submit"
+        submit_response = requests.post(submit_url, json=payload, headers=headers)
+        print("Submit Response:")
+        print_response(submit_response)
+
+        if submit_response.status_code != 200: # Or whatever success code /submit returns, assuming 200 for now
+            print(f"Failed to submit message, status code: {submit_response.status_code}")
+            return
+
+        # 2. Stream the response
+        print(f"Streaming response from conversation {conv_id}...")
+        stream_url = f"{BASE_URL}/conversations/{conv_id}/stream"
+        
+        # SSEClient needs headers for authorization.
+        # The stream endpoint also expects the message content as query parameters.
+        stream_params = payload 
+        
+        try:
+            sse_headers = headers.copy() # Use the same auth headers
+            # sseclient-py typically handles 'Accept': 'text/event-stream'
+            
+            client = SSEClient(stream_url, params=stream_params, headers=sse_headers)
+            for event in client:
+                if not event.data: # Skip empty keep-alive messages if any
+                    continue
+                try:
+                    # Assuming event.data is a JSON string representing a Message like {"text": "...", "author": "..."}
+                    event_data_json = json.loads(event.data)
+                    if "text" in event_data_json:
+                        # Try to mimic the direct text output style from print_response
+                        print(f"Agent: {event_data_json['text']}")
+                    elif "type" in event_data_json and event_data_json["type"] == "ToolCall": # Example for other event types
+                        print(f"Tool Call: {event_data_json.get('name')}") # Adjust based on actual ToolCall structure
+                    elif "type" in event_data_json and event_data_json["type"] == "ToolResult": # Example for other event types
+                        print(f"Tool Result: {event_data_json.get('name')}") # Adjust based on actual ToolResult structure
+                    else:
+                        # If not the expected Message format, print raw JSON
+                        print(f"Stream data: {json.dumps(event_data_json, indent=2)}")
+                except json.JSONDecodeError:
+                    # If not JSON, print raw data
+                    print(f"Stream data: {event.data}")
+                except Exception as e_inner:
+                    print(f"Error processing stream event data: {e_inner}")
+                    print(f"Raw event data: {event.data}")
+            print("-" * 20) # End of streaming response
+        except requests.exceptions.RequestException as e_sse:
+            print(f"Error during streaming: {e_sse}")
+        except Exception as e_general:
+            print(f"An unexpected error occurred during streaming: {e_general}")
+
     except requests.exceptions.ConnectionError as e:
-        print(f"Error connecting to the server: {e}")
+        print(f"Error connecting to the server (submit phase): {e}")
+    except Exception as e_outer:
+        print(f"An unexpected error occurred (submit phase): {e_outer}")
+
 
 def get_conversation_history(conv_id: str):
     """Calls GET /conversations/{conversation_id}/history"""
