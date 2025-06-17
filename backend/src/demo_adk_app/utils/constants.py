@@ -8,6 +8,7 @@ class StateVariables():
     USER_ROLE = "user_role"
     GAME_ROOM_ID = "game_room_id"
     CURRENT_GAME = "current_game"
+    LAST_USER_MESSAGE = "_last_user_message"
 
 class GAME_DETAILS():
     GAME_ROOM_ID = StateVariables.GAME_ROOM_ID

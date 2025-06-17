@@ -1,7 +1,9 @@
+import asyncio
 import logging
 import time
 from typing import Dict
 import traceback
+from fastapi import Request
 
 from google.adk.agents import BaseAgent
 from google.adk.agents.run_config import RunConfig, StreamingMode
@@ -13,7 +15,7 @@ from google.genai import types # For ADK Content and Part objects
 from google.adk.events import Event, EventActions # Import Event for type hinting
 from demo_adk_app.utils.config import Config
 from demo_adk_app.utils.constants import StateVariables
-from demo_adk_app.api.models import Message
+from demo_adk_app.api.models import Message, StreamingEvent
 
 
 def log_event(event: Event) -> str:
@@ -180,3 +182,160 @@ class Runner:
         # If the agent returns structured output, it will be a JSON string.
         # This Runner class remains oblivious to that contract and passes it as is.
         return Message(text=full_response_text)
+
+    async def submit(self, user: Dict, session: AdkSession, msg: Message) -> StreamingEvent:
+        """
+        Submit a user message for processing with streaming.
+
+        Args:
+            user: The authenticated user's details from Firebase ID token.
+            session: The ADK session object for the current interaction.
+            msg: The user's message to the agent.
+
+        Returns:
+            A StreamingEvent object containing submission result.
+        """
+        state_changes = {
+                StateVariables.LAST_USER_MESSAGE: msg.text,
+            }
+        # make sure that session has user's details for tools to use
+        if not session.state.get(StateVariables.USER_DETAILS, None):
+            state_changes[StateVariables.USER_DETAILS] = user
+            state_changes[StateVariables.USER_ID] = user.get("uid", None)
+        actions_with_update = EventActions(state_delta=state_changes)
+        current_time = time.time()
+        system_event = Event(
+            invocation_id="last_user_message_submit",
+            author='system',
+            actions=actions_with_update,
+            timestamp=current_time
+        )
+        await self._session_service.append_event(
+            session=session,
+            event=system_event,
+        )
+        app_name_to_use = self._config.AGENT_ID if self._config.AGENT_ID else self._config.APP_NAME
+        session = await self._session_service.get_session(
+            app_name=app_name_to_use,
+            user_id=session.user_id,
+            session_id=session.id
+        )
+        return StreamingEvent(type="start", data=msg.text)
+
+    async def stream(self, user: Dict, session: AdkSession, request: Request):
+        """
+        Yields StreamingEvent from agents when processing latest user submitted message
+
+        Args:
+            user: The authenticated user's details from Firebase ID token.
+            session: The ADK session object for the current interaction.
+            request: The http request
+
+        Returns:
+            None (events are yielded while processing, no return at end of processing)
+        """
+        # fetch the last user submitted message from session state
+        last_usr_msg = session.state.get(StateVariables.LAST_USER_MESSAGE, None)
+        if not last_usr_msg:
+            logger.info("there is no last user message to process")
+            yield StreamingEvent(type="error", data="no user message for processing")
+            return
+
+        if not session.state.get(StateVariables.USER_DETAILS, None):
+            logger.error("last user message was submitted without user's details")
+            yield StreamingEvent(type="error", data="no user details for processing")
+            return
+
+        # clear last user message from session state
+        actions_with_update = EventActions(state_delta={
+                StateVariables.LAST_USER_MESSAGE: None,
+        })
+        current_time = time.time()
+        system_event = Event(
+            invocation_id="last_user_message_clear",
+            author='system',
+            actions=actions_with_update,
+            timestamp=current_time
+        )
+        await self._session_service.append_event(
+            session=session,
+            event=system_event,
+        )
+        app_name_to_use = self._config.AGENT_ID if self._config.AGENT_ID else self._config.APP_NAME
+        session = await self._session_service.get_session(
+            app_name=app_name_to_use,
+            user_id=session.user_id,
+            session_id=session.id
+        )
+
+        # Instantiate the ADK Runner
+        adk_runner = AdkRunner(
+            app_name=app_name_to_use,
+            agent=self._root_agent,
+            session_service=self._session_service,
+            memory_service=self._memory_service,
+            artifact_service=self._artifact_service,
+        )
+
+        # Prepare the user's message in ADK format
+        content = types.Content(role='user', parts=[types.Part(text=last_usr_msg)])
+
+        full_response_text = ""  # To accumulate all parts of the response
+
+        # Key Concept: run_async executes the agent logic and yields Events.
+        # We iterate through events to find the final answer.
+        try:
+            async for event in adk_runner.run_async(
+                user_id=session.user_id, session_id=session.id,
+                new_message=content,
+                run_config=RunConfig(streaming_mode=StreamingMode.SSE)
+            ):
+                # make sure that client is still connected
+                if await request.is_disconnected():
+                    logger.info("streaming client disconnected, closing connection")
+                    return
+                # # accumulate the full response text if needed
+                # if event.content and event.content.parts:
+                #     full_response_text += ''.join(part.text for part in event.content.parts if part.text)
+                if event.error_message:
+                    yield StreamingEvent(type="error", data=f"[Event] Author: {event.author}, Type: Error, Message: {event.error_message}").model_dump_json()
+                    full_response_text += f"\n[Event] Author: {event.author}, Type: Error, Message: {event.error_message}\n"
+
+                # You can uncomment the line below to see *all* events during execution
+                logger.info(log_event(event))
+
+                # Key Concept: is_final_response() marks the concluding message for the turn.
+                if event.is_final_response():
+                    #### in case of SSE / streaming, partial response is being collected
+                    # if event.content and event.content.parts:
+                    #     # full_response_text += "\n" + ''.join(part.text for part in event.content.parts if part.text)
+                    #     full_response_text = event.content.parts[0].text
+                    if event.actions and event.actions.escalate:  # Handle potential errors/escalations
+                        yield StreamingEvent(type="action", data=f"Agent escalated: {event.error_message or 'No specific message.'}").model_dump_json()
+                        full_response_text += f"\nAgent escalated: {event.error_message or 'No specific message.'}\n"
+                    #### in case of SSE, we just keep looping until run_async does EOF and loop ends itself
+                    #### no need to explicitly break the loop
+                    # if event.turn_complete:
+                    #     logger.info("Turn complete, returning response to user.")
+                    #     break  # Stop processing events once the final response is found
+                else:
+                    if event.partial and event.content and event.content.parts:
+                        text = ''.join(part.text for part in event.content.parts if part.text)
+                        yield StreamingEvent(type="message", data=text).model_dump_json()
+                        full_response_text += text
+                    elif event.actions and event.actions.transfer_to_agent:
+                        yield StreamingEvent(type="action", data=f"{event.author} transferring to {event.actions.transfer_to_agent}").model_dump_json()
+                        full_response_text += f"\n{event.author} transferring to {event.actions.transfer_to_agent} ...\n"
+                    elif event.get_function_calls():
+                        for function in event.get_function_calls():
+                            if function.name != "transfer_to_agent":
+                                yield StreamingEvent(type="action", data=f"{event.author} calling function: {function.name}").model_dump_json()
+                                full_response_text += f"\n{event.author} calling function: {function.name} ...\n" if function.name != "transfer_to_agent" else ""
+
+        except Exception as e:
+            logger.error(e)
+            logger.error(traceback.format_exc())
+            raise e
+
+        # The agent's final response is returned as a string.
+        yield StreamingEvent(type="end", data=full_response_text).model_dump_json()

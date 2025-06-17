@@ -15,6 +15,7 @@ dependencies = [
     "pydantic",
     "pydantic-settings",
     "fastapi",
+    "sse-starlette",
     "uvicorn",
     "google-cloud-storage",
     "google-cloud-aiplatform",
@@ -24,6 +25,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest~=8.2.0",
+    "sseclient-py",
     "httpx~=0.28.1", # For testing FastAPI endpoints
     "ruff~=0.4.0",   # Tools can be listed here, but often configured globally at root
     "mypy~=1.10.0",  # Tools can be listed here, but often configured globally at root

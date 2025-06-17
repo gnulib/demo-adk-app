@@ -1,6 +1,7 @@
 import requests
 import json
 import readline # For better input experience
+from sseclient import SSEClient # For Server-Sent Events
 import sys
 import os
 import argparse
@@ -88,12 +89,81 @@ def send_message(conv_id: str, text: str):
     headers = {}
     if ID_TOKEN:
         headers["Authorization"] = f"Bearer {ID_TOKEN}"
+    
+    payload = {"text": text, "author": "user"}
+
     try:
-        payload = {"text": text, "author": "user"} # Assuming backend expects author
-        response = requests.post(f"{BASE_URL}/conversations/{conv_id}/messages", json=payload, headers=headers)
-        print_response(response)
+        # 1. Submit the message
+        print(f"Submitting message to conversation {conv_id}...")
+        submit_url = f"{BASE_URL}/conversations/{conv_id}/submit"
+        submit_response = requests.post(submit_url, json=payload, headers=headers)
+        print("Submit Response:")
+        print_response(submit_response)
+
+        if submit_response.status_code != 200: # Or whatever success code /submit returns, assuming 200 for now
+            print(f"Failed to submit message, status code: {submit_response.status_code}")
+            return
+
+        # 2. Stream the response
+        print(f"Streaming response from conversation {conv_id}...")
+        stream_url = f"{BASE_URL}/conversations/{conv_id}/stream"
+        
+        # SSEClient needs headers for authorization.
+        # The stream endpoint also expects the message content as query parameters.
+        stream_params = payload 
+        
+        try:
+            sse_headers = headers.copy() # Use the same auth headers
+            # sseclient-py typically handles 'Accept': 'text/event-stream' automatically
+            # when initialized with a response object.
+            
+            # Make the GET request with stream=True
+            response_for_sse = requests.get(stream_url, headers=sse_headers, stream=True)
+            response_for_sse.raise_for_status() # Raise an exception for bad status codes
+
+            client = SSEClient(response_for_sse)
+            PREFIX="\n\n"
+            for event in client.events():
+                if not event.data: # Skip empty keep-alive messages if any
+                    continue
+                try:
+                    # Assuming event.data is a JSON string representing a Message like {"text": "...", "author": "..."}
+                    event_data_json = json.loads(event.data)
+                    if event_data_json["type"] == "message":
+                        print(event_data_json.get('data'), end="")
+                        PREFIX="\n\n"
+                    elif event_data_json["type"] == "error":
+                        print(f"{PREFIX}[ ERROR: {event_data_json.get('data')} ]\n")
+                        PREFIX=""
+                    elif event_data_json["type"] == "action":
+                        print(f"{PREFIX}[ ACTION: {event_data_json.get('data')} ]\n")
+                        PREFIX=""
+                    elif event_data_json["type"] == "end":
+                        print(f"\n<<<END>>>")
+                    else:
+                        # If not the expected Message format, print raw JSON
+                        print(f"{PREFIX}Stream data: {json.dumps(event_data_json, indent=2)}\n")
+                        PREFIX=""
+
+                except json.JSONDecodeError:
+                    # If not JSON, print raw data
+                    print(f"{PREFIX}Stream data: {event.data}")
+                    PREFIX=""
+                except Exception as e_inner:
+                    print(f"{PREFIX}Error processing stream event data: {e_inner}\n")
+                    print(f"Raw event data: {event.data}\n")
+                    PREFIX=""
+            print("-" * 20) # End of streaming response
+        except requests.exceptions.RequestException as e_sse:
+            print(f"Error during streaming: {e_sse}")
+        except Exception as e_general:
+            print(f"An unexpected error occurred during streaming: {e_general}")
+
     except requests.exceptions.ConnectionError as e:
-        print(f"Error connecting to the server: {e}")
+        print(f"Error connecting to the server (submit phase): {e}")
+    except Exception as e_outer:
+        print(f"An unexpected error occurred (submit phase): {e_outer}")
+
 
 def get_conversation_history(conv_id: str):
     """Calls GET /conversations/{conversation_id}/history"""
