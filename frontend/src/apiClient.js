@@ -1,4 +1,5 @@
 import { auth } from './firebase'; // To get the ID token
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 const rawBaseUrl = process.env.REACT_APP_BACKEND_URL || '';
 // Strip any inline comments starting with '#' and then trim whitespace
@@ -85,55 +86,103 @@ export const apiClient = {
     return makeRequest(`/conversations/${conversationId}/submit`, 'POST', messageRequest);
   },
 
-  streamConversationEvents: async (conversationId, messagePayload, { onEvent, onError, onOpen, onClose }) => {
+  streamConversationEvents: async (
+    conversationId,
+    messagePayload, // {text: "...", author: "..."}
+    { onEvent, onError, onOpen, onClose, abortSignal } // abortSignal is from AbortController
+  ) => {
     const token = await getIdToken();
     if (!token) {
       if (onError) onError(new Error("Authentication token not available."));
-      return null; // Return null if no token, so caller knows not to proceed.
+      // No EventSource object to return, so App.js needs to handle this possibility
+      return; 
     }
 
-    // messagePayload is {text: "...", author: "..."}
-    const queryParams = new URLSearchParams({
-      ...messagePayload, 
-      token: token, // Pass token as query param - backend /stream needs to support this
-    });
+    // messagePayload (text, author) is still sent as query parameters
+    const queryParams = new URLSearchParams(messagePayload);
     const url = `${BASE_URL}/conversations/${conversationId}/stream?${queryParams.toString()}`;
 
-    const eventSource = new EventSource(url);
-
-    eventSource.onopen = (event) => {
-      console.log("SSE connection opened for conversation events:", event);
-      if (onOpen) onOpen(event);
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      // 'Accept': 'text/event-stream', // fetchEventSource adds this by default
     };
 
-    eventSource.onmessage = (event) => {
-      try {
-        const parsedData = JSON.parse(event.data);
-        // parsedData is expected to be like: { type: "message" | "action" | "error" | "end", data: any }
-        if (onEvent) onEvent(parsedData);
+    try {
+      await fetchEventSource(url, {
+        method: 'GET',
+        headers,
+        signal: abortSignal, // For aborting the request
+        openWhenHidden: false, // Don't keep connection open if tab is not visible
 
-        if (parsedData.type === "end") {
-          console.log("SSE stream indicated end by server.");
-          if (onClose) onClose(); // Notify App.js that the stream has naturally ended
-          eventSource.close(); 
-        }
-      } catch (e) {
-        console.error("Error parsing SSE event data:", e, "Raw data:", event.data);
-        if (onError) onError(new Error(`Error parsing SSE event data: ${e.message}. Raw: ${event.data.substring(0,100)}`));
-        // Don't close eventSource here for a single bad message, unless it's a policy.
-        // The main eventSource.onerror will handle connection-level errors.
-      }
-    };
+        onopen: async (response) => {
+          if (response.ok) {
+            console.log("SSE connection opened with fetchEventSource:", response);
+            if (onOpen) onOpen(response);
+          } else {
+            // Handle non-2xx responses before streaming starts
+            const errorText = await response.text();
+            console.error(`SSE connection failed to open: ${response.status}`, errorText);
+            if (onError) onError(new Error(`SSE connection failed: ${response.status} ${errorText.substring(0,100)}`));
+            // fetchEventSource will not proceed if onopen throws or response is not ok
+            // and it doesn't call onclose/onerror in this specific path.
+            // So, we also need to call onClose here to ensure App.js cleans up.
+            if (onClose) onClose();
+            throw new Error(`Server error ${response.status}: ${errorText}`); // This will be caught by the outer try/catch
+          }
+        },
 
-    eventSource.onerror = (errorEvent) => {
-      // This handles network errors or if the server closes the connection abruptly without "end" event.
-      console.error("SSE connection error:", errorEvent);
-      if (onError) onError(new Error("SSE connection failed.")); // Pass a generic error or the event itself
-      eventSource.close(); // Close on error
-      if (onClose) onClose(); // Also notify App.js that the stream is now closed
-    };
+        onmessage: (event) => { // event is an EventSourceMessage
+          try {
+            // event.event is the event name (e.g., 'message', 'update')
+            // event.data is the data string
+            // event.id is the event ID
+            // event.retry is the retry timeout
+            if (!event.data) return; // Skip empty keep-alive messages if any
 
-    return eventSource; // Return for manual close if needed (e.g., component unmount, new message send)
+            const parsedData = JSON.parse(event.data);
+            // parsedData is expected to be like: { type: "message" | "action" | "error" | "end", data: any }
+            if (onEvent) onEvent(parsedData);
+
+            if (parsedData.type === "end") {
+              console.log("SSE stream indicated end by server (via fetchEventSource).");
+              // No need to manually close, fetchEventSource handles it.
+              // The onclose callback will be triggered.
+            }
+          } catch (e) {
+            console.error("Error parsing SSE event data (fetchEventSource):", e, "Raw data:", event.data);
+            if (onError) onError(new Error(`Error parsing SSE event data: ${e.message}. Raw: ${event.data.substring(0,100)}`));
+          }
+        },
+
+        onclose: () => {
+          // This is called when the connection is closed, either by the server,
+          // by abortSignal, or if openWhenHidden is false and tab becomes hidden.
+          console.log("SSE connection closed (fetchEventSource).");
+          if (onClose) onClose();
+        },
+
+        onerror: (err) => {
+          // This is called for network errors or other fatal errors during the connection.
+          // It will also be called if onopen throws.
+          console.error("SSE connection error (fetchEventSource):", err);
+          if (onError) onError(err instanceof Error ? err : new Error("SSE connection failed."));
+          // fetchEventSource will automatically retry on certain errors unless err.eventPhase is EventSource.CLOSED
+          // or if the error is rethrown from here. If we want to stop retries, we should throw.
+          // For simplicity, we let it retry if it can, but App.js's onError will have been called.
+          // If the error is from onopen (non-2xx), we've already called onClose.
+          // If it's a different error, onClose will be called by the onclose callback eventually.
+          // Throwing the error here will stop retries and cause the promise from fetchEventSource to reject.
+          throw err; 
+        },
+      });
+    } catch (err) {
+      // This catches errors from fetchEventSource if it fails to connect or if onerror rethrows.
+      console.error("fetchEventSource promise rejected or setup failed:", err);
+      // Ensure onError and onClose are called if not already by the callbacks
+      // This is a fallback.
+      if (onError) onError(err instanceof Error ? err : new Error("SSE stream setup failed"));
+      if (onClose) onClose();
+    }
   },
 
   getConversationHistory: async (conversationId) => {
