@@ -79,12 +79,61 @@ export const apiClient = {
     return makeRequest('/conversations', 'GET');
   },
 
-  sendMessage: async (conversationId, messageRequest) => {
+  // Renamed from sendMessage and now calls the /submit endpoint
+  submitMessage: async (conversationId, messageRequest) => {
     // messageRequest should be an object like { text: "Hello", author: "user" }
-    // The backend expects a Message model, which includes `text` and `author`.
-    // Ensure the message_request structure matches the backend's Message model.
-    // For example: { "text": "Hello there!", "author": "user" }
-    return makeRequest(`/conversations/${conversationId}/messages`, 'POST', messageRequest);
+    return makeRequest(`/conversations/${conversationId}/submit`, 'POST', messageRequest);
+  },
+
+  streamConversationEvents: async (conversationId, messagePayload, { onEvent, onError, onOpen, onClose }) => {
+    const token = await getIdToken();
+    if (!token) {
+      if (onError) onError(new Error("Authentication token not available."));
+      return null; // Return null if no token, so caller knows not to proceed.
+    }
+
+    // messagePayload is {text: "...", author: "..."}
+    const queryParams = new URLSearchParams({
+      ...messagePayload, 
+      token: token, // Pass token as query param - backend /stream needs to support this
+    });
+    const url = `${BASE_URL}/conversations/${conversationId}/stream?${queryParams.toString()}`;
+
+    const eventSource = new EventSource(url);
+
+    eventSource.onopen = (event) => {
+      console.log("SSE connection opened for conversation events:", event);
+      if (onOpen) onOpen(event);
+    };
+
+    eventSource.onmessage = (event) => {
+      try {
+        const parsedData = JSON.parse(event.data);
+        // parsedData is expected to be like: { type: "message" | "action" | "error" | "end", data: any }
+        if (onEvent) onEvent(parsedData);
+
+        if (parsedData.type === "end") {
+          console.log("SSE stream indicated end by server.");
+          if (onClose) onClose(); // Notify App.js that the stream has naturally ended
+          eventSource.close(); 
+        }
+      } catch (e) {
+        console.error("Error parsing SSE event data:", e, "Raw data:", event.data);
+        if (onError) onError(new Error(`Error parsing SSE event data: ${e.message}. Raw: ${event.data.substring(0,100)}`));
+        // Don't close eventSource here for a single bad message, unless it's a policy.
+        // The main eventSource.onerror will handle connection-level errors.
+      }
+    };
+
+    eventSource.onerror = (errorEvent) => {
+      // This handles network errors or if the server closes the connection abruptly without "end" event.
+      console.error("SSE connection error:", errorEvent);
+      if (onError) onError(new Error("SSE connection failed.")); // Pass a generic error or the event itself
+      eventSource.close(); // Close on error
+      if (onClose) onClose(); // Also notify App.js that the stream is now closed
+    };
+
+    return eventSource; // Return for manual close if needed (e.g., component unmount, new message send)
   },
 
   getConversationHistory: async (conversationId) => {

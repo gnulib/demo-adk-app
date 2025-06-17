@@ -20,6 +20,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [appError, setAppError] = useState(''); // To distinguish from LandingPage error
 
+  const [currentEventSource, setCurrentEventSource] = useState(null); // For managing SSE connection
+
   const messagesEndRef = useRef(null); // For auto-scrolling
   const messageInputRef = useRef(null); // For focusing message input
 
@@ -57,6 +59,17 @@ function App() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Effect to clean up EventSource when component unmounts or conversation changes
+  useEffect(() => {
+    return () => {
+      if (currentEventSource) {
+        console.log("Cleaning up EventSource due to component unmount or conversation change.");
+        currentEventSource.close();
+        setCurrentEventSource(null);
+      }
+    };
+  }, [currentEventSource, currentConversationId]); // Add currentConversationId to re-evaluate if it changes
 
   // Effect to focus message input after agent response
   useEffect(() => {
@@ -175,29 +188,130 @@ function App() {
     setIsLoading(true); // Indicate agent is "thinking"
     setAppError('');
 
-    try {
-      // The backend expects a Message model: { text: string, author: string }
-      const agentResponse = await apiClient.sendMessage(currentConversationId, { text: userMessage.text, author: 'user' });
-      // The agentResponse should also be a Message model from the backend
-      // We map it to our UI's message structure
-      const formattedAgentMessage = {
-        id: agentResponse.id || `agent-${Date.now()}`, // Use ID from response or generate
-        text: agentResponse.text,
-        author: 'agent',
-        timestamp: agentResponse.timestamp || new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, formattedAgentMessage]);
-    } catch (error) {
-      console.error("Failed to send message or get agent response:", error);
-      setAppError(error.message || 'Failed to get response from agent.');
-      // Optionally remove the user's message or add an error message to the chat
-      setMessages(prev => [...prev, { id: `err-${Date.now()}`, text: `Error: ${error.message || 'Agent failed to respond.'}`, author: 'system', timestamp: new Date().toISOString() }]);
-    } finally {
-      setIsLoading(false);
+    // Close any existing event source before starting a new one
+    if (currentEventSource) {
+      console.log("Closing previous EventSource before sending new message.");
+      currentEventSource.close();
+      setCurrentEventSource(null);
     }
+
+    let agentMessageId = `agent-${Date.now()}`; // ID for the agent's entire response for this turn
+    let isAgentMessageInitialized = false;
+
+    try {
+      const submitPayload = { text: userMessage.text, author: 'user' };
+      // 1. Submit the message
+      const submitEvent = await apiClient.submitMessage(currentConversationId, submitPayload);
+      console.log("Submit response event:", submitEvent);
+
+      if (submitEvent && submitEvent.type === "error") {
+        throw new Error(submitEvent.data || "Failed to submit message (server error)");
+      }
+      // If submitEvent.type is "info" or something else positive, proceed.
+
+      // 2. Stream events
+      const es = await apiClient.streamConversationEvents(
+        currentConversationId,
+        submitPayload, // Pass the same payload (text, author) to stream endpoint
+        {
+          onOpen: () => {
+            console.log("SSE connection established by App.js.");
+          },
+          onEvent: (eventData) => {
+            // eventData is { type: "message" | "action" | "error" | "end", data: any }
+            if (eventData.type === "message") {
+              if (!isAgentMessageInitialized) {
+                setMessages(prev => [
+                  ...prev,
+                  {
+                    id: agentMessageId,
+                    text: eventData.data, // Start with the first chunk
+                    author: 'agent',
+                    timestamp: new Date().toISOString(),
+                  },
+                ]);
+                isAgentMessageInitialized = true;
+              } else {
+                setMessages(prev =>
+                  prev.map(msg =>
+                    msg.id === agentMessageId
+                      ? { ...msg, text: msg.text + eventData.data, timestamp: new Date().toISOString() }
+                      : msg
+                  )
+                );
+              }
+            } else if (eventData.type === "action") {
+              setMessages(prev => [
+                ...prev,
+                {
+                  id: `action-${Date.now()}`,
+                  text: `[ACTION: ${typeof eventData.data === 'string' ? eventData.data : JSON.stringify(eventData.data)}]`,
+                  author: 'system', // Or 'agent-action'
+                  timestamp: new Date().toISOString(),
+                },
+              ]);
+              isAgentMessageInitialized = false; // Reset for a potential new agent message after an action
+              agentMessageId = `agent-${Date.now()}`; // New ID for next agent message
+            } else if (eventData.type === "error") { // Application-level error from stream
+              const errorText = `Agent error: ${typeof eventData.data === 'string' ? eventData.data : JSON.stringify(eventData.data)}`;
+              setAppError(errorText);
+              setMessages(prev => [
+                ...prev,
+                {
+                  id: `err-agent-stream-${Date.now()}`,
+                  text: `[STREAM ERROR: ${errorText}]`,
+                  author: 'system',
+                  timestamp: new Date().toISOString(),
+                },
+              ]);
+              setIsLoading(false); // Stop loading on agent error from stream.
+              isAgentMessageInitialized = false;
+            }
+            // "end" event is handled by streamConversationEvents to close the source and call onClose.
+          },
+          onError: (error) => { // This is for SSE connection errors
+            console.error("SSE stream connection error reported to App.js:", error);
+            setAppError(`Streaming connection error: ${error.message || 'Unknown error'}`);
+            setIsLoading(false);
+            setCurrentEventSource(null); // Ensure EventSource state is cleared
+            isAgentMessageInitialized = false;
+          },
+          onClose: () => { // Called when EventSource is closed (by "end" from server or by error handler)
+            console.log("SSE connection closed, reported to App.js.");
+            setIsLoading(false);
+            setCurrentEventSource(null); // Ensure EventSource state is cleared
+            // isAgentMessageInitialized state persists until next message send.
+          }
+        }
+      );
+      
+      if (es) {
+        setCurrentEventSource(es);
+      } else {
+        // If es is null (e.g., no token), apiClient would have called onError.
+        // Ensure loading is false if we didn't even start streaming.
+        setIsLoading(false);
+      }
+
+    } catch (error) { // This catches errors from submitMessage or if streamConversationEvents setup fails
+      console.error("Failed to send message or establish stream:", error);
+      setAppError(error.message || 'Failed to communicate with agent.');
+      setMessages(prev => [...prev, { id: `err-submit-${Date.now()}`, text: `Error: ${error.message || 'Agent failed to respond.'}`, author: 'system', timestamp: new Date().toISOString() }]);
+      setIsLoading(false);
+      if (currentEventSource) { // Should be null if error was before es assignment
+        currentEventSource.close();
+        setCurrentEventSource(null);
+      }
+    }
+    // setIsLoading(false) is now primarily handled by the onClose/onError callbacks of the stream, or in catch blocks.
   };
 
   const handleGoBackToConversations = () => {
+    if (currentEventSource) {
+      console.log("Closing EventSource due to going back to conversations list.");
+      currentEventSource.close();
+      setCurrentEventSource(null);
+    }
     setCurrentConversationId(null);
     setMessages([]);
     setAppError(''); // Clear errors when going back
