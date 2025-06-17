@@ -5,6 +5,8 @@ class StateVariables():
     GAME_DETAILS = "game_details"
     USER_DETAILS = "user_details"
     USER_ID = "user_id"
+    USER_BET = "user_bet"
+    USER_PURSE = "user_purse"
     USER_ROLE = "user_role"
     GAME_ROOM_ID = "game_room_id"
     CURRENT_GAME = "current_game"
