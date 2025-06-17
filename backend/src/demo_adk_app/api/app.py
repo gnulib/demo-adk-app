@@ -179,7 +179,6 @@ def get_fast_api_app(
         @_app.get("/conversations/{conversation_id}/stream")
         async def stream_messages(
             request: Request, 
-            message_request: Message,
             user: Annotated[Dict, Depends(get_authenticated_user)],
             adk_session: Annotated[AdkSession, Depends(get_authorized_session)] # Injects authorized session
         ):
@@ -188,7 +187,7 @@ def get_fast_api_app(
             User authorization for the conversation is handled by get_authorized_session.
             """
             app_runner: Runner = request.app.state.runner
-            return EventSourceResponse(app_runner.stream(user=user, session=adk_session, msg=message_request))
+            return EventSourceResponse(app_runner.stream(user=user, session=adk_session, request=request))
 
         @_app.get("/conversations/{conversation_id}/history", response_model=List[Event])
         async def get_conversation_history(

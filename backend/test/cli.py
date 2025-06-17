@@ -118,32 +118,41 @@ def send_message(conv_id: str, text: str):
             # when initialized with a response object.
             
             # Make the GET request with stream=True
-            response_for_sse = requests.get(stream_url, params=stream_params, headers=sse_headers, stream=True)
+            response_for_sse = requests.get(stream_url, headers=sse_headers, stream=True)
             response_for_sse.raise_for_status() # Raise an exception for bad status codes
 
             client = SSEClient(response_for_sse)
-            for event in client:
+            PREFIX="\n\n"
+            for event in client.events():
                 if not event.data: # Skip empty keep-alive messages if any
                     continue
                 try:
                     # Assuming event.data is a JSON string representing a Message like {"text": "...", "author": "..."}
                     event_data_json = json.loads(event.data)
-                    if "text" in event_data_json:
-                        # Try to mimic the direct text output style from print_response
-                        print(f"Agent: {event_data_json['text']}")
-                    elif "type" in event_data_json and event_data_json["type"] == "ToolCall": # Example for other event types
-                        print(f"Tool Call: {event_data_json.get('name')}") # Adjust based on actual ToolCall structure
-                    elif "type" in event_data_json and event_data_json["type"] == "ToolResult": # Example for other event types
-                        print(f"Tool Result: {event_data_json.get('name')}") # Adjust based on actual ToolResult structure
+                    if event_data_json["type"] == "message":
+                        print(event_data_json.get('data'), end="")
+                        PREFIX="\n\n"
+                    elif event_data_json["type"] == "error":
+                        print(f"{PREFIX}[ ERROR: {event_data_json.get('data')} ]\n")
+                        PREFIX=""
+                    elif event_data_json["type"] == "action":
+                        print(f"{PREFIX}[ ACTION: {event_data_json.get('data')} ]\n")
+                        PREFIX=""
+                    elif event_data_json["type"] == "end":
+                        print(f"\n<<<END>>>")
                     else:
                         # If not the expected Message format, print raw JSON
-                        print(f"Stream data: {json.dumps(event_data_json, indent=2)}")
+                        print(f"{PREFIX}Stream data: {json.dumps(event_data_json, indent=2)}\n")
+                        PREFIX=""
+
                 except json.JSONDecodeError:
                     # If not JSON, print raw data
-                    print(f"Stream data: {event.data}")
+                    print(f"{PREFIX}Stream data: {event.data}")
+                    PREFIX=""
                 except Exception as e_inner:
-                    print(f"Error processing stream event data: {e_inner}")
-                    print(f"Raw event data: {event.data}")
+                    print(f"{PREFIX}Error processing stream event data: {e_inner}\n")
+                    print(f"Raw event data: {event.data}\n")
+                    PREFIX=""
             print("-" * 20) # End of streaming response
         except requests.exceptions.RequestException as e_sse:
             print(f"Error during streaming: {e_sse}")

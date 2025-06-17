@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import time
 from typing import Dict
@@ -195,7 +196,7 @@ class Runner:
             A StreamingEvent object containing submission result.
         """
         state_changes = {
-                StateVariables.LAST_USER_MESSAGE: msg,
+                StateVariables.LAST_USER_MESSAGE: msg.text,
             }
         # make sure that session has user's details for tools to use
         if not session.state.get(StateVariables.USER_DETAILS, None):
@@ -219,17 +220,16 @@ class Runner:
             user_id=session.user_id,
             session_id=session.id
         )
-        logger.info(f"Updated session {session.id} with state: {session.state}")
-        return StreamingEvent(type="start", data=msg)
+        return StreamingEvent(type="start", data=msg.text)
 
-    async def stream(self, user: Dict, session: AdkSession, msg: Message, request: Request):
+    async def stream(self, user: Dict, session: AdkSession, request: Request):
         """
         Yields StreamingEvent from agents when processing latest user submitted message
 
         Args:
             user: The authenticated user's details from Firebase ID token.
             session: The ADK session object for the current interaction.
-            msg: The user's message to the agent.
+            request: The http request
 
         Returns:
             None (events are yielded while processing, no return at end of processing)
@@ -240,6 +240,7 @@ class Runner:
             logger.info("there is no last user message to process")
             yield StreamingEvent(type="error", data="no user message for processing")
             return
+
         if not session.state.get(StateVariables.USER_DETAILS, None):
             logger.error("last user message was submitted without user's details")
             yield StreamingEvent(type="error", data="no user details for processing")
@@ -247,7 +248,7 @@ class Runner:
 
         # clear last user message from session state
         actions_with_update = EventActions(state_delta={
-                StateVariables.LAST_USER_MESSAGE: msg,
+                StateVariables.LAST_USER_MESSAGE: None,
         })
         current_time = time.time()
         system_event = Event(
@@ -266,7 +267,6 @@ class Runner:
             user_id=session.user_id,
             session_id=session.id
         )
-        logger.info(f"Updated session {session.id} with state: {session.state}")
 
         # Instantiate the ADK Runner
         adk_runner = AdkRunner(
@@ -278,7 +278,7 @@ class Runner:
         )
 
         # Prepare the user's message in ADK format
-        content = types.Content(role='user', parts=[types.Part(text=msg.text)])
+        content = types.Content(role='user', parts=[types.Part(text=last_usr_msg)])
 
         full_response_text = ""  # To accumulate all parts of the response
 
@@ -298,7 +298,7 @@ class Runner:
                 # if event.content and event.content.parts:
                 #     full_response_text += ''.join(part.text for part in event.content.parts if part.text)
                 if event.error_message:
-                    yield StreamingEvent(type="error", data=f"[Event] Author: {event.author}, Type: Error, Message: {event.error_message}")
+                    yield StreamingEvent(type="error", data=f"[Event] Author: {event.author}, Type: Error, Message: {event.error_message}").model_dump_json()
                     full_response_text += f"\n[Event] Author: {event.author}, Type: Error, Message: {event.error_message}\n"
 
                 # You can uncomment the line below to see *all* events during execution
@@ -311,7 +311,7 @@ class Runner:
                     #     # full_response_text += "\n" + ''.join(part.text for part in event.content.parts if part.text)
                     #     full_response_text = event.content.parts[0].text
                     if event.actions and event.actions.escalate:  # Handle potential errors/escalations
-                        yield StreamingEvent(type="action", data=f"Agent escalated: {event.error_message or 'No specific message.'}")
+                        yield StreamingEvent(type="action", data=f"Agent escalated: {event.error_message or 'No specific message.'}").model_dump_json()
                         full_response_text += f"\nAgent escalated: {event.error_message or 'No specific message.'}\n"
                     #### in case of SSE, we just keep looping until run_async does EOF and loop ends itself
                     #### no need to explicitly break the loop
@@ -321,15 +321,16 @@ class Runner:
                 else:
                     if event.partial and event.content and event.content.parts:
                         text = ''.join(part.text for part in event.content.parts if part.text)
-                        yield StreamingEvent(type="message", data=text)
+                        yield StreamingEvent(type="message", data=text).model_dump_json()
                         full_response_text += text
                     elif event.actions and event.actions.transfer_to_agent:
-                        yield StreamingEvent(type="action", data=f"{event.author} transferring to {event.actions.transfer_to_agent} ...")
+                        yield StreamingEvent(type="action", data=f"{event.author} transferring to {event.actions.transfer_to_agent}").model_dump_json()
                         full_response_text += f"\n{event.author} transferring to {event.actions.transfer_to_agent} ...\n"
                     elif event.get_function_calls():
                         for function in event.get_function_calls():
-                            yield StreamingEvent(type="action", data=f"{event.author} calling function: {function.name} ..." if function.name != "transfer_to_agent" else "")
-                            full_response_text += f"\n{event.author} calling function: {function.name} ...\n" if function.name != "transfer_to_agent" else ""
+                            if function.name != "transfer_to_agent":
+                                yield StreamingEvent(type="action", data=f"{event.author} calling function: {function.name}").model_dump_json()
+                                full_response_text += f"\n{event.author} calling function: {function.name} ...\n" if function.name != "transfer_to_agent" else ""
 
         except Exception as e:
             logger.error(e)
@@ -337,6 +338,4 @@ class Runner:
             raise e
 
         # The agent's final response is returned as a string.
-        yield StreamingEvent(type="end", data=full_response_text)
-
-        return
+        yield StreamingEvent(type="end", data=full_response_text).model_dump_json()
