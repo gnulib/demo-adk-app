@@ -20,6 +20,9 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [appError, setAppError] = useState(''); // To distinguish from LandingPage error
 
+  // Use a ref for the AbortController to avoid re-renders when it changes
+  const abortControllerRef = useRef(null); 
+
   const messagesEndRef = useRef(null); // For auto-scrolling
   const messageInputRef = useRef(null); // For focusing message input
 
@@ -57,6 +60,17 @@ function App() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Effect to clean up AbortController when component unmounts or conversation changes
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        console.log("Aborting SSE stream due to component unmount or conversation change.");
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+    };
+  }, [currentConversationId]); // Re-run if conversationId changes, to clean up old stream
 
   // Effect to focus message input after agent response
   useEffect(() => {
@@ -175,29 +189,135 @@ function App() {
     setIsLoading(true); // Indicate agent is "thinking"
     setAppError('');
 
-    try {
-      // The backend expects a Message model: { text: string, author: string }
-      const agentResponse = await apiClient.sendMessage(currentConversationId, { text: userMessage.text, author: 'user' });
-      // The agentResponse should also be a Message model from the backend
-      // We map it to our UI's message structure
-      const formattedAgentMessage = {
-        id: agentResponse.id || `agent-${Date.now()}`, // Use ID from response or generate
-        text: agentResponse.text,
-        author: 'agent',
-        timestamp: agentResponse.timestamp || new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, formattedAgentMessage]);
-    } catch (error) {
-      console.error("Failed to send message or get agent response:", error);
-      setAppError(error.message || 'Failed to get response from agent.');
-      // Optionally remove the user's message or add an error message to the chat
-      setMessages(prev => [...prev, { id: `err-${Date.now()}`, text: `Error: ${error.message || 'Agent failed to respond.'}`, author: 'system', timestamp: new Date().toISOString() }]);
-    } finally {
-      setIsLoading(false);
+    // If there's an existing AbortController, abort the previous stream
+    if (abortControllerRef.current) {
+      console.log("Aborting previous SSE stream before sending new message.");
+      abortControllerRef.current.abort();
     }
+
+    // Create a new AbortController for the current request
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+
+    let agentMessageId = `agent-${Date.now()}`; // ID for the agent's entire response for this turn
+    let isAgentMessageInitialized = false;
+
+    try {
+      const submitPayload = { text: userMessage.text, author: 'user' };
+      // 1. Submit the message
+      const submitEvent = await apiClient.submitMessage(currentConversationId, submitPayload);
+      console.log("Submit response event:", submitEvent);
+
+      if (submitEvent && submitEvent.type === "error") {
+        throw new Error(submitEvent.data || "Failed to submit message (server error)");
+      }
+      // If submitEvent.type is "info" or something else positive, proceed.
+
+      // 2. Stream events
+      // apiClient.streamConversationEvents is now async but doesn't return the EventSource object directly.
+      // It manages the connection internally.
+      await apiClient.streamConversationEvents(
+        currentConversationId,
+        {
+          onOpen: () => {
+            console.log("SSE connection established by App.js (via fetchEventSource).");
+          },
+          onEvent: (eventData) => {
+            // eventData is { type: "message" | "action" | "error" | "end", data: any }
+            if (eventData.type === "message") {
+              if (!isAgentMessageInitialized) {
+                setMessages(prev => [
+                  ...prev,
+                  {
+                    id: agentMessageId,
+                    text: eventData.data, // Start with the first chunk
+                    author: 'agent',
+                    timestamp: new Date().toISOString(),
+                  },
+                ]);
+                isAgentMessageInitialized = true;
+              } else {
+                setMessages(prev =>
+                  prev.map(msg =>
+                    msg.id === agentMessageId
+                      ? { ...msg, text: msg.text + eventData.data, timestamp: new Date().toISOString() }
+                      : msg
+                  )
+                );
+              }
+            } else if (eventData.type === "action") {
+              setMessages(prev => [
+                ...prev,
+                {
+                  id: `action-${Date.now()}`,
+                  text: `[ACTION: ${typeof eventData.data === 'string' ? eventData.data : JSON.stringify(eventData.data)}]`,
+                  author: 'system', // Or 'agent-action'
+                  timestamp: new Date().toISOString(),
+                },
+              ]);
+              isAgentMessageInitialized = false; // Reset for a potential new agent message after an action
+              agentMessageId = `agent-${Date.now()}`; // New ID for next agent message
+            } else if (eventData.type === "error") { // Application-level error from stream
+              const errorText = `Agent error: ${typeof eventData.data === 'string' ? eventData.data : JSON.stringify(eventData.data)}`;
+              setAppError(errorText);
+              setMessages(prev => [
+                ...prev,
+                {
+                  id: `err-agent-stream-${Date.now()}`,
+                  text: `[STREAM ERROR: ${errorText}]`,
+                  author: 'system',
+                  timestamp: new Date().toISOString(),
+                },
+              ]);
+              setIsLoading(false); // Stop loading on agent error from stream.
+              isAgentMessageInitialized = false;
+            }
+            // "end" event is handled by streamConversationEvents to close the source and call onClose.
+          },
+          onError: (error) => { // This is for SSE connection errors
+            console.error("SSE stream connection error reported to App.js:", error);
+            setAppError(`Streaming connection error: ${error.message || 'Unknown error'}`);
+            setIsLoading(false);
+            // No EventSource state to clear here. AbortController might be aborted by fetchEventSource itself on error.
+            if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+                // If the error didn't come from an abort, and the controller is still active,
+                // it might be good to abort it, though fetchEventSource's onerror should handle closure.
+            }
+            abortControllerRef.current = null; // Clear ref if connection truly failed/closed
+            isAgentMessageInitialized = false;
+          },
+          onClose: () => { // Called when EventSource is closed
+            console.log("SSE connection closed, reported to App.js (via fetchEventSource).");
+            setIsLoading(false);
+            abortControllerRef.current = null; // Clear ref as connection is closed
+            // isAgentMessageInitialized state persists until next message send.
+          },
+          abortSignal: signal // Pass the signal here
+        }
+      );
+      // No 'es' object is returned to set in state anymore.
+      // If apiClient.streamConversationEvents itself throws (e.g., token issue before fetchEventSource call),
+      // it will be caught by the outer catch block.
+
+    } catch (error) { // This catches errors from submitMessage or if streamConversationEvents setup fails (e.g. no token)
+      console.error("Failed to send message or establish stream:", error);
+      setAppError(error.message || 'Failed to communicate with agent.');
+      setMessages(prev => [...prev, { id: `err-submit-${Date.now()}`, text: `Error: ${error.message || 'Agent failed to respond.'}`, author: 'system', timestamp: new Date().toISOString() }]);
+      setIsLoading(false);
+      if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+        abortControllerRef.current.abort(); // Abort if an error occurred during setup
+      }
+      abortControllerRef.current = null;
+    }
+    // setIsLoading(false) is now primarily handled by the onClose/onError callbacks of the stream, or in catch blocks.
   };
 
   const handleGoBackToConversations = () => {
+    if (abortControllerRef.current) {
+      console.log("Aborting SSE stream due to going back to conversations list.");
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
     setCurrentConversationId(null);
     setMessages([]);
     setAppError(''); // Clear errors when going back
