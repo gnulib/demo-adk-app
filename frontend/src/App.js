@@ -326,12 +326,19 @@ function App() {
   // --- Render Logic ---
   return (
     <div className="App bg-gray-100 min-h-screen flex flex-col">
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
+
       {/* Main Content Area */}
       <div className="flex-grow w-full max-w-4xl mx-auto p-4 md:p-8 space-y-6 bg-white rounded-lg shadow-xl my-8">
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Demo ADK App</h1>
 
         {appError && <p className="text-sm text-red-600 text-center bg-red-100 p-3 rounded-md">{appError}</p>}
-        {isLoading && <p className="text-sm text-blue-600 text-center">Loading...</p>}
+        {/* The isLoading text indicator is now replaced by the overlay */}
 
         {!currentConversationId ? (
           // "Outside" Conversation Experience
