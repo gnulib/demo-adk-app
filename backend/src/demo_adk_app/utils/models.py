@@ -14,4 +14,6 @@ class GameRoom(BaseModel):
     bets: Dict[str, int] = Field({}, description="player bets with player_id as key and their bet as value")
     dealer_score: int = Field(0, description="dealer's score")
     dealer_cards: List[Any] = Field([], description="dealer's cards")
+    hole_card_revealed: bool = Field(False, description="flag to track if dealer's hole card has been revealed")
     player_scores: Dict[str, int] = Field({}, description="player scores with player_id as key and their score as value")
+    player_hand_status: Dict[str, str] = Field({}, description="player hand status")

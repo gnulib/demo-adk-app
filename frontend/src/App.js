@@ -331,7 +331,7 @@ function App() {
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Demo ADK App</h1>
 
         {appError && <p className="text-sm text-red-600 text-center bg-red-100 p-3 rounded-md">{appError}</p>}
-        {isLoading && <p className="text-sm text-blue-600 text-center">Loading...</p>}
+        {/* The isLoading text indicator is now replaced by the overlay */}
 
         {!currentConversationId ? (
           // "Outside" Conversation Experience
@@ -344,35 +344,40 @@ function App() {
             >
               Create New Conversation
             </button>
-            {conversations.length === 0 && !isLoading && (
+            {isLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="input-spinner"></div>
+              </div>
+            ) : conversations.length === 0 ? (
               <p className="text-gray-500 text-center">No conversations yet. Create one to get started!</p>
+            ) : (
+              <ul className="space-y-3">
+                {conversations.map(conv => (
+                  <li key={conv.conv_id} className="p-4 bg-gray-50 rounded-md shadow-sm flex justify-between items-center">
+                    <div>
+                      <p className="font-medium text-gray-800">ID: {conv.conv_id}</p>
+                      <p className="text-xs text-gray-500">Updated: {new Date(conv.updated_at).toLocaleString()}</p>
+                    </div>
+                    <div className="space-x-2">
+                      <button
+                        onClick={() => handleEnterConversation(conv.conv_id)}
+                        disabled={isLoading} // This isLoading here is for button state, spinner handles visual loading state
+                        className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded text-sm disabled:opacity-50"
+                      >
+                        Enter
+                      </button>
+                      <button
+                        onClick={() => handleDeleteConversation(conv.conv_id)}
+                        disabled={isLoading} // This isLoading here is for button state
+                        className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm disabled:opacity-50"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             )}
-            <ul className="space-y-3">
-              {conversations.map(conv => (
-                <li key={conv.conv_id} className="p-4 bg-gray-50 rounded-md shadow-sm flex justify-between items-center">
-                  <div>
-                    <p className="font-medium text-gray-800">ID: {conv.conv_id}</p>
-                    <p className="text-xs text-gray-500">Updated: {new Date(conv.updated_at).toLocaleString()}</p>
-                  </div>
-                  <div className="space-x-2">
-                    <button
-                      onClick={() => handleEnterConversation(conv.conv_id)}
-                      disabled={isLoading}
-                      className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded text-sm disabled:opacity-50"
-                    >
-                      Enter
-                    </button>
-                    <button
-                      onClick={() => handleDeleteConversation(conv.conv_id)}
-                      disabled={isLoading}
-                      className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm disabled:opacity-50"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
           </div>
         ) : (
           // "Inside" Conversation Experience
@@ -413,7 +418,8 @@ function App() {
             </div>
 
             {/* Message Input Form */}
-            <form onSubmit={handleSendMessage} className="flex space-x-2">
+            {/* Added 'relative' for positioning the spinner overlay */}
+            <form onSubmit={handleSendMessage} className="flex space-x-2 relative">
               <input
                 ref={messageInputRef} // Assign the ref here
                 type="text"
@@ -430,6 +436,12 @@ function App() {
               >
                 Send
               </button>
+              {/* Spinner overlay for the input area */}
+              {isLoading && (
+                <div className="input-spinner-overlay">
+                  <div className="input-spinner"></div>
+                </div>
+              )}
             </form>
           </div>
         )}
