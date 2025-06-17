@@ -215,37 +215,31 @@ make verify-frontend
 
 1. Join an existing conversation or create a new conversation
 
-1. Converse with the agent to draw some cards from a deck, e.g.:
+1. Converse with the agent to play a game of Blackjack, e.g.:
 
 ```bash
 summarize what has happened so far
 ```
 
 ```bash
-i want to host a new game
-```
-
-```bash
-i want to join a game
+i want to start a new game
 ```
 
 </details>
 
 ---
 
-## The Power of LLM-based Agents as Middleware
+## The Power of Language Agents
 
-This project, while simple in functionality, demonstrates the remarkable power of Large Language Models (LLMs) as middleware for backend services. The agent in this demo is able to:
-
-- **Understand API Capabilities from Docstrings:**  
-  The agent uses the docstrings of simple Python wrapper functions to understand what each API call does. No additional schema, OpenAPI spec, or manual translation is required—just clear function docstrings.
-
-- **Interpret API Responses Directly:**  
-  The agent can read and reason about the raw API responses (typically JSON), extracting the information it needs without any custom parsing or mapping logic.
+This project, while simple in functionality, demonstrates the remarkable power of Language Agents. The agents in this demo are able to:
 
 - **Autonomously Orchestrate Workflows:**  
-  Given a user request, the agent can decide which API(s) to call, in what order, and how to use the results—without any hardcoded rules or business logic. The LLM's reasoning ability enables it to create autonomous workflows on the fly.
+  The multi-agent architecture uses LLM reasoning to determine how to delegate specific to tasks to different agents. Given a user request, the LLM can decide which agent to delegate the request,
+  which function / tool to call (if necessary), in what order, and with what parameters — without any hardcoded rules or business logic. The LLM's reasoning ability enables it to create autonomous workflows on the fly.
 
-Even though the functionality here is limited to drawing and shuffling cards, this is a powerful demonstration of how LLM-based agents can act as a universal interface layer for any backend service with reasonable API endpoints. With minimal glue code, LLMs can bridge the gap between natural language and programmatic APIs, opening up new possibilities for rapid prototyping, automation, and conversational interfaces.
+- **Understand tools Capabilities from Docstrings:**  
+  The agent uses the docstrings of simple Python wrapper functions to understand what each tool / function call does. No additional schema, OpenAPI spec, or manual translation is required—just clear function docstrings. The agent can read and reason about the raw tool responses (typically JSON), extracting the information it needs without any custom parsing or mapping logic.
+
+Even though the functionality here is limited to a single player game of Blackjack, this is a powerful demonstration of how LLM-based multi-agent systems can act as an autonoush system. With minimal glue code, LLMs can bridge the gap between natural language and task orchestration, opening up new possibilities for rapid prototyping, automation, and conversational interfaces.
 
 > **Special thanks again to [Chase Roberts](https://deckofcardsapi.com/) for providing the Deck of Cards API, which made this demonstration possible. The open and well-documented API was essential in showcasing how LLM agents can interact with real-world services with minimal effort.**
