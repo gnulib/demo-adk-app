@@ -9,7 +9,7 @@ This project makes use of the excellent [Deck of Cards API](https://deckofcardsa
 This repository serves as a hands-on companion for a 3-part blog series:
 * **Part 1:** [The Agent Stack : Deploying Your First ADK Agent on Google Cloud](https://www.linkedin.com/pulse/agent-stack-deploying-your-first-adk-google-cloud-amit-bhadoria-emvdc) - is now live!
 * **Part 2:** [The Agent Stack : Hosting a Secure Agent App with Firebase and Cloud Run](https://www.linkedin.com/pulse/agent-stack-hosting-secure-app-firebase-cloud-run-amit-bhadoria-cjvuc) - is now live!
-* **Part 3:** The Agent Stack : Multi-Agent Orchestration & Autonomy - coming soon!
+* **Part 3:** The Agent Stack : From Code to Cognition - coming soon!
 
 ## Developer Setup
 
@@ -59,7 +59,13 @@ Follow the steps listed in [Firebase Setup](docs/FIREBASE_SETUP.md) documentatio
 
 ### Project Setup
 
-Add the backend application specific environment variables in `.env` file at the root of your project directory:
+> Following steps should be performed **_after_** [Workspace Setup](#workspace-setup), [GCP Setup](docs/GCP_SETUP.md) and [Firebase Setup](docs/FIREBASE_SETUP.md) steps are complete. If you have not completed those steps, please complete them before continuing here.
+
+<details>
+
+<summary>Project specific environment</summary>
+
+> Add the backend application specific environment variables in `.env` file at the root of your project directory:
 
 ```bash
 cat >> .env <<'EOF'
@@ -71,11 +77,7 @@ export IS_TESTING=true
 export DECKOFCARDS_URL="https://deckofcardsapi.com/api/deck"
 EOF
 ```
-
-## Getting Started
-
-
-> Following steps should be performed **_after_** [Workspace Setup](#workspace-setup), [GCP Setup](docs/GCP_SETUP.md) and [Firebase Setup](docs/FIREBASE_SETUP.md) steps are complete. If you have not completed those steps, please complete them before continuing here.
+</details>
 
 <details>
 
@@ -85,12 +87,6 @@ EOF
 
 ```bash
 source .venv/bin/activate
-```
-
-> source project specific environment variables:
-
-```bash
-source .env
 ```
 
 > Install backend agent app in editable mode:
@@ -157,11 +153,13 @@ cli@9d9f5435-d569-4db2-b3b4-6cddf9c0e830> start a new game
 
 </details>
 
+### Build and Deploy
+
 <details>
 
 <summary>Deploy ADK app as Cloud Run Service</summary>
 
-> Make sure that you have the following environment variables defined as described in the setup step above:
+> Make sure that you have the following environment variables defined as described in the setup steps above:
 > * GOOGLE_ADK_APP_NAME
 > * GOOGLE_CLOUD_LOCATION
 > * GOOGLE_ADK_APP_REPOSITORY
@@ -171,13 +169,13 @@ cli@9d9f5435-d569-4db2-b3b4-6cddf9c0e830> start a new game
 _Run the make target to build and deploy the backend:_
 
 ```bash
-make deploy-backend
+(source .env; make deploy-backend)
 ```
 
 _Verify the status of cloud run service deployment:_
 
 ```bash
-make verify-backend
+(source .env; make verify-backend)
 ```
 
 </details>
@@ -192,40 +190,49 @@ make verify-backend
 _Run the make target to build and deploy the frontend:_
 
 ```bash
-make deploy-frontend
+(source .env; make deploy-frontend)
 ```
 
 _Verify the status of Firebase deployment:_
 
 ```bash
-make verify-frontend
+(source .env; make verify-frontend)
 ```
 
 </details>
 
-<details>
+## Your First 5-Minute Walkthrough
 
-<summary>Interact with deployed app</summary>
+### The "Hello Agent" Test
+1. Make sure to complete [Developer Setup](#developer-setup) steps above to get the frontend and backend of your application deployed to GCP
 
-> This app lets users play a game of Blackjack!
+1. Copy the URL obtained from `(source .env; make verify-frontend)` and open it in a browser
 
-1. Use the URL obtained from `make verify-frontend` in a browser
+1. Login using the test user created in [Firebase Setup](docs/FIREBASE_SETUP.md)
 
-1. Login using the test user created in project setup
+1. Click on "Create New Game Room"
 
-1. Join an existing conversation or create a new conversation
+1. Type in "Hello", to make sure everything is up and running and agent responds successfully
 
-1. Converse with the agent to play a game of Blackjack, e.g.:
+### A Sample Conversation Script
 
-```bash
-tell me about this app
-```
+**Step 1: Onboarding:**
 
-```bash
-i want to start a new game
-```
+> **You type:** `Hi, I'm new here and not sure how to start`.
 
-</details>
+> **Expected Outcome:** The `Concierge agent` introduces itself and offers help.
+
+**Step 2: Orchestration:**
+
+> **You type:** `Lets start a new game`.
+
+> **Expected Outcome:** The `Game master agent` delegates the request to `Game Room agent` to ask you for information required to start the game.
+
+**Step 3: Gameplay & Tool Use:**
+
+> **You type:** You provide the information (e.g. game room name and bet amount) and ask to start the game.
+
+> **Expected Outcome:** The control passes to `Dealer agent` that uses its tools to play the game with you interactively.
 
 ---
 
