@@ -10,7 +10,7 @@ import apiClient from './apiClient'; // Import the API client
 function App() {
   const [user, setUser] = useState(null);
   const [idToken, setIdToken] = useState('');
-  const [isTokenVisible, setIsTokenVisible] = useState(false);
+  // const [isTokenVisible, setIsTokenVisible] = useState(false); // Removed as token display is removed
 
   // State for conversation UI
   const [conversations, setConversations] = useState([]);
@@ -328,7 +328,7 @@ function App() {
     <div className="App bg-gray-100 min-h-screen flex flex-col">
       {/* Main Content Area */}
       <div className="flex-grow w-full max-w-4xl mx-auto p-4 md:p-8 space-y-6 bg-white rounded-lg shadow-xl my-8">
-        <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Demo ADK App</h1>
+        <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Blackjack Blitz</h1>
 
         {appError && <p className="text-sm text-red-600 text-center bg-red-100 p-3 rounded-md">{appError}</p>}
         {/* The isLoading text indicator is now replaced by the overlay */}
@@ -336,13 +336,13 @@ function App() {
         {!currentConversationId ? (
           // "Outside" Conversation Experience
           <div>
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Your Conversations</h2>
+            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Your Game Rooms</h2>
             <button
               onClick={handleCreateConversation}
               disabled={isLoading}
               className="mb-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
             >
-              Create New Conversation
+              Create New Game Room
             </button>
             {isLoading ? (
               <div className="flex justify-center items-center py-8">
@@ -382,13 +382,17 @@ function App() {
         ) : (
           // "Inside" Conversation Experience
           <div className="flex flex-col h-[calc(100vh-250px)] md:h-[calc(100vh-300px)]"> {/* Adjust height as needed */}
-            <button
-              onClick={handleGoBackToConversations}
-              className="mb-4 self-start bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              &larr; Back to Conversations
-            </button>
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">Conversation: {currentConversationId}</h2>
+            {/* Combined Back Arrow and Game Room Title */}
+            <div className="flex items-center mb-4">
+              <button
+                onClick={handleGoBackToConversations}
+                className="text-2xl font-bold text-gray-600 hover:text-gray-800 focus:outline-none p-2 -ml-2 mr-2" // Adjusted styling for arrow
+                aria-label="Back to Game Rooms"
+              >
+                &larr;
+              </button>
+              <h2 className="text-xl font-semibold text-gray-700">Game Room: {currentConversationId}</h2>
+            </div>
             
             {/* Messages Area */}
             <div className="flex-grow overflow-y-auto p-4 bg-gray-50 border border-gray-200 rounded-md mb-4 space-y-3">
@@ -456,21 +460,7 @@ function App() {
           >
             Sign Out
           </button>
-          {idToken && (
-            <div className="w-full mt-2 p-4 bg-gray-200 rounded-md shadow">
-              <button
-                onClick={() => setIsTokenVisible(!isTokenVisible)}
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium focus:outline-none"
-              >
-                {isTokenVisible ? 'Hide' : 'Show'} ID Token
-              </button>
-              {isTokenVisible && (
-                <div className="mt-2 p-3 bg-gray-100 rounded">
-                  <p className="text-xs text-gray-600 break-all">{idToken}</p>
-                </div>
-              )}
-            </div>
-          )}
+          {/* ID Token display section removed */}
         </div>
       )}
     </div>

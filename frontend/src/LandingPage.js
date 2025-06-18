@@ -90,10 +90,10 @@ function LandingPage({ loginUser }) {
       {/* Landing Page Content Sections - now follow the login form in the same container */}
       <header className="text-center py-6">
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800">
-          Demo ADK App
+          Blackjack Blitz
         </h1>
         <p className="text-lg text-gray-600 mt-2">
-          Exploring Google's ADK and the Power of LLMs
+          Step up to the table and try your luck!
         </p>
       </header>
 
