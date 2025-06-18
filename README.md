@@ -9,7 +9,7 @@ This project makes use of the excellent [Deck of Cards API](https://deckofcardsa
 This repository serves as a hands-on companion for a 3-part blog series:
 * **Part 1:** [The Agent Stack : Deploying Your First ADK Agent on Google Cloud](https://www.linkedin.com/pulse/agent-stack-deploying-your-first-adk-google-cloud-amit-bhadoria-emvdc) - is now live!
 * **Part 2:** [The Agent Stack : Hosting a Secure Agent App with Firebase and Cloud Run](https://www.linkedin.com/pulse/agent-stack-hosting-secure-app-firebase-cloud-run-amit-bhadoria-cjvuc) - is now live!
-* **Part 3:** The Agent Stack : From Code to Cognition - coming soon!
+* **Part 3:** [The Agent Stack : From Code to Cognition](https://www.linkedin.com/pulse/agent-stack-from-code-cognition-amit-bhadoria-wf5bc) - is now live!
 
 ## Developer Setup
 
