@@ -10,7 +10,7 @@ import apiClient from './apiClient'; // Import the API client
 function App() {
   const [user, setUser] = useState(null);
   const [idToken, setIdToken] = useState('');
-  const [isTokenVisible, setIsTokenVisible] = useState(false);
+  // const [isTokenVisible, setIsTokenVisible] = useState(false); // Removed as token display is removed
 
   // State for conversation UI
   const [conversations, setConversations] = useState([]);
@@ -456,21 +456,7 @@ function App() {
           >
             Sign Out
           </button>
-          {idToken && (
-            <div className="w-full mt-2 p-4 bg-gray-200 rounded-md shadow">
-              <button
-                onClick={() => setIsTokenVisible(!isTokenVisible)}
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium focus:outline-none"
-              >
-                {isTokenVisible ? 'Hide' : 'Show'} ID Token
-              </button>
-              {isTokenVisible && (
-                <div className="mt-2 p-3 bg-gray-100 rounded">
-                  <p className="text-xs text-gray-600 break-all">{idToken}</p>
-                </div>
-              )}
-            </div>
-          )}
+          {/* ID Token display section removed */}
         </div>
       )}
     </div>
