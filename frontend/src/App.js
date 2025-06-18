@@ -336,13 +336,13 @@ function App() {
         {!currentConversationId ? (
           // "Outside" Conversation Experience
           <div>
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Your Conversations</h2>
+            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Your Game Rooms</h2>
             <button
               onClick={handleCreateConversation}
               disabled={isLoading}
               className="mb-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
             >
-              Create New Conversation
+              Create New Game Room
             </button>
             {isLoading ? (
               <div className="flex justify-center items-center py-8">
