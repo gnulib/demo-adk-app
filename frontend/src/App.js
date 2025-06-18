@@ -386,9 +386,9 @@ function App() {
               onClick={handleGoBackToConversations}
               className="mb-4 self-start bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
-              &larr; Back to Conversations
+              &larr; Back to Game Rooms
             </button>
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">Conversation: {currentConversationId}</h2>
+            <h2 className="text-xl font-semibold text-gray-700 mb-2">Game Room: {currentConversationId}</h2>
             
             {/* Messages Area */}
             <div className="flex-grow overflow-y-auto p-4 bg-gray-50 border border-gray-200 rounded-md mb-4 space-y-3">
