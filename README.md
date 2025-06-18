@@ -218,7 +218,7 @@ make verify-frontend
 1. Converse with the agent to play a game of Blackjack, e.g.:
 
 ```bash
-summarize what has happened so far
+tell me about this app
 ```
 
 ```bash
@@ -238,7 +238,7 @@ This project, while simple in functionality, demonstrates the remarkable power o
 
 - **Autonomously Orchestrate Workflows:**
   The multi-agent architecture uses LLM reasoning to determine how to delegate specific tasks to different agents. Given a user request, the LLM can decide which agent to delegate the request,
-  which function / tool to call (if necessary), in what order, and with what parameters — without any hardcoded rules or business logic. The LLM's **reasoning ability** enables it to create autonomous workflows on the fly and responde to user's conversations naturally _**without prescribing** any specific navigation path or workflow_ to the user.
+  which function / tool to call (if necessary), in what order, and with what parameters — without any hardcoded rules or business logic. The LLM's **reasoning ability** enables it to create autonomous workflows on the fly and respond to user's conversations naturally _**without prescribing** any specific navigation path or workflow_ to the user.
 
 - **Understand Tool Capabilities Dynamically:**
   The agents use simple reflection on functions and pydantic models to
