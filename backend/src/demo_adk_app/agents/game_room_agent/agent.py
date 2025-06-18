@@ -9,10 +9,11 @@ from .tools import (
     get_game_details
 
 )
+from demo_adk_app.utils.constants import Models
 
 root_agent = Agent(
     name="game_room_agent",
-    model="gemini-2.5-flash-preview-05-20",
+    model=Models.FLASH_MODEL,
     description=(
         "Manages Blackjack game room lifecycle: creation, player joining/leaving, status tracking via Firebase."
     ),

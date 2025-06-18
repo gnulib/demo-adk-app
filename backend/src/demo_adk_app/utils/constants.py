@@ -19,3 +19,8 @@ class GAME_DETAILS():
     HOST_USER_ID = "host_user_id"
     MAX_NUMBER_PLAYERS = "max_number_players"
     GAME_STATUS = "game_status"
+
+class Models:
+    REASONING_MODEL="gemini-2.5-pro-preview-05-06"
+    FLASH_MODEL="gemini-2.5-flash-preview-05-20"
+    ECO_MODEL="gemini-2.5-flash-preview-05-20"
