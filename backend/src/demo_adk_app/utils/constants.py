@@ -21,6 +21,6 @@ class GAME_DETAILS():
     GAME_STATUS = "game_status"
 
 class Models:
-    REASONING_MODEL="gemini-2.5-pro-preview-05-06"
-    FLASH_MODEL="gemini-2.5-flash-preview-05-20"
-    ECO_MODEL="gemini-2.5-flash-preview-05-20"
+    REASONING_MODEL="gemini-2.5-pro"
+    FLASH_MODEL="gemini-2.5-flash"
+    ECO_MODEL="gemini-2.5-flash"

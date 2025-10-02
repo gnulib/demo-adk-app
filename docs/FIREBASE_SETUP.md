@@ -49,7 +49,7 @@ firebase logout
 > authenticate and authorize firebase CLI with same Google account that the GCP project is linked with:
 
 ```bash
-firebase login
+(source .env; firebase login)
 ```
 
 > Above command will open a browser window asking you to log in with your Google account and grant Firebase CLI the necessary permissions. Once you've successfully logged in, the terminal will confirm that you are authenticated.
@@ -63,12 +63,18 @@ firebase login
 > Make sure you have completed the [GCP Setup](GCP_SETUP.md) steps already!
 
 ```bash
-firebase projects:addfirebase $GOOGLE_CLOUD_PROJECT
+(source .env; cd frontend/; firebase projects:addfirebase $GOOGLE_CLOUD_PROJECT)
 ```
 
 > If you already had firebase added to google cloud project, then might get error, you can ignore that.
 
 </details>
+
+> Configure `firebase` to use your google project for frontend:
+
+```bash
+(source .env; cd frontend; firebase use --add $GOOGLE_CLOUD_PROJECT)
+```
 
 <details>
 
@@ -107,7 +113,7 @@ firebase projects:addfirebase $GOOGLE_CLOUD_PROJECT
 <summary><b>Step 1:</b> Initialize hosting for your frontend</summary>
 
 ```bash
-(cd frontend; firebase init hosting --project $GOOGLE_CLOUD_PROJECT)
+(source .env; cd frontend; firebase init hosting --project $GOOGLE_CLOUD_PROJECT)
 ```
 
 This command will start an interactive process. Here's how to respond to the prompts:
@@ -125,12 +131,6 @@ After completing these steps, Firebase will create two new files in your project
 * `.firebaserc`: Stores your default Firebase project alias.
 
 * `firebase.json`: Contains the configuration for Firebase services, including Hosting. It will specify your public directory (`build`) and the rewrite rule for single-page applications.
-
-> Configure `firebase` to use your google project for frontend:
-
-```bash
-(cd frontend; firebase use $GOOGLE_CLOUD_PROJECT)
-```
 
 </details>
 
@@ -159,13 +159,13 @@ After completing these steps, Firebase will create two new files in your project
 > _(first confirm that you don't already have web app)_
 
 ```bash
-(cd frontend; firebase apps:list)
+(source .env; cd frontend; firebase apps:list)
 ```
 
 > _(if don't have web app already, then create new)_
 
 ```bash
-(cd frontend; firebase apps:create web)
+(source .env; cd frontend; firebase apps:create web)
 ```
 
 This command will start an interactive process. Here's how to respond to the prompts:
@@ -191,12 +191,6 @@ export FIREBASE_APP_URLS="https://$GOOGLE_CLOUD_PROJECT.web.app"
 EOF
 ```
 
-> source `.env` into current terminal environment
-
-```bash
-source .env
-```
-
 </details>
 
 ### Setup firebase frontend environment
@@ -215,7 +209,7 @@ cp frontend/.env.example frontend/.env
 <summary><b>Step 2:</b> Get firebase web app configuration</summary>
 
 ```bash
-(cd frontend; firebase apps:sdkconfig WEB $FIREBASE_APP_ID)
+(source .env; cd frontend; firebase apps:sdkconfig WEB $FIREBASE_APP_ID)
 ```
 
 > output will look something like below:

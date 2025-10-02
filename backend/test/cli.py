@@ -254,6 +254,7 @@ def main():
     password = input("Enter Firebase Password: ").strip() # Consider using getpass for hidden input
 
     auth_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={firebase_api_key}"
+    print(f"Using Firebase Auth URL: {auth_url}")
     auth_payload = {
         "email": email,
         "password": password,
