@@ -170,8 +170,8 @@ def get_memory_service(config: Config) -> BaseMemoryService:
     The type of memory service is determined based on the application
     configuration:
     1. If IS_TESTING is true, InMemoryMemoryService is used.
-    2. Otherwise, VertexAiRagMemoryService is attempted with default parameters.
-    3. As a fallback (if VertexAiRagMemoryService fails), InMemoryMemoryService is used.
+    2. Otherwise, VertexAiMemoryBankService is attempted with default parameters.
+    3. As a fallback (if VertexAiMemoryBankService fails), InMemoryMemoryService is used.
 
     Args:
         config: The application configuration object.
@@ -189,10 +189,10 @@ def get_memory_service(config: Config) -> BaseMemoryService:
         _singleton_memory_service = InMemoryMemoryService()
         return _singleton_memory_service
 
-    # 2. Try VertexAiRagMemoryService
+    # 2. Try VertexAiMemoryBankService
     try:
-        print("Attempting to use VertexAiRagMemoryService.")
-        # VertexAiRagMemoryService might require GOOGLE_CLOUD_PROJECT and GOOGLE_CLOUD_LOCATION
+        print("Attempting to use VertexAiMemoryBankService.")
+        # VertexAiMemoryBankService might require GOOGLE_CLOUD_PROJECT and GOOGLE_CLOUD_LOCATION
         # to be set in the environment, or other specific credentials/setup.
         if not config.AGENT_ID:
             # initialize session service to set AGENT_ID if not already set
@@ -207,7 +207,7 @@ def get_memory_service(config: Config) -> BaseMemoryService:
         return _singleton_memory_service
     except Exception as e:
         print(f"Failed to initialize VertexAiMemoryBankService: {e}. Falling back to InMemoryMemoryService.")
-        # Fall through if VertexAiRagMemoryService initialization fails
+        # Fall through if VertexAiMemoryBankService initialization fails
 
     # 3. Fallback to InMemoryMemoryService
     print("Falling back to InMemoryMemoryService.")
