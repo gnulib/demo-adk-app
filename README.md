@@ -117,7 +117,7 @@ pip install -e "./backend/src/demo_adk_app[dev]"
 > _In another terminal run the test CLI for interacting with the app (use port from above)_
 
 ```bash
-(export $(grep REACT_APP_FIREBASE_API_KEY frontend/.env); cd backend; python test/cli.py --port 8000)
+(source .env; export $(grep REACT_APP_FIREBASE_API_KEY frontend/.env); cd backend; python test/cli.py --port 8000)
 ```
 
 > _Use the test CLI to interact with app_:
