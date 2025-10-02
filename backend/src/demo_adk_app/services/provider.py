@@ -10,7 +10,7 @@ from google.adk.sessions import (
 from google.adk.memory import (
     BaseMemoryService,
     InMemoryMemoryService,
-    VertexAiRagMemoryService,
+    VertexAiMemoryBankService,
 )
 from google.adk.artifacts import (
     BaseArtifactService,
@@ -189,59 +189,24 @@ def get_memory_service(config: Config) -> BaseMemoryService:
         _singleton_memory_service = InMemoryMemoryService()
         return _singleton_memory_service
 
-    # If not testing, attempt to find or create a RAG corpus and store its ID in config
-    # This assumes vertexai.init() has been called, e.g., in get_session_service
-    if not config.RAG_CORPUS: # Only run if RAG_CORPUS not already set
-        try:
-            print("Checking for existing RAG corpora...")
-            rag_corpus_resource_id: str | None = None
-            for corpus_item in rag.list_corpora():
-                if corpus_item.display_name.startswith(config.APP_NAME):
-                    rag_corpus_resource_id = corpus_item.name
-                    print(f"Found existing RAG corpus: {rag_corpus_resource_id} with display name: {corpus_item.display_name}")
-                    break
-            
-            if not rag_corpus_resource_id:
-                print(f"No RAG corpus found starting with display name '{config.APP_NAME}'. Creating a new one...")
-                # Define a default embedding model configuration
-                # embedding_model_config = rag.RagEmbeddingModelConfig(
-                #     vertex_prediction_endpoint=rag.VertexPredictionEndpoint(
-                #         publisher_model="publishers/google/models/text-embedding-005"
-                #     )
-                # )
-                new_rag_corpus = rag.create_corpus(
-                    display_name=f"{config.APP_NAME}-corpus",
-                    # backend_config is deprecated, use rag_resources instead if applicable for your SDK version
-                    # For now, using the structure from the user's example, assuming it implies a vector DB backend.
-                    # If rag.RagVectorDbConfig is the correct path for your SDK:
-                    # backend_config=rag.RagVectorDbConfig(
-                    #    rag_embedding_model_config=embedding_model_config
-                    # )
-                    # Simpler creation if defaults are acceptable or if backend_config is not needed:
-                )
-                rag_corpus_resource_id = new_rag_corpus.name
-                print(f"Created new RAG corpus: {rag_corpus_resource_id}")
-            
-            config.RAG_CORPUS = rag_corpus_resource_id
-            print(f"RAG_CORPUS set in config: {config.RAG_CORPUS}")
-
-        except Exception as e:
-            print(f"Error during RAG corpus setup: {e}. RAG_CORPUS will not be set by this process.")
-            # Depending on requirements, might want to re-raise or handle differently.
-
     # 2. Try VertexAiRagMemoryService
     try:
         print("Attempting to use VertexAiRagMemoryService.")
         # VertexAiRagMemoryService might require GOOGLE_CLOUD_PROJECT and GOOGLE_CLOUD_LOCATION
         # to be set in the environment, or other specific credentials/setup.
-        if config.RAG_CORPUS:
-            print(f"Using RAG corpus: {config.RAG_CORPUS}")
-            _singleton_memory_service = VertexAiRagMemoryService(rag_corpus=config.RAG_CORPUS)
+        if not config.AGENT_ID:
+            # initialize session service to set AGENT_ID if not already set
+            get_session_service(config)
 
-        print("Successfully initialized VertexAiRagMemoryService.")
+        _singleton_memory_service = VertexAiMemoryBankService(
+            project=config.GOOGLE_CLOUD_PROJECT,
+            location=config.GOOGLE_CLOUD_LOCATION,
+            agent_engine_id=config.AGENT_ID
+        )
+        print("Successfully initialized VertexAiMemoryBankService.")
         return _singleton_memory_service
     except Exception as e:
-        print(f"Failed to initialize VertexAiRagMemoryService: {e}. Falling back to InMemoryMemoryService.")
+        print(f"Failed to initialize VertexAiMemoryBankService: {e}. Falling back to InMemoryMemoryService.")
         # Fall through if VertexAiRagMemoryService initialization fails
 
     # 3. Fallback to InMemoryMemoryService
